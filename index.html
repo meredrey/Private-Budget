@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Private Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #d8d2e8;
+    --surface:      #ffffff;
+    --surface2:     #eeebf5;
+    --border:       #b0a4cc;
+    --border-light: #cec6e0;
+    --mauve:        #5e4d82;
+    --mauve-mid:    #8a78b0;
+    --mauve-pale:   #ddd8f0;
+    --sage:         #3d7a60;
+    --sage-mid:     #6a9e88;
+    --sage-pale:    #c8e0d4;
+    --dusty-rose:   #9a607a;
+    --rose-pale:    #f0dce6;
+    --text:         #18102c;
+    --text-mid:     #4a4060;
+    --text-light:   #7a6e98;
+    --freeze:       #7a4868;
+    --freeze-pale:  #ead4e2;
+    --caution:      #70608a;
+    --white:        #ffffff;
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+background: var(–bg);
+font-family: ‘Jost’, sans-serif;
+color: var(–text);
+min-height: 100vh;
+padding-bottom: 88px;
+}
+
+/* ══ HEADER ══ */
+.header {
+background: var(–mauve);
+padding: 54px 22px 22px;
+position: relative; overflow: hidden;
+}
+.hc1 {
+position: absolute; top: -70px; right: -70px;
+width: 240px; height: 240px; border-radius: 50%;
+background: rgba(255,255,255,0.09);
+}
+.hc2 {
+position: absolute; bottom: -30px; left: 20px;
+width: 110px; height: 110px; border-radius: 50%;
+background: rgba(255,255,255,0.05);
+}
+.h-eye {
+font-size: 10px; font-weight: 700; letter-spacing: 3px;
+text-transform: uppercase; color: rgba(255,255,255,0.5);
+margin-bottom: 5px;
+}
+.header h1 {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 36px; font-weight: 400; color: #fff; line-height: 1.05;
+}
+.header h1 em { font-style: italic; color: rgba(255,255,255,0.75); }
+.h-sub {
+font-size: 12px; font-weight: 500;
+color: rgba(255,255,255,0.55); margin-top: 7px;
+}
+
+/* ══ TABS ══ */
+.tabs {
+position: fixed; bottom: 0; left: 0; right: 0;
+background: var(–surface);
+display: flex;
+border-top: 2.5px solid var(–border);
+z-index: 100;
+padding-bottom: env(safe-area-inset-bottom);
+box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+}
+.tab {
+flex: 1; padding: 11px 8px 9px;
+display: flex; flex-direction: column; align-items: center; gap: 4px;
+cursor: pointer; border: none; background: none;
+color: var(–text-light); transition: color 0.2s;
+}
+.tab.active { color: var(–mauve); }
+.tab-icon { font-size: 20px; line-height: 1; }
+.tab-label {
+font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+text-transform: uppercase;
+}
+
+/* ══ PAGES ══ */
+.page { display: none; }
+.page.active { display: block; }
+.sp { height: 16px; }
+
+/* ══ SECTION LABEL ══ */
+.sec-lbl {
+font-size: 11px; font-weight: 700; letter-spacing: 2px;
+text-transform: uppercase; color: var(–text-mid);
+padding: 18px 18px 8px;
+}
+
+/* ══ CARD ══ */
+.card {
+background: var(–surface);
+border-radius: 16px;
+margin: 0 12px 12px;
+border: 2px solid var(–border);
+overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card-head {
+background: var(–surface2);
+padding: 11px 16px;
+border-bottom: 2px solid var(–border);
+}
+.card-label {
+font-size: 10px; font-weight: 700; letter-spacing: 2px;
+text-transform: uppercase; color: var(–text-mid);
+}
+.card-body { padding: 16px; }
+
+/* ══ TWO COL ══ */
+.two-col {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 10px; margin: 0 12px 12px;
+}
+.mini {
+background: var(–surface); border-radius: 14px;
+border: 2px solid var(–border); overflow: hidden;
+box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.mini-head {
+background: var(–surface2); padding: 9px 13px;
+border-bottom: 2px solid var(–border);
+font-size: 9px; font-weight: 700; letter-spacing: 2px;
+text-transform: uppercase; color: var(–text-mid);
+}
+.mini-body { padding: 12px 13px; }
+.mini-val {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 28px; font-weight: 600; color: var(–text); line-height: 1;
+}
+.mini-unit { font-size: 13px; color: var(–text-light); margin-left: 2px; }
+.mini-val.sage { color: var(–sage); }
+.mini-val.mauve { color: var(–mauve-mid); }
+.mini-sub {
+font-size: 10px; font-weight: 500; color: var(–text-light);
+margin-top: 3px;
+}
+
+/* ══ BIG AMOUNT ══ */
+.big-row { display: flex; align-items: baseline; gap: 5px; }
+.big-num {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 58px; font-weight: 600; line-height: 1;
+color: var(–sage); transition: color 0.3s;
+}
+.big-num.caution { color: var(–caution); }
+.big-num.frozen  { color: var(–freeze); }
+.big-unit { font-size: 18px; font-weight: 500; color: var(–text-light); }
+
+/* ══ PROGRESS ══ */
+.prog-wrap { margin-top: 16px; }
+.prog-track {
+height: 8px; background: var(–bg);
+border: 1.5px solid var(–border); border-radius: 99px; overflow: hidden;
+}
+.prog-fill {
+height: 100%; border-radius: 99px;
+background: linear-gradient(90deg, var(–sage-mid), var(–sage));
+transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.prog-fill.over { background: linear-gradient(90deg, var(–dusty-rose), var(–freeze)); }
+.prog-labels {
+display: flex; justify-content: space-between;
+font-size: 11px; font-weight: 600; color: var(–text-light); margin-top: 7px;
+}
+
+/* ══ WEEK NAV BAR ══ */
+.week-bar {
+display: flex; align-items: center; justify-content: space-between;
+margin: 0 12px 10px;
+background: var(–surface);
+border: 2px solid var(–border);
+border-radius: 14px; padding: 12px 14px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.wk-label { font-size: 14px; font-weight: 700; color: var(–text); }
+.wk-dates { font-size: 11px; font-weight: 500; color: var(–text-light); margin-top: 3px; }
+.wk-btns { display: flex; gap: 8px; }
+.wk-btn {
+width: 36px; height: 36px; border-radius: 10px;
+border: 2px solid var(–border); background: var(–surface2);
+font-size: 18px; font-weight: 700; cursor: pointer; color: var(–mauve);
+display: flex; align-items: center; justify-content: center;
+transition: background 0.15s;
+}
+.wk-btn:active { background: var(–mauve-pale); }
+
+/* ══ FREEZE BANNER ══ */
+.freeze-card {
+margin: 0 12px 12px;
+background: var(–freeze-pale);
+border: 2px solid var(–dusty-rose);
+border-radius: 14px; padding: 15px 16px;
+display: flex; align-items: center; gap: 14px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.fr-icon { font-size: 26px; }
+.fr-label {
+font-size: 10px; font-weight: 700; letter-spacing: 2px;
+text-transform: uppercase; color: var(–freeze); margin-bottom: 4px;
+}
+.fr-date {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 22px; font-weight: 600; color: var(–freeze);
+}
+.fr-detail {
+font-size: 11px; font-weight: 500; color: var(–freeze);
+opacity: 0.75; margin-top: 4px; line-height: 1.4;
+}
+
+/* ══ EXPENSE ROWS ══ */
+.exp-item {
+display: flex; align-items: center;
+padding: 12px 16px; gap: 12px;
+border-bottom: 1.5px solid var(–border-light);
+animation: fadeIn 0.2s ease;
+}
+.exp-item:last-child { border-bottom: none; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; } }
+.exp-emoji {
+width: 40px; height: 40px; border-radius: 11px;
+background: var(–mauve-pale); border: 1.5px solid var(–border);
+display: flex; align-items: center; justify-content: center;
+font-size: 19px; flex-shrink: 0;
+}
+.exp-info { flex: 1; min-width: 0; }
+.exp-name {
+font-size: 14px; font-weight: 600; color: var(–text);
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.exp-date { font-size: 11px; font-weight: 500; color: var(–text-light); margin-top: 2px; }
+.exp-amt {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 22px; font-weight: 600; color: var(–text); flex-shrink: 0;
+}
+.exp-del {
+width: 30px; height: 30px; border: none; background: none;
+color: var(–text-light); font-size: 14px; cursor: pointer;
+border-radius: 7px; display: flex; align-items: center; justify-content: center;
+flex-shrink: 0;
+}
+.exp-del:active { background: var(–rose-pale); color: var(–freeze); }
+
+/* ══ EMPTY STATE ══ */
+.empty {
+padding: 30px 16px; text-align: center;
+}
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+.empty-text {
+font-size: 14px; font-weight: 500; color: var(–text-light);
+}
+
+/* ══ FAB ══ */
+.fab {
+position: fixed; bottom: 80px; right: 18px;
+width: 56px; height: 56px; border-radius: 50%;
+background: var(–mauve); border: none; color: white;
+font-size: 28px; cursor: pointer; z-index: 90;
+box-shadow: 0 4px 20px rgba(94,77,130,0.55);
+display: flex; align-items: center; justify-content: center;
+transition: transform 0.15s, box-shadow 0.15s;
+}
+.fab:active { transform: scale(0.88); box-shadow: 0 2px 10px rgba(94,77,130,0.35); }
+
+/* ══ SUMMARY ROWS ══ */
+.sum-row {
+display: flex; justify-content: space-between; align-items: center;
+padding: 13px 16px; border-bottom: 1.5px solid var(–border-light);
+}
+.sum-row:last-child { border-bottom: none; }
+.sum-key { font-size: 13px; font-weight: 500; color: var(–text-mid); }
+.sum-val {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 22px; font-weight: 600; color: var(–text);
+}
+.sum-val.sage   { color: var(–sage); }
+.sum-val.mauve  { color: var(–mauve-mid); }
+.sum-val.freeze { color: var(–freeze); }
+
+/* ══ PAYDAY GRID ══ */
+.payday-grid {
+display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px;
+}
+.day-btn {
+aspect-ratio: 1; border-radius: 9px;
+border: 2px solid var(–border); background: var(–surface2);
+font-size: 13px; font-weight: 600; color: var(–text-mid);
+cursor: pointer; display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+}
+.day-btn:active { background: var(–mauve-pale); }
+.day-btn.sel { background: var(–mauve); border-color: var(–mauve); color: white; }
+.payday-note {
+font-size: 12px; font-weight: 500; color: var(–sage);
+margin-top: 12px; text-align: center;
+padding: 10px 12px; background: var(–sage-pale);
+border-radius: 10px; border: 1.5px solid var(–border);
+line-height: 1.5;
+}
+.payday-warning {
+font-size: 11px; font-weight: 500; color: var(–text-light);
+margin-top: 8px; text-align: center;
+}
+
+/* ══ FIXED ITEMS ══ */
+.fi-item {
+display: flex; align-items: center;
+padding: 13px 16px; gap: 12px;
+border-bottom: 1.5px solid var(–border-light);
+}
+.fi-item:last-child { border-bottom: none; }
+.fi-emoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+.fi-info { flex: 1; }
+.fi-name { font-size: 14px; font-weight: 600; color: var(–text); }
+.fi-amt { font-size: 12px; font-weight: 500; color: var(–text-light); margin-top: 2px; }
+.fi-del {
+width: 30px; height: 30px; border: none; background: none;
+color: var(–text-light); font-size: 14px; cursor: pointer;
+border-radius: 7px; flex-shrink: 0;
+}
+.fi-del:active { background: var(–rose-pale); }
+
+/* ══ ADD BTN ══ */
+.add-btn {
+display: flex; align-items: center; justify-content: center; gap: 8px;
+width: 100%; padding: 13px 16px; margin-top: 2px;
+background: var(–surface2); border: 2px dashed var(–border);
+border-radius: 12px;
+font-family: ‘Jost’, sans-serif; font-size: 13px; font-weight: 700;
+color: var(–mauve); cursor: pointer; letter-spacing: 0.5px;
+transition: background 0.15s;
+}
+.add-btn:active { background: var(–mauve-pale); }
+
+/* ══ MODAL ══ */
+.overlay {
+position: fixed; inset: 0;
+background: rgba(15,10,28,0.65);
+z-index: 200; display: none;
+align-items: flex-end; justify-content: center;
+backdrop-filter: blur(4px);
+}
+.overlay.open { display: flex; }
+.modal {
+background: var(–surface);
+border-radius: 24px 24px 0 0;
+border-top: 2.5px solid var(–border);
+padding: 10px 20px 48px;
+width: 100%; max-width: 500px;
+animation: slideUp 0.3s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.modal-handle {
+width: 36px; height: 3px; background: var(–border);
+border-radius: 99px; margin: 12px auto 20px;
+}
+.modal h3 {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 28px; font-weight: 400; color: var(–text); margin-bottom: 20px;
+}
+.fg { margin-bottom: 15px; }
+.fl {
+font-size: 10px; font-weight: 700; letter-spacing: 2px;
+text-transform: uppercase; color: var(–text-mid);
+display: block; margin-bottom: 7px;
+}
+.fi-inp {
+width: 100%; padding: 13px 15px;
+border: 2px solid var(–border); border-radius: 12px;
+font-family: ‘Jost’, sans-serif; font-size: 16px; font-weight: 500;
+color: var(–text); background: var(–surface2);
+outline: none; -webkit-appearance: none;
+transition: border-color 0.2s;
+}
+.fi-inp:focus { border-color: var(–mauve); background: white; }
+.fi-inp::placeholder { color: var(–text-light); font-weight: 400; }
+.eg { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+.eb {
+aspect-ratio:1; border-radius:10px;
+border: 2px solid var(–border); background: var(–surface2);
+font-size: 19px; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+}
+.eb.sel { border-color: var(–mauve); background: var(–mauve-pale); }
+.btn-p {
+width: 100%; padding: 15px;
+background: var(–mauve); color: white; border: none;
+border-radius: 13px; font-family: ‘Jost’, sans-serif;
+font-size: 15px; font-weight: 700; cursor: pointer;
+margin-top: 10px; letter-spacing: 0.5px;
+transition: opacity 0.15s;
+}
+.btn-p:active { opacity: 0.82; }
+.btn-g {
+width: 100%; padding: 12px; background: none; border: none;
+color: var(–text-light); font-family: ‘Jost’, sans-serif;
+font-size: 14px; cursor: pointer; margin-top: 2px;
+}
+
+/* ══ INFO CHIP ══ */
+.info-strip {
+margin: 0 12px 12px;
+background: var(–mauve-pale);
+border: 1.5px solid var(–border);
+border-radius: 12px; padding: 11px 14px;
+font-size: 12px; font-weight: 500; color: var(–mauve);
+display: flex; align-items: center; gap: 8px;
+}
+</style>
+
+</head>
+<body>
+
+<!-- ══════════ PAGE: TYDZIEŃ ══════════ -->
+
+<div class="page active" id="page-week">
+  <div class="header">
+    <div class="hc1"></div><div class="hc2"></div>
+    <div class="h-eye">Personal Finance</div>
+    <h1>Private <em>Budget</em></h1>
+    <div class="h-sub" id="h-cycle-week">—</div>
+  </div>
+
+  <div class="sp"></div>
+  <div id="freeze-slot"></div>
+
+  <div class="week-bar">
+    <div>
+      <div class="wk-label" id="week-label">Tydzień —</div>
+      <div class="wk-dates" id="week-dates">—</div>
+    </div>
+    <div class="wk-btns">
+      <button class="wk-btn" onclick="changeWeek(-1)">‹</button>
+      <button class="wk-btn" onclick="changeWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="mini">
+      <div class="mini-head">Budżet tygodnia</div>
+      <div class="mini-body">
+        <span class="mini-val sage" id="w-budget">—</span>
+        <span class="mini-unit">zł</span>
+        <div class="mini-sub">do wydania</div>
+      </div>
+    </div>
+    <div class="mini">
+      <div class="mini-head">Wydano w tym tygodniu</div>
+      <div class="mini-body">
+        <span class="mini-val mauve" id="w-spent">—</span>
+        <span class="mini-unit">zł</span>
+        <div class="mini-sub" id="w-spent-pct">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-label">Pozostało w tym tygodniu</div></div>
+    <div class="card-body">
+      <div class="big-row">
+        <div class="big-num" id="w-remaining">—</div>
+        <div class="big-unit">zł</div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-track">
+          <div class="prog-fill" id="w-prog" style="width:0%"></div>
+        </div>
+        <div class="prog-labels">
+          <span>0 zł</span>
+          <span id="w-prog-max">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-label">Wydatki tego tygodnia</div>
+    </div>
+    <div id="w-list"><div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków w tym tygodniu</div></div></div>
+    <div style="padding:10px 12px 12px">
+      <button class="add-btn" onclick="openAddExpense()">+ Dodaj wydatek</button>
+    </div>
+  </div>
+
+  <div class="sp"></div>
+  <button class="fab" id="week-fab" onclick="openAddExpense()">+</button>
+</div>
+
+<!-- ══════════ PAGE: MIESIĄC ══════════ -->
+
+<div class="page" id="page-month">
+  <div class="header">
+    <div class="hc1"></div><div class="hc2"></div>
+    <div class="h-eye">Personal Finance</div>
+    <h1>Ten <em>miesiąc</em></h1>
+    <div class="h-sub" id="h-cycle-month">—</div>
+  </div>
+
+  <div class="sp"></div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-label">Budżet miesięczny</div></div>
+    <div class="card-body">
+      <div class="big-row">
+        <div class="big-num" id="m-budget">—</div>
+        <div class="big-unit">zł</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-label">Podział budżetu</div></div>
+    <div class="sum-row"><div class="sum-key">Budżet łącznie</div><div class="sum-val" id="s-total">—</div></div>
+    <div class="sum-row"><div class="sum-key">Stałe wydatki</div><div class="sum-val mauve" id="s-fixed">—</div></div>
+    <div class="sum-row"><div class="sum-key">Zachcianki (do podziału)</div><div class="sum-val sage" id="s-free">—</div></div>
+    <div class="sum-row"><div class="sum-key">Budżet tygodniowy</div><div class="sum-val sage" id="s-weekly">—</div></div>
+    <div class="sum-row"><div class="sum-key">Wydano w tym cyklu</div><div class="sum-val mauve" id="s-spent">—</div></div>
+    <div class="sum-row"><div class="sum-key">Zostało</div><div class="sum-val" id="s-left">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div class="card-label">Wszystkie wydatki w cyklu</div></div>
+    <div id="m-list"><div class="empty"><div class="empty-icon">🌸</div><div class="empty-text">Brak wydatków w tym cyklu</div></div></div>
+    <div style="padding:10px 12px 12px">
+      <button class="add-btn" onclick="openAddExpense(); showPage('week');">+ Dodaj wydatek</button>
+    </div>
+  </div>
+
+  <div class="sp"></div>
+</div>
+
+<!-- ══════════ PAGE: USTAWIENIA ══════════ -->
+
+<div class="page" id="page-settings">
+  <div class="header">
+    <div class="hc1"></div><div class="hc2"></div>
+    <div class="h-eye">Personal Finance</div>
+    <h1><em>Ustawienia</em></h1>
+    <div class="h-sub">Budżet · Wypłata · Stałe wydatki</div>
+  </div>
+
+  <div class="sp"></div>
+
+  <div class="sec-lbl">📅 Dzień wypłaty</div>
+  <div class="card">
+    <div class="card-head"><div class="card-label">Kiedy zaczyna się Twój miesiąc budżetowy?</div></div>
+    <div class="card-body">
+      <div class="payday-grid" id="payday-grid"></div>
+      <div class="payday-warning">Dostępne dni 1–28 (każdy miesiąc je ma)</div>
+      <div class="payday-note" id="payday-note">—</div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">💰 Budżet miesięczny</div>
+  <div class="card">
+    <div class="card-head"><div class="card-label">Kwota wypłaty przeznaczona na zachcianki (zł)</div></div>
+    <div class="card-body">
+      <input type="number" class="fi-inp" id="budget-input"
+        placeholder="np. 1500" inputmode="decimal"
+        onchange="saveBudget()" oninput="saveBudget()">
+    </div>
+  </div>
+
+  <div class="sec-lbl">🔒 Stałe wydatki</div>
+  <div class="card">
+    <div class="card-head"><div class="card-label">Miesięczne zobowiązania (odejmowane od budżetu)</div></div>
+    <div id="fi-list"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Brak stałych wydatków</div></div></div>
+    <div style="padding:10px 12px 12px">
+      <button class="add-btn" onclick="openAddFixed()">+ Dodaj stały wydatek</button>
+    </div>
+  </div>
+
+  <div class="sp"></div>
+</div>
+
+<!-- ══════════ TABS ══════════ -->
+
+<div class="tabs">
+  <button class="tab active" id="tab-week" onclick="showPage('week')">
+    <span class="tab-icon">📅</span>
+    <span class="tab-label">Tydzień</span>
+  </button>
+  <button class="tab" id="tab-month" onclick="showPage('month')">
+    <span class="tab-icon">📊</span>
+    <span class="tab-label">Miesiąc</span>
+  </button>
+  <button class="tab" id="tab-settings" onclick="showPage('settings')">
+    <span class="tab-icon">⚙️</span>
+    <span class="tab-label">Budżet</span>
+  </button>
+</div>
+
+<!-- ══════════ MODAL: WYDATEK ══════════ -->
+
+<div class="overlay" id="modal-expense" onclick="handleOC(event,'modal-expense')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Nowy wydatek</h3>
+    <div class="fg">
+      <label class="fl">Nazwa</label>
+      <input type="text" class="fi-inp" id="exp-name" placeholder="np. Kawa, Buty, Książka…">
+    </div>
+    <div class="fg">
+      <label class="fl">Kwota (zł)</label>
+      <input type="number" class="fi-inp" id="exp-amount" placeholder="0,00" inputmode="decimal">
+    </div>
+    <div class="fg">
+      <label class="fl">Ikona</label>
+      <div class="eg" id="expense-emoji-grid"></div>
+    </div>
+    <button class="btn-p" onclick="saveExpense()">Zapisz wydatek</button>
+    <button class="btn-g" onclick="closeModal('modal-expense')">Anuluj</button>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: STAŁY WYDATEK ══════════ -->
+
+<div class="overlay" id="modal-fixed" onclick="handleOC(event,'modal-fixed')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Stały wydatek</h3>
+    <div class="fg">
+      <label class="fl">Nazwa</label>
+      <input type="text" class="fi-inp" id="fixed-name" placeholder="np. Karnet, Subskrypcja…">
+    </div>
+    <div class="fg">
+      <label class="fl">Kwota miesięcznie (zł)</label>
+      <input type="number" class="fi-inp" id="fixed-amount" placeholder="0,00" inputmode="decimal">
+    </div>
+    <div class="fg">
+      <label class="fl">Ikona</label>
+      <div class="eg" id="fixed-emoji-grid"></div>
+    </div>
+    <button class="btn-p" onclick="saveFixed()">Zapisz</button>
+    <button class="btn-g" onclick="closeModal('modal-fixed')">Anuluj</button>
+  </div>
+</div>
+
+<script>
+const KEY = 'zachcianki_v1';
+const EMOJIS = ['🛍️','☕','🌸','💐','✨','🎀','🧴','💅','👗','👟','🎬','📚','🍦','🍷','🌿','🧘','🎵','🍕','🍣','🍔','🎁','✈️','💊','🧁','💸','🛒','🎨','🌺','🧋','🪴','💍','🫧'];
+let curPage='week', weekOff=0, selEE='✨', selFE='🌸';
+
+// ── STATE ──
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || def(); } catch { return def(); }
+}
+function def() { return { budget:0, payday:1, fixedExpenses:[], expenses:[] }; }
+function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+
+// ── DATES ──
+function dKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmt(n) {
+  return Number(n||0).toLocaleString('pl-PL',{minimumFractionDigits:0,maximumFractionDigits:2});
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtLong(d)  { return d.toLocaleDateString('pl-PL',{day:'numeric',month:'long'}); }
+function fmtShort(d) { return d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'}); }
+
+// ── BUDGET CYCLE ──
+// Cycle runs from payday-th of one month to (payday-1)-th of next
+function getCycle(payday) {
+  const now = new Date();
+  const td = now.getDate();
+  let start, end;
+  if (td >= payday) {
+    start = new Date(now.getFullYear(), now.getMonth(), payday);
+    const ne = new Date(now.getFullYear(), now.getMonth()+1, payday);
+    end = new Date(ne - 86400000);
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth()-1, payday);
+    end   = new Date(now.getFullYear(), now.getMonth(), payday-1);
+  }
+  return { start, end };
+}
+
+function getWeekStarts(payday) {
+  const { start, end } = getCycle(payday);
+  const ws = [];
+  let d = new Date(start);
+  while (d <= end) { ws.push(new Date(d)); d.setDate(d.getDate()+7); }
+  return { ws, cycleStart:start, cycleEnd:end };
+}
+
+function curWeekIdx(ws, now) {
+  for (let i=ws.length-1; i>=0; i--) { if (now>=ws[i]) return i; }
+  return 0;
+}
+
+function getWeekBounds(off, payday) {
+  const { ws, cycleEnd } = getWeekStarts(payday);
+  const now = new Date();
+  const ci = curWeekIdx(ws, now);
+  const idx = ci + off;
+  if (idx<0 || idx>=ws.length) return null;
+  const s = ws[idx];
+  const e = idx+1<ws.length ? new Date(ws[idx+1]-86400000) : cycleEnd;
+  return { s, e, num:idx+1, total:ws.length };
+}
+
+function inRange(ds, s, e) { return ds>=dKey(s) && ds<=dKey(e); }
+
+function calcBudget(state) {
+  const { ws } = getWeekStarts(state.payday||1);
+  const fixed = state.fixedExpenses.reduce((t,e)=>t+e.amount,0);
+  const free  = Math.max(0, state.budget - fixed);
+  return {
+    weekly: ws.length ? free/ws.length : 0,
+    free, fixed, weeks:ws.length, budget:state.budget
+  };
+}
+
+// ── RENDER WEEK ──
+function renderWeek() {
+  const st = load();
+  const pd = st.payday||1;
+  const b  = getWeekBounds(weekOff, pd);
+  if (!b) return;
+
+  const { cycleStart, cycleEnd } = getWeekStarts(pd);
+  document.getElementById('h-cycle-week').textContent =
+    `Cykl: ${fmtShort(cycleStart)} – ${fmtShort(cycleEnd)}`;
+  document.getElementById('week-label').textContent = `Tydzień ${b.num} z ${b.total}`;
+  document.getElementById('week-dates').textContent  = `${fmtShort(b.s)} – ${fmtShort(b.e)}`;
+
+  const calc   = calcBudget(st);
+  const wExp   = st.expenses.filter(e => inRange(e.date, b.s, b.e));
+  const wSpent = wExp.reduce((t,e)=>t+e.amount, 0);
+  const rem    = calc.weekly - wSpent;
+  const pct    = calc.weekly > 0 ? Math.min(100,(wSpent/calc.weekly)*100) : 0;
+
+  document.getElementById('w-budget').textContent    = fmt(calc.weekly);
+  document.getElementById('w-spent').textContent     = fmt(wSpent);
+  document.getElementById('w-spent-pct').textContent = pct>0 ? `${Math.round(pct)}% budżetu` : 'brak wydatków';
+  document.getElementById('w-prog-max').textContent  = fmt(calc.weekly)+' zł';
+
+  const remEl = document.getElementById('w-remaining');
+  // Show actual value with minus sign when negative
+  remEl.textContent = (rem < 0 ? '−' : '') + fmt(Math.abs(rem));
+  remEl.className = 'big-num'+(rem<0?' frozen':rem<calc.weekly*0.2?' caution':'');
+
+  const bar = document.getElementById('w-prog');
+  bar.style.width  = pct+'%';
+  bar.className    = 'prog-fill'+(rem<0?' over':'');
+
+  // Freeze banner — proportional days calculation
+  const slot = document.getElementById('freeze-slot');
+  if (rem<0 && weekOff===0) {
+    const next = getWeekBounds(1, pd);
+    if (next) {
+      // How many days is the next week long?
+      const nextStart = next.s;
+      const nextEnd   = next.e;
+      const nextDays  = Math.round((nextEnd - nextStart) / 86400000) + 1;
+      // Daily rate of next week
+      const dailyRate = calc.weekly / nextDays;
+      // How many days of next week are "eaten" by the overspend
+      const overAmount   = Math.abs(rem);
+      const daysBlocked  = Math.ceil(overAmount / dailyRate);
+      const daysBlockedSafe = Math.min(daysBlocked, nextDays);
+      // Resume date = nextStart + daysBlocked days
+      const resumeDate = new Date(nextStart);
+      resumeDate.setDate(resumeDate.getDate() + daysBlockedSafe);
+
+      slot.innerHTML = `<div class="freeze-card">
+        <div class="fr-icon">❄️</div>
+        <div>
+          <div class="fr-label">Wydatki wstrzymane</div>
+          <div class="fr-date">do ${fmtLong(resumeDate)}</div>
+          <div class="fr-detail">Przekroczono o ${fmt(overAmount)} zł · ${daysBlockedSafe} z ${nextDays} dni przyszłego tygodnia zajęte</div>
+        </div></div>`;
+    } else {
+      // Last week of cycle — no next week, freeze until cycle end
+      slot.innerHTML = `<div class="freeze-card">
+        <div class="fr-icon">❄️</div>
+        <div>
+          <div class="fr-label">Wydatki wstrzymane</div>
+          <div class="fr-date">do końca cyklu</div>
+          <div class="fr-detail">Przekroczono o ${fmt(Math.abs(rem))} zł</div>
+        </div></div>`;
+    }
+  } else { slot.innerHTML=''; }
+
+  // Expense list
+  const listEl = document.getElementById('w-list');
+  if (wExp.length===0) {
+    listEl.innerHTML='<div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków w tym tygodniu</div></div>';
+  } else {
+    listEl.innerHTML = wExp.slice().reverse().map(e=>`
+      <div class="exp-item">
+        <div class="exp-emoji">${e.emoji}</div>
+        <div class="exp-info">
+          <div class="exp-name">${esc(e.name)}</div>
+          <div class="exp-date">${e.date}</div>
+        </div>
+        <div class="exp-amt">${fmt(e.amount)} zł</div>
+        <button class="exp-del" onclick="delExp('${e.id}')">✕</button>
+      </div>`).join('');
+  }
+}
+
+// ── RENDER MONTH ──
+function renderMonth() {
+  const st = load();
+  const pd = st.payday||1;
+  const { cycleStart, cycleEnd } = getWeekStarts(pd);
+
+  document.getElementById('h-cycle-month').textContent =
+    `${fmtShort(cycleStart)} – ${fmtShort(cycleEnd)}`;
+  document.getElementById('m-budget').textContent = fmt(st.budget);
+
+  const calc = calcBudget(st);
+  document.getElementById('s-total').textContent  = fmt(calc.budget)+' zł';
+  document.getElementById('s-fixed').textContent  = fmt(calc.fixed)+' zł';
+  document.getElementById('s-free').textContent   = fmt(calc.free)+' zł';
+  document.getElementById('s-weekly').textContent = '≈ '+fmt(calc.weekly)+' zł';
+
+  const pExp   = st.expenses.filter(e => inRange(e.date, cycleStart, cycleEnd));
+  const pSpent = pExp.reduce((t,e)=>t+e.amount, 0);
+  const pLeft  = calc.free - pSpent;
+
+  document.getElementById('s-spent').textContent = fmt(pSpent)+' zł';
+  const lEl = document.getElementById('s-left');
+  lEl.textContent = fmt(Math.abs(pLeft))+' zł'+(pLeft<0?' (przekroczono)':'');
+  lEl.className   = 'sum-val'+(pLeft<0?' freeze':' sage');
+
+  const mList = document.getElementById('m-list');
+  if (pExp.length===0) {
+    mList.innerHTML='<div class="empty"><div class="empty-icon">🌸</div><div class="empty-text">Brak wydatków w tym cyklu</div></div>';
+  } else {
+    mList.innerHTML = pExp.slice().reverse().map(e=>`
+      <div class="exp-item">
+        <div class="exp-emoji">${e.emoji}</div>
+        <div class="exp-info">
+          <div class="exp-name">${esc(e.name)}</div>
+          <div class="exp-date">${e.date}</div>
+        </div>
+        <div class="exp-amt">${fmt(e.amount)} zł</div>
+        <button class="exp-del" onclick="delExp('${e.id}')">✕</button>
+      </div>`).join('');
+  }
+}
+
+// ── RENDER SETTINGS ──
+function renderSettings() {
+  const st = load();
+  const pd = st.payday||1;
+
+  const inp = document.getElementById('budget-input');
+  if (inp && document.activeElement!==inp) inp.value = st.budget||'';
+
+  // Payday grid
+  const grid = document.getElementById('payday-grid');
+  grid.innerHTML='';
+  for (let d=1; d<=28; d++) {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn'+(d===pd?' sel':'');
+    btn.textContent = d;
+    btn.onclick = ()=>savePayday(d);
+    grid.appendChild(btn);
+  }
+
+  const { cycleStart, cycleEnd } = getWeekStarts(pd);
+  const { weeks } = calcBudget(st);
+  document.getElementById('payday-note').textContent =
+    `Aktualny cykl: ${fmtLong(cycleStart)} – ${fmtLong(cycleEnd)}\n${weeks} tygodnie w tym cyklu`;
+
+  // Fixed list
+  const fEl = document.getElementById('fi-list');
+  if (st.fixedExpenses.length===0) {
+    fEl.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Brak stałych wydatków</div></div>';
+  } else {
+    fEl.innerHTML = st.fixedExpenses.map(e=>`
+      <div class="fi-item">
+        <div class="fi-emoji">${e.emoji}</div>
+        <div class="fi-info">
+          <div class="fi-name">${esc(e.name)}</div>
+          <div class="fi-amt">${fmt(e.amount)} zł / miesiąc</div>
+        </div>
+        <button class="fi-del" onclick="delFixed('${e.id}')">✕</button>
+      </div>`).join('');
+  }
+}
+
+function renderAll() { renderWeek(); renderMonth(); renderSettings(); }
+
+// ── ACTIONS ──
+function saveBudget() {
+  const v = parseFloat(document.getElementById('budget-input').value)||0;
+  const s = load(); s.budget=v; save(s); renderAll();
+}
+function savePayday(d) {
+  const s = load(); s.payday=d; save(s); weekOff=0; renderAll();
+}
+function saveExpense() {
+  const name   = document.getElementById('exp-name').value.trim();
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  if (!name||!amount||amount<=0) { alert('Wpisz nazwę i kwotę'); return; }
+  const s = load();
+  s.expenses.push({ id:Date.now()+'', name, amount, emoji:selEE, date:dKey(new Date()) });
+  save(s); closeModal('modal-expense'); renderAll();
+}
+function delExp(id) {
+  const s = load(); s.expenses=s.expenses.filter(e=>e.id!==id); save(s); renderAll();
+}
+function saveFixed() {
+  const name   = document.getElementById('fixed-name').value.trim();
+  const amount = parseFloat(document.getElementById('fixed-amount').value);
+  if (!name||!amount||amount<=0) { alert('Wpisz nazwę i kwotę'); return; }
+  const s = load();
+  s.fixedExpenses.push({ id:Date.now()+'', name, amount, emoji:selFE });
+  save(s); closeModal('modal-fixed'); renderAll();
+}
+function delFixed(id) {
+  const s = load(); s.fixedExpenses=s.fixedExpenses.filter(e=>e.id!==id); save(s); renderAll();
+}
+function changeWeek(dir) {
+  const st = load();
+  const { ws } = getWeekStarts(st.payday||1);
+  const ci = curWeekIdx(ws, new Date());
+  const no = weekOff + dir;
+  if (no < -ci || no > ws.length-1-ci) return;
+  weekOff=no; renderWeek();
+}
+
+// ── MODALS ──
+function buildEG(gridId, which) {
+  const cur = which==='exp' ? selEE : selFE;
+  document.getElementById(gridId).innerHTML = EMOJIS.map(e=>
+    `<button class="eb${e===cur?' sel':''}" onclick="pickEmoji('${e}','${gridId}','${which}')">${e}</button>`
+  ).join('');
+}
+function pickEmoji(e, gridId, which) {
+  if (which==='exp') selEE=e; else selFE=e;
+  buildEG(gridId, which);
+}
+function openAddExpense() {
+  selEE='✨';
+  document.getElementById('exp-name').value='';
+  document.getElementById('exp-amount').value='';
+  buildEG('expense-emoji-grid','exp');
+  document.getElementById('modal-expense').classList.add('open');
+  setTimeout(()=>document.getElementById('exp-name').focus(), 350);
+}
+function openAddFixed() {
+  selFE='🌸';
+  document.getElementById('fixed-name').value='';
+  document.getElementById('fixed-amount').value='';
+  buildEG('fixed-emoji-grid','fixed');
+  document.getElementById('modal-fixed').classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function handleOC(e, id) { if (e.target.id===id) closeModal(id); }
+
+function showPage(name) {
+  curPage=name;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  // FAB visible always but hidden via page logic
+  document.getElementById('week-fab').style.display = 'none'; // inline add btn handles it
+  if (name==='month')    renderMonth();
+  if (name==='settings') renderSettings();
+}
+
+renderAll();
+</script>
+
+</body>
+</html>
