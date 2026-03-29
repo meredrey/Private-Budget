@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -180,18 +179,17 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 .confirm-yes{flex:1;padding:11px;background:#ead4e2;border:2px solid #9a607a;border-radius:11px;font-size:14px;font-weight:700;color:#7a4868;cursor:pointer}
 .confirm-no{flex:1;padding:11px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:11px;font-size:14px;font-weight:700;color:#4a4060;cursor:pointer}
 </style>
-
 </head>
 <body>
 
 <!-- ══ TYDZIEŃ ══ -->
-
 <div class="page active" id="page-week">
   <div class="header">
     <div class="hc1"></div><div class="hc2"></div>
     <div class="h-eye">Personal Finance</div>
     <h1>Private <em>Budget</em></h1>
     <div class="h-sub" id="h-cycle-week">—</div>
+    <div id="sync-status" style="font-size:11px;margin-top:4px;min-height:16px"></div>
   </div>
   <div class="sp"></div>
   <div id="freeze-slot"></div>
@@ -241,7 +239,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ MIESIĄC ══ -->
-
 <div class="page" id="page-month">
   <div class="header">
     <div class="hc1"></div><div class="hc2"></div>
@@ -281,7 +278,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ PLANY ══ -->
-
 <div class="page" id="page-plans">
   <div class="header">
     <div class="hc1"></div><div class="hc2"></div>
@@ -300,7 +296,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ USTAWIENIA ══ -->
-
 <div class="page" id="page-settings">
   <div class="header">
     <div class="hc1"></div><div class="hc2"></div>
@@ -347,7 +342,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ TABS ══ -->
-
 <div class="tabs">
   <button class="tab active" id="tab-week" onclick="showPage('week')"><span class="tab-icon">📅</span><span class="tab-label">Tydzień</span></button>
   <button class="tab" id="tab-month" onclick="showPage('month')"><span class="tab-icon">📊</span><span class="tab-label">Miesiąc</span></button>
@@ -356,7 +350,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ MODAL: WYDATEK ══ -->
-
 <div class="overlay" id="modal-expense" onclick="handleOC(event,'modal-expense')">
   <div class="modal">
     <div class="modal-handle"></div><h3>Nowy wydatek</h3>
@@ -370,7 +363,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ MODAL: PLAN ══ -->
-
 <div class="overlay" id="modal-planned" onclick="handleOC(event,'modal-planned')">
   <div class="modal">
     <div class="modal-handle"></div><h3 id="plan-modal-title">Zaplanuj wydatek</h3>
@@ -385,7 +377,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ MODAL: STAŁY ══ -->
-
 <div class="overlay" id="modal-fixed" onclick="handleOC(event,'modal-fixed')">
   <div class="modal">
     <div class="modal-handle"></div><h3>Stały wydatek</h3>
@@ -398,7 +389,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <!-- ══ CONFIRM ══ -->
-
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
     <div class="confirm-title" id="c-title">Usunąć?</div>
@@ -414,11 +404,72 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 const KEY='zachcianki_v1';
 const EMOJIS=['🛍️','☕','🌸','💐','✨','🎀','🧴','💅','👗','👟','🎬','📚','🍦','🍷','🌿','🧘','🎵','🍕','🍣','🍔','🎁','✈️','💊','🧁','💸','🛒','🎨','🌺','🧋','🪴','💍','🫧'];
 const CATS=['🛍️ Zakupy','🍽️ Jedzenie','🚗 Transport','💆 Uroda','🎭 Rozrywka','💊 Zdrowie','🏠 Dom','📦 Inne'];
+const API='https://script.google.com/macros/s/AKfycbwjb8-sUkUymiZVFjkYuDIeIQlTu9IfVwVmWVPeLNeHxWUZYvdtle6eJxqqMU_bjIouyw/exec';
 let curPage='week',weekOff=0,selEE='💸',selFE='🌸',selPE='🗓️',selCat='📦 Inne';
+let _state=null,_syncing=false,_syncTimer=null;
 
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||def();}catch{return def();}}
 function def(){return{budget:0,payday:1,fixedExpenses:[],expenses:[],planned:[]};}
-function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
+
+// ── LOCAL CACHE + REMOTE SYNC ──
+// Reads always from local cache (instant), writes go to both local + remote
+function load(){
+  if(_state) return _state;
+  // Try localStorage cache first for instant load
+  try{const c=localStorage.getItem(KEY);if(c){_state=JSON.parse(c);return _state;}}catch{}
+  _state=def();
+  // Then sync from Sheets in background
+  syncFromSheets();
+  return _state;
+}
+
+function save(s){
+  _state=s;
+  // Always write to localStorage immediately (instant, offline-safe)
+  try{localStorage.setItem(KEY,JSON.stringify(s));}catch{}
+  // Debounce remote sync (wait 1.5s after last change to batch writes)
+  if(_syncTimer) clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(()=>syncToSheets(s),1500);
+}
+
+function setSyncStatus(status){
+  const el=document.getElementById('sync-status');
+  if(!el)return;
+  if(status==='saving'){el.textContent='💾 Zapisywanie...';el.style.color='rgba(255,255,255,0.7)';}
+  else if(status==='saved'){el.textContent='✓ Zsynchronizowano';el.style.color='rgba(255,255,255,0.7)';}
+  else if(status==='error'){el.textContent='⚠️ Brak połączenia — dane lokalne';el.style.color='rgba(255,200,100,0.9)';}
+  else{el.textContent='';} 
+}
+
+function syncToSheets(s){
+  setSyncStatus('saving');
+  fetch(API+'?action=write&sheet=BudgetData',{
+    method:'POST',
+    body:JSON.stringify(s),
+    headers:{'Content-Type':'application/json'}
+  })
+  .then(r=>r.json())
+  .then(r=>{
+    if(r.success) setSyncStatus('saved');
+    else setSyncStatus('error');
+    setTimeout(()=>setSyncStatus(''),3000);
+  })
+  .catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
+}
+
+function syncFromSheets(){
+  fetch(API+'?action=read&sheet=BudgetData')
+  .then(r=>r.json())
+  .then(r=>{
+    if(r.success&&r.data){
+      _state=r.data;
+      try{localStorage.setItem(KEY,JSON.stringify(_state));}catch{}
+      renderAll();
+      setSyncStatus('saved');
+      setTimeout(()=>setSyncStatus(''),2000);
+    }
+  })
+  .catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
+}
 function dKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fmt(n){return Number(n||0).toLocaleString('pl-PL',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -779,14 +830,20 @@ function closeConfirm(){document.getElementById('confirm-overlay').classList.rem
 
 // ── EXPORT/IMPORT ──
 function exportData(){
-  const data=localStorage.getItem(KEY)||'{}';
+  const data=JSON.stringify(_state||load());
   const box=document.getElementById('export-box');box.style.display='block';box.textContent=data;
   if(navigator.clipboard){navigator.clipboard.writeText(data).then(()=>{box.textContent='✓ Skopiowano!\n\n'+data;});}
 }
 function toggleImport(){const a=document.getElementById('import-area');a.style.display=a.style.display==='none'?'block':'none';}
 function importData(){
-  try{const t=document.getElementById('import-text').value.trim();const p=JSON.parse(t);if(!p.expenses)throw 0;localStorage.setItem(KEY,t);alert('Zaimportowano!');renderAll();}
-  catch{alert('Błąd: nieprawidłowy format');}
+  try{
+    const t=document.getElementById('import-text').value.trim();
+    const p=JSON.parse(t);if(!p.expenses)throw 0;
+    _state=p;
+    localStorage.setItem(KEY,t);
+    syncToSheets(p);
+    alert('Zaimportowano!');renderAll();
+  }catch{alert('Błąd: nieprawidłowy format');}
 }
 
 // ── MODALS ──
@@ -860,6 +917,5 @@ function showPage(name){
 
 renderAll();
 </script>
-
 </body>
 </html>
