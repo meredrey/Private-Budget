@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl-PL">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -309,7 +309,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div class="card-head"><div class="card-label">Początek miesiąca budżetowego</div></div>
     <div class="card-body">
       <div class="payday-grid" id="payday-grid"></div>
-      <div class="payday-warning">Dni 1–28 (dostępne w każdym miesiącu)</div>
+      <div class="payday-warning">Dni 29–31 w krótszych miesiącach = ostatni dzień miesiąca</div>
       <div class="payday-note" id="payday-note">—</div>
     </div>
   </div>
@@ -484,9 +484,26 @@ function fmtHuman(ds){
 // ── CYCLE & WEEKS ──
 function getCycle(payday){
   const now=new Date(),td=now.getDate();
+  // Clamp payday to last day of month if month is shorter
+  function clamp(year,month,day){
+    const lastDay=new Date(year,month+1,0).getDate();
+    return Math.min(day,lastDay);
+  }
   let s,e;
-  if(td>=payday){s=new Date(now.getFullYear(),now.getMonth(),payday);e=new Date(new Date(now.getFullYear(),now.getMonth()+1,payday)-86400000);}
-  else{s=new Date(now.getFullYear(),now.getMonth()-1,payday);e=new Date(now.getFullYear(),now.getMonth(),payday-1);}
+  const effectiveDay=clamp(now.getFullYear(),now.getMonth(),payday);
+  if(td>=effectiveDay){
+    s=new Date(now.getFullYear(),now.getMonth(),effectiveDay);
+    const nextMonth=now.getMonth()+1;
+    const nextYear=nextMonth>11?now.getFullYear()+1:now.getFullYear();
+    const nextEffective=clamp(nextYear,nextMonth%12,payday);
+    e=new Date(new Date(nextYear,nextMonth%12,nextEffective)-86400000);
+  }else{
+    const prevMonth=now.getMonth()-1;
+    const prevYear=prevMonth<0?now.getFullYear()-1:now.getFullYear();
+    const prevEffective=clamp(prevYear,(prevMonth+12)%12,payday);
+    s=new Date(prevYear,(prevMonth+12)%12,prevEffective);
+    e=new Date(now.getFullYear(),now.getMonth(),effectiveDay-1);
+  }
   return{start:s,end:e};
 }
 function getWeekStarts(payday){
@@ -724,9 +741,11 @@ function renderSettings(){
   const inp=document.getElementById('budget-input');
   if(inp&&document.activeElement!==inp)inp.value=st.budget||'';
   const grid=document.getElementById('payday-grid');grid.innerHTML='';
-  for(let d=1;d<=28;d++){
+  for(let d=1;d<=31;d++){
     const btn=document.createElement('button');btn.className='day-btn'+(d===pd?' sel':'');
-    btn.textContent=d;btn.onclick=()=>savePayday(d);grid.appendChild(btn);
+    btn.textContent=d;btn.onclick=()=>savePayday(d);
+    if(d>28)btn.style.opacity='0.7';
+    grid.appendChild(btn);
   }
   const{cycleStart,cycleEnd,ws}=getWeekStarts(pd);
   document.getElementById('payday-note').textContent=`Aktualny cykl: ${fmtLong(cycleStart)} – ${fmtLong(cycleEnd)}\n${ws.length} tygodnie · budżety proporcjonalne do długości`;
