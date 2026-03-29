@@ -917,8 +917,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     </div>
   </div>
 
-  <!-- 3. GODZINY — kalkulator -->
-AMETRY — zwinięte domyślnie -->
+  <!-- 4. PARAMETRY — zwinięte domyślnie -->
   <div class="sec-lbl" onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <span>⚙️ Parametry wynagrodzenia</span>
     <span id="mata-params-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
@@ -2226,6 +2225,20 @@ function mataToggleParams(){
   if(arrow)arrow.textContent=open?'▼ rozwiń':'▲ zwiń';
 }
 
+function mataGetSurplus(){
+  const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
+  const params = mataGetParams();
+  const salary = isNaN(hours) ? params.base : mataCalcSalary(hours, params).total;
+  const extra = mataGetExtraIncomeTotal();
+  const totalIncome = salary + extra;
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
+  const skladka=Math.max(0,(planSum-domGetIncome())/2);
+  const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
+  const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
+  return Math.max(0, totalIncome - 2500 - skladka - mbankStd - mbankExtra);
+}
+
 function mataToggleStep(stepId){
   if(!mataData[mataYM])mataData[mataYM]={};
   if(!mataData[mataYM].doneSteps)mataData[mataYM].doneSteps={};
@@ -2415,9 +2428,7 @@ function mataLoanCalc(){
   mataScheduleSave();
 
   // Get this month's payment = 70% of surplus, min 2000
-  const surplusEl = document.getElementById('mata-pozostaje');
-  const surplusRaw = surplusEl?.textContent?.replace(/[^\d]/g,'')||'0';
-  const surplus = parseFloat(surplusRaw)||0;
+  const surplus = mataGetSurplus();
   const payment70 = Math.round(surplus * 0.70);
   const payment = Math.max(MATA_CAR_MIN, payment70);
 
@@ -2514,8 +2525,7 @@ function mataSavingsCalc(){
   const stage = mataGetStage(cushion, loanPaid);
 
   // Get surplus from UI
-  const surplusRaw = document.getElementById('mata-pozostaje')?.textContent||'0';
-  const surplus = parseFloat(surplusRaw.replace(/[^\d.-]/g,''))||0;
+  const surplus = mataGetSurplus();
   const autoAmount = Math.round(surplus * MATA_CAR_SPLIT);
   const savAmount = Math.round(surplus * MATA_SAVE_SPLIT);
 
@@ -2598,7 +2608,7 @@ function mataSavingsCalc(){
 
   // Instrukcja przelewów
   const transferEl=document.getElementById('mata-transfers-list');
-  if(transferEl&&surplus>0){
+  if(transferEl&&surplus>=0){
     const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
     const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
     const skladka=Math.max(0,(planSum-domGetIncome())/2);
