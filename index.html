@@ -310,13 +310,13 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <!-- Kredyt Andy -->
       <div style="border-top:1.5px solid #e8e4f0;padding-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:13px;font-weight:600;color:#18102c">🚗 Kredyt Andy'ego</div>
-          <div style="font-size:12px;font-weight:700;color:#7a4868" id="dash-car-remaining">— zł</div>
+          <div style="font-size:13px;font-weight:600;color:#18102c">🚗 Pożyczka od Andy'ego</div>
+          <div style="font-size:12px;font-weight:700;color:#7a4868" id="dash-loan-remaining">— zł</div>
         </div>
         <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden">
-          <div id="dash-car-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s;width:0%"></div>
+          <div id="dash-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s;width:0%"></div>
         </div>
-        <div style="font-size:11px;color:#7a6e98;margin-top:4px" id="dash-car-eta">—</div>
+        <div style="font-size:11px;color:#7a6e98;margin-top:4px" id="dash-loan-eta">—</div>
       </div>
     </div>
   </div>
@@ -529,7 +529,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
             📗 Gdy IKE pełne → <b>IKZE</b> (limit 10 407 zł/rok)<br>
             📙 <b>20% → EDO</b> obligacje 10-letnie (obligacjeskarbowe.pl)<br>
             👧 <b>20% → córki</b> (po połowie, obligacje lub ETF)<br>
-            🚗 70% nadwyżki nadal na <b>auto Andy'ego</b>
+            🚗 70% nadwyżki nadal na <b>spłatę pożyczki Andy'emu</b>
           </div>
         </div>
 
@@ -864,6 +864,20 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#fff" id="mata-salary-total">—</div>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px" id="mata-salary-breakdown">—</div>
+
+    <!-- GODZINY — wpisz tu -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);flex:1">⏱️ Godziny w poprzednim miesiącu</div>
+      <input type="number" id="mata-hours-inp" placeholder="125" min="0" max="300"
+        style="width:70px;padding:7px 8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+        oninput="mataCalc()" onchange="mataCalc()">
+      <div style="text-align:right">
+        <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600">WYNIK</div>
+        <div style="font-family:Georgia,serif;font-size:13px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px" id="mata-calc-detail"></div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
       <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
         <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
@@ -904,41 +918,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   </div>
 
   <!-- 3. GODZINY — kalkulator -->
-  <div class="sec-lbl">⏱️ Godziny w poprzednim miesiącu</div>
-  <div class="card">
-    <div style="padding:16px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-        <div style="flex:1">
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">Przepracowane godziny</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <input class="dom-inp" type="number" id="mata-hours-inp" placeholder="125" min="0" max="300"
-              style="width:100px;font-size:18px;padding:10px"
-              oninput="mataCalc()" onchange="mataCalc()">
-            <span style="font-size:14px;color:#7a6e98;font-weight:600">/ 125h</span>
-          </div>
-        </div>
-        <div style="text-align:center;padding:12px;background:#f4f1fc;border-radius:12px;min-width:80px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;margin-bottom:3px">PROCENT</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#5e4d82" id="mata-pct-val">—</div>
-        </div>
-      </div>
-      <div style="margin-bottom:14px">
-        <div style="height:10px;background:#e8e4f0;border-radius:99px;overflow:hidden">
-          <div id="mata-hours-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#5e4d82);width:0%;transition:width .4s"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px">
-          <div style="font-size:10px;color:#7a6e98">0h</div>
-          <div style="font-size:10px;color:#5e4d82;font-weight:700">125h</div>
-          <div style="font-size:10px;color:#7a6e98" id="mata-bar-end">max</div>
-        </div>
-      </div>
-      <div style="background:#f4f1fc;border-radius:12px;padding:12px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-calc-detail">
-        Wpisz liczbę godzin aby zobaczyć kalkulację.
-      </div>
-    </div>
-  </div>
-
-  <!-- 4. PARAMETRY — zwinięte domyślnie -->
+AMETRY — zwinięte domyślnie -->
   <div class="sec-lbl" onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <span>⚙️ Parametry wynagrodzenia</span>
     <span id="mata-params-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
@@ -971,120 +951,12 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     </div>
   </div>
 
-  <!-- 5. CO ZOSTAJE -->
+  
+
+  <!-- CO ZOSTAJE -->
   <div class="sec-lbl">💸 Co zostaje</div>
-  <div class="card">
 
-  <!-- DOCHÓD MIESIĄCA — główna karta -->
-  <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px">Dochód miesiąca</div>
 
-    <!-- Wynagrodzenie -->
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-      <div style="font-size:13px;color:rgba(255,255,255,.7)">💼 Wynagrodzenie</div>
-      <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#fff" id="mata-salary-total">—</div>
-    </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px" id="mata-salary-breakdown">—</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">14 880</div>
-      </div>
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BONUS H</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-bonus-val">0</div>
-      </div>
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">NADGODZ</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#ffe0a0" id="mata-overtime-val">0</div>
-      </div>
-    </div>
-
-    <!-- Dodatkowe wpływy -->
-    <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Dodatkowe wpływy</div>
-      <div id="mata-extra-income-list-top"></div>
-      <button onclick="mataAddExtraIncome()" style="padding:7px 14px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.4);background:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;width:100%;margin-top:4px">+ Dodaj wpływ</button>
-    </div>
-
-    <!-- Suma łączna -->
-    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">ŁĄCZNY DOCHÓD</div>
-      <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-total-income">—</div>
-    </div>
-  </div>
-
-  <!-- WPISZ GODZINY -->
-  <div class="sec-lbl">⏱️ Godziny w poprzednim miesiącu</div>
-  <div class="card">
-    <div style="padding:16px">
-      <div style="font-size:12px;color:#7a6e98;margin-bottom:12px">Wpisz ile godzin przepracowałaś — apka wyliczy premię i nadgodziny.</div>
-
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-        <div style="flex:1">
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">Przepracowane godziny</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <input class="dom-inp" type="number" id="mata-hours-inp" placeholder="125" min="0" max="300"
-              style="width:100px;font-size:18px;padding:10px"
-              oninput="mataCalc()" onchange="mataCalc()">
-            <span style="font-size:14px;color:#7a6e98;font-weight:600">/ 125h</span>
-          </div>
-        </div>
-        <div style="text-align:center;padding:12px;background:#f4f1fc;border-radius:12px;min-width:80px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;margin-bottom:3px">PROCENT</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#5e4d82" id="mata-pct-val">—</div>
-        </div>
-      </div>
-
-      <!-- Progress bar godzin -->
-      <div style="margin-bottom:14px">
-        <div style="height:10px;background:#e8e4f0;border-radius:99px;overflow:hidden">
-          <div id="mata-hours-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#5e4d82);width:0%;transition:width .4s"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px">
-          <div style="font-size:10px;color:#7a6e98">0h</div>
-          <div style="font-size:10px;color:#5e4d82;font-weight:700">125h</div>
-          <div style="font-size:10px;color:#7a6e98" id="mata-bar-end">max</div>
-        </div>
-      </div>
-
-      <!-- Szczegóły kalkulacji -->
-      <div style="background:#f4f1fc;border-radius:12px;padding:12px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-calc-detail">
-        Wpisz liczbę godzin aby zobaczyć kalkulację.
-      </div>
-    </div>
-  </div>
-
-  <!-- PARAMETRY (zwijane) -->
-  <div class="sec-lbl">⚙️ Parametry wynagrodzenia</div>
-  <div class="card">
-    <div style="padding:14px 16px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Baza netto (zł/mies.)</div>
-          <input class="dom-inp" type="number" id="mata-base-inp" value="14880"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Próg godzin</div>
-          <input class="dom-inp" type="number" id="mata-threshold-inp" value="125"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Bonus za próg (%)</div>
-          <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Nadgodziny (%)</div>
-          <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:#7a6e98">Zmiany parametrów są zapisywane automatycznie.</div>
-    </div>
-  </div>
 
   <div class="card">
     <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
@@ -1148,29 +1020,29 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="background:#5e4d82;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAJE NA MILLENNIUM</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">na oszczędności i spłatę auta</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">na oszczędności i spłatę pożyczki</div>
         </div>
         <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-pozostaje">— zł</div>
       </div>
     </div>
   </div>
 
-  <!-- KREDYT ANDY'EGO -->
-  <div class="sec-lbl">🚗 Kredyt Andy'ego</div>
+  <!-- POŻYCZKA OD ANDY'EGO -->
+  <div class="sec-lbl">🚗 Pożyczka od Andy'ego</div>
   <div class="card" style="margin-bottom:12px">
 
     <!-- Progress -->
     <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="font-size:13px;font-weight:700;color:#18102c">Pozostały kapitał</div>
-        <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#7a4868" id="mata-car-remaining">54 490 zł</div>
+        <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#7a4868" id="mata-loan-remaining">54 490 zł</div>
       </div>
       <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
-        <div id="mata-car-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s"></div>
+        <div id="mata-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s"></div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
-        <div id="mata-car-paid-lbl">spłacono 0 zł</div>
-        <div id="mata-car-original-lbl">z 54 490 zł</div>
+        <div id="mata-loan-paid-lbl">spłacono 0 zł</div>
+        <div id="mata-loan-original-lbl">z 54 490 zł</div>
       </div>
     </div>
 
@@ -1178,13 +1050,13 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">RATA W TYM MIESIĄCU</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:13px;color:#18102c">💸 Łączna wpłata (70% nadwyżki)</div>
-        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-car-payment">— zł</div>
+        <div style="font-size:13px;color:#18102c">💸 Rata pożyczki (70% nadwyżki)</div>
+        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-loan-payment">— zł</div>
       </div>
-      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9" id="mata-car-breakdown">
-        <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-car-interest">— zł</span></div>
-        <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-car-capital">— zł</span></div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-car-after">— zł</span></div>
+      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9" id="mata-loan-breakdown">
+        <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">— zł</span></div>
+        <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">— zł</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">— zł</span></div>
       </div>
     </div>
 
@@ -1192,15 +1064,15 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">AKTUALIZUJ KAPITAŁ</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <input class="dom-inp" type="number" id="mata-car-capital-inp" placeholder="54490"
-          style="flex:1" oninput="mataCarCalc()" onchange="mataCarCalc()">
+        <input class="dom-inp" type="number" id="mata-loan-capital-inp" placeholder="54490"
+          style="flex:1" oninput="mataLoanCalc()" onchange="mataLoanCalc()">
         <span style="font-size:12px;color:#7a6e98">zł pozostało</span>
       </div>
       <div style="font-size:11px;color:#7a6e98;margin-top:6px">Wpisz aktualny stan kapitału po każdej racie</div>
     </div>
 
     <!-- Prognoza -->
-    <div style="padding:12px 16px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-car-forecast">—</div>
+    <div style="padding:12px 16px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-loan-forecast">—</div>
   </div>
 
   <!-- OSZCZĘDNOŚCI -->
@@ -2336,7 +2208,7 @@ function renderMata(){
   mataCalc();
   mataTransferCalc();
   mataRenderSavings();
-  mataCarRender();
+  mataLoanRender();
   mataUpdateDoneBtn();
 }
 
@@ -2354,11 +2226,27 @@ function mataToggleParams(){
   if(arrow)arrow.textContent=open?'▼ rozwiń':'▲ zwiń';
 }
 
+function mataToggleStep(stepId){
+  if(!mataData[mataYM])mataData[mataYM]={};
+  if(!mataData[mataYM].doneSteps)mataData[mataYM].doneSteps={};
+  mataData[mataYM].doneSteps[stepId]=!mataData[mataYM].doneSteps[stepId];
+  mataScheduleSave();
+  // Re-render transfers
+  setTimeout(()=>mataSavingsCalc(),50);
+  mataUpdateDoneBtn();
+}
+
 function mataToggleDone(){
   if(!mataData[mataYM])mataData[mataYM]={};
-  mataData[mataYM].transfersDone=!mataData[mataYM].transfersDone;
+  const allDone=mataData[mataYM].transfersDone||false;
+  mataData[mataYM].transfersDone=!allDone;
+  // Also set all steps
+  const steps=['hipoteka','skladka','mbank','loan','savings'];
+  if(!mataData[mataYM].doneSteps)mataData[mataYM].doneSteps={};
+  steps.forEach(s=>mataData[mataYM].doneSteps[s]=!allDone);
   mataUpdateDoneBtn();
   mataScheduleSave();
+  setTimeout(()=>mataSavingsCalc(),50);
 }
 
 function mataUpdateDoneBtn(){
@@ -2476,7 +2364,7 @@ function mataTransferCalc(){
     pozEl.style.color = pozostaje < 0 ? '#f4a8c0' : '#fff';
   }
   // Trigger savings calc after transfer calc updates surplus
-  setTimeout(()=>{mataSavingsCalc();mataCarCalc();}, 50);
+  setTimeout(()=>{mataSavingsCalc();mataLoanCalc();}, 50);
 }
 
 function mataScheduleSave(){
@@ -2515,15 +2403,15 @@ const MATA_SAVE_SPLIT = 0.30;
 const MATA_CAR_RATE = 0.005; // 0.5%/mies = 6% rocznie
 const MATA_CAR_MIN = 2000;
 
-function mataCarCalc(){
+function mataLoanCalc(){
   // Get current capital from input or saved data
-  const capitalInp = parseFloat(document.getElementById('mata-car-capital-inp')?.value);
+  const capitalInp = parseFloat(document.getElementById('mata-loan-capital-inp')?.value);
   const saved = mataData[mataYM];
-  const capital = !isNaN(capitalInp) ? capitalInp : (saved?.carCapital ?? 54490);
+  const capital = !isNaN(capitalInp) ? capitalInp : (saved?.loanCapital ?? 54490);
 
   // Save
   if(!mataData[mataYM]) mataData[mataYM]={};
-  if(!isNaN(capitalInp)) mataData[mataYM].carCapital = capitalInp;
+  if(!isNaN(capitalInp)) mataData[mataYM].loanCapital = capitalInp;
   mataScheduleSave();
 
   // Get this month's payment = 70% of surplus, min 2000
@@ -2539,36 +2427,36 @@ function mataCarCalc(){
   const remaining = Math.max(0, capital - capitalPayment);
 
   // Original capital (first month)
-  const original = mataData[mataYM]?.carOriginal ?? 54490;
+  const original = mataData[mataYM]?.loanOriginal ?? 54490;
 
   // Update UI
-  const remEl = document.getElementById('mata-car-remaining');
+  const remEl = document.getElementById('mata-loan-remaining');
   if(remEl) remEl.textContent = fmt(capital) + ' zł';
 
   const pct = original > 0 ? Math.min(100, Math.round(((original-capital)/original)*100)) : 0;
-  const bar = document.getElementById('mata-car-bar');
+  const bar = document.getElementById('mata-loan-bar');
   if(bar) bar.style.width = pct + '%';
 
-  const paidLbl = document.getElementById('mata-car-paid-lbl');
+  const paidLbl = document.getElementById('mata-loan-paid-lbl');
   if(paidLbl) paidLbl.textContent = `spłacono ${fmt(original-capital)} zł (${pct}%)`;
-  const origLbl = document.getElementById('mata-car-original-lbl');
+  const origLbl = document.getElementById('mata-loan-original-lbl');
   if(origLbl) origLbl.textContent = `z ${fmt(original)} zł`;
 
-  const payEl = document.getElementById('mata-car-payment');
+  const payEl = document.getElementById('mata-loan-payment');
   if(payEl) payEl.textContent = fmt(payment) + ' zł' + (payment70 < MATA_CAR_MIN ? ' (minimum)' : '');
 
-  const intEl = document.getElementById('mata-car-interest');
+  const intEl = document.getElementById('mata-loan-interest');
   if(intEl) intEl.textContent = fmt(interest) + ' zł';
-  const capEl = document.getElementById('mata-car-capital');
+  const capEl = document.getElementById('mata-loan-capital');
   if(capEl) capEl.textContent = fmt(Math.round(capitalPayment)) + ' zł';
-  const afterEl = document.getElementById('mata-car-after');
+  const afterEl = document.getElementById('mata-loan-after');
   if(afterEl){
     afterEl.textContent = fmt(Math.round(remaining)) + ' zł';
     afterEl.style.color = remaining < 10000 ? '#3d7a60' : '#7a4868';
   }
 
   // Forecast — how many months left
-  const forecastEl = document.getElementById('mata-car-forecast');
+  const forecastEl = document.getElementById('mata-loan-forecast');
   if(forecastEl && capital > 0){
     // Simulate with average payment
     const avgPayment = Math.max(MATA_CAR_MIN, payment);
@@ -2600,21 +2488,21 @@ function mataCarCalc(){
   }
 }
 
-function mataCarRender(){
+function mataLoanRender(){
   const saved = mataData[mataYM];
-  const inp = document.getElementById('mata-car-capital-inp');
-  if(inp) inp.value = saved?.carCapital ?? 54490;
+  const inp = document.getElementById('mata-loan-capital-inp');
+  if(inp) inp.value = saved?.loanCapital ?? 54490;
 
   // Set original if first time
   if(!mataData[mataYM]) mataData[mataYM]={};
-  if(!mataData[mataYM].carOriginal) mataData[mataYM].carOriginal = saved?.carCapital ?? 54490;
+  if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = saved?.loanCapital ?? 54490;
 
-  mataCarCalc();
+  mataLoanCalc();
 }
 
-function mataGetStage(cushion, carPaid){
+function mataGetStage(cushion, loanPaid){
   if(cushion < MATA_CUSHION_GOAL) return 1;
-  if(!carPaid) return 2;
+  if(!loanPaid) return 2;
   return 3;
 }
 
@@ -2622,8 +2510,8 @@ function mataSavingsCalc(){
   const cushion = parseFloat(document.getElementById('mata-cushion-inp')?.value)||9500;
   const ikePaid = parseFloat(document.getElementById('mata-ike-paid')?.value)||0;
   const ikzePaid = parseFloat(document.getElementById('mata-ikze-paid')?.value)||0;
-  const carPaid = mataData[mataYM]?.carPaid||false;
-  const stage = mataGetStage(cushion, carPaid);
+  const loanPaid = mataData[mataYM]?.loanPaid||false;
+  const stage = mataGetStage(cushion, loanPaid);
 
   // Get surplus from UI
   const surplusRaw = document.getElementById('mata-pozostaje')?.textContent||'0';
@@ -2677,7 +2565,7 @@ function mataSavingsCalc(){
     let html=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e8e4f0;font-weight:700">
       <div>💰 Nadwyżka łącznie</div><div>${fmt(Math.round(surplus))} zł</div></div>`;
     html+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e8e4f0">
-      <div>${stage===3?'🏠 Nadpłata hipoteki (70%)':'🚗 Auto Andy\'ego (70%)'}</div>
+      <div>${stage===3?'🏠 Nadpłata hipoteki (70%)':'🚗 Pożyczka Andy\'ego (70%)'}</div>
       <div style="color:#7a4868;font-weight:700">${fmt(autoAmount)} zł</div></div>`;
 
     if(stage===1){
@@ -2717,22 +2605,27 @@ function mataSavingsCalc(){
     const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
     const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
     const steps=[
-      {n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:2500,color:'#7a4868'},
-      {n:2,icon:'🏠',label:'Składka na Dom',target:'Wspólne konto (Andy)',amt:Math.round(skladka),color:'#7a4868'},
-      {n:3,icon:'📱',label:'Fundusz swobodny',target:'mBank',amt:mbankStd+mbankExtra,color:'#5e4d82'},
-      {n:4,icon:stage===3?'🏠':'🚗',label:stage===3?'Nadpłata hipoteki':'Auto Andy\'ego',target:stage===3?'Millennium kredyt':'Konto Andy\'ego',amt:autoAmount,color:'#9a607a'},
-      {n:5,icon:stage===1?'🛡️':'📈',label:stage===1?'Poduszka':'Inwestycje',target:stage===1?'Millennium oszczędnościowe':'XTB / obligacje',amt:savAmount,color:'#3d7a60'},
+      {id:'hipoteka',n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:2500,color:'#7a4868'},
+      {id:'skladka',n:2,icon:'🏠',label:'Składka na Dom',target:'Wspólne konto (Andy)',amt:Math.round(skladka),color:'#7a4868'},
+      {id:'mbank',n:3,icon:'📱',label:'Fundusz swobodny',target:'mBank',amt:mbankStd+mbankExtra,color:'#5e4d82'},
+      {id:'loan',n:4,icon:stage===3?'🏠':'🚗',label:stage===3?'Nadpłata hipoteki':'Pożyczka Andy\'ego',target:stage===3?'Millennium kredyt':'Andy — zwrot\'ego',amt:autoAmount,color:'#9a607a'},
+      {id:'savings',n:5,icon:stage===1?'🛡️':'📈',label:stage===1?'Poduszka':'Inwestycje',target:stage===1?'Millennium oszczędnościowe':'XTB / obligacje',amt:savAmount,color:'#3d7a60'},
     ];
-    transferEl.innerHTML=steps.map(s=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #e8e4f0">
-        <div style="width:26px;height:26px;border-radius:50%;background:${s.color};color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${s.n}</div>
+    const doneSteps=mataData[mataYM]?.doneSteps||{};
+    transferEl.innerHTML=steps.map(s=>{
+      const done=doneSteps[s.id]||false;
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #e8e4f0;${done?'opacity:0.6':''}">
+        <button onclick="mataToggleStep('${s.id}')" style="width:26px;height:26px;border-radius:50%;border:2px solid ${done?'#3d7a60':s.color};background:${done?'#3d7a60':s.color};color:#fff;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+          ${done?'✓':s.n}
+        </button>
         <div style="font-size:16px;flex-shrink:0">${s.icon}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:#18102c">${s.label}</div>
+          <div style="font-size:13px;font-weight:600;color:#18102c;${done?'text-decoration:line-through':''}">${s.label}</div>
           <div style="font-size:10px;color:#7a6e98">→ ${s.target}</div>
         </div>
-        <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:${s.color}">${fmt(s.amt)} zł</div>
-      </div>`).join('');
+        <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:${done?'#3d7a60':s.color}">${fmt(s.amt)} zł</div>
+      </div>`;
+    }).join('');
   }
 
   // Cele
@@ -2823,8 +2716,8 @@ function renderStrategy(){
   const cushionGoal = mataData._settings?.cushionGoal || 50000;
   const ikePaid = mataData[mataYM]?.ikePaid || 0;
   const ikeLimit = mataData._settings?.ikeLimit || 26019;
-  const carCap = mataData[mataYM]?.carCapital || 54490;
-  const stage = mataGetStage(cushion, mataData[mataYM]?.carPaid||false);
+  const carCap = mataData[mataYM]?.loanCapital || 54490;
+  const stage = mataGetStage(cushion, mataData[mataYM]?.loanPaid||false);
 
   // Update settings inputs
   const ikeLimitEl = document.getElementById('strat-ike-limit');
@@ -2999,12 +2892,12 @@ function renderDash(){
   const cvalEl=document.getElementById('dash-cushion-val');if(cvalEl)cvalEl.textContent=fmt(cushion)+' zł';
 
   // Car
-  const carCap=mataData[mataYM]?.carCapital||54490;
-  const carOrig=mataData[mataYM]?.carOriginal||54490;
+  const carCap=mataData[mataYM]?.loanCapital||54490;
+  const carOrig=mataData[mataYM]?.loanOriginal||54490;
   const carPct=carOrig>0?Math.min(100,Math.round(((carOrig-carCap)/carOrig)*100)):0;
-  const carBar=document.getElementById('dash-car-bar');if(carBar)carBar.style.width=carPct+'%';
-  const carEl=document.getElementById('dash-car-remaining');if(carEl)carEl.textContent=fmt(carCap)+' zł';
-  const carEta=document.getElementById('dash-car-eta');
+  const carBar=document.getElementById('dash-loan-bar');if(carBar)carBar.style.width=carPct+'%';
+  const carEl=document.getElementById('dash-loan-remaining');if(carEl)carEl.textContent=fmt(carCap)+' zł';
+  const carEta=document.getElementById('dash-loan-eta');
   if(carEta){
     const payment=Math.max(2000,Math.round(pozostaje*0.7));
     if(payment>0&&carCap>0){
