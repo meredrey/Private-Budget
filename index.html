@@ -443,32 +443,20 @@ function setSyncStatus(status){
 function syncToSheets(s){
   setSyncStatus('saving');
   const data=encodeURIComponent(JSON.stringify(s));
-  const cbName='cb_'+Date.now();
-  const script=document.createElement('script');
-  script.src=`${API}?action=write&sheet=BudgetData&data=${data}&callback=${cbName}`;
-  window[cbName]=function(r){
-    document.body.removeChild(script);
-    delete window[cbName];
+  fetch(`${API}?action=write&sheet=BudgetData&data=${data}`)
+  .then(r=>r.json())
+  .then(r=>{
     if(r.success){setSyncStatus('saved');}
     else{setSyncStatus('error');}
     setTimeout(()=>setSyncStatus(''),3000);
-  };
-  script.onerror=()=>{
-    document.body.removeChild(script);
-    delete window[cbName];
-    setSyncStatus('error');
-    setTimeout(()=>setSyncStatus(''),4000);
-  };
-  document.body.appendChild(script);
+  })
+  .catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
 }
 
 function syncFromSheets(){
-  const cbName='cb_'+Date.now();
-  const script=document.createElement('script');
-  script.src=`${API}?action=read&sheet=BudgetData&callback=${cbName}`;
-  window[cbName]=function(r){
-    document.body.removeChild(script);
-    delete window[cbName];
+  fetch(`${API}?action=read&sheet=BudgetData`)
+  .then(r=>r.json())
+  .then(r=>{
     if(r.success&&r.data){
       _state=r.data;
       try{localStorage.setItem(KEY,JSON.stringify(_state));}catch{}
@@ -476,14 +464,8 @@ function syncFromSheets(){
       setSyncStatus('saved');
       setTimeout(()=>setSyncStatus(''),2000);
     }
-  };
-  script.onerror=()=>{
-    document.body.removeChild(script);
-    delete window[cbName];
-    setSyncStatus('error');
-    setTimeout(()=>setSyncStatus(''),4000);
-  };
-  document.body.appendChild(script);
+  })
+  .catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
 }
 function dKey(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fmt(n){return Number(n||0).toLocaleString('pl-PL',{minimumFractionDigits:0,maximumFractionDigits:2});}
