@@ -442,11 +442,8 @@ function setSyncStatus(status){
 
 function syncToSheets(s){
   setSyncStatus('saving');
-  fetch(API+'?action=write&sheet=BudgetData',{
-    method:'POST',
-    body:JSON.stringify(s),
-    headers:{'Content-Type':'application/json'}
-  })
+  const data=encodeURIComponent(JSON.stringify(s));
+  fetch(`${API}?action=write&sheet=BudgetData&data=${data}`)
   .then(r=>r.json())
   .then(r=>{
     if(r.success) setSyncStatus('saved');
