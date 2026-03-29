@@ -950,6 +950,14 @@ function showPage(name){
 }
 
 renderAll();
+
+// Auto-sync from Sheets every 30 seconds
+setInterval(()=>syncFromSheets(), 30000);
+
+// Sync when tab becomes visible (user switches back to this tab/app)
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) syncFromSheets();
+});
 </script>
 </body>
 </html>
