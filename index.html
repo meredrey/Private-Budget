@@ -442,13 +442,26 @@ function setSyncStatus(status){
 
 function syncToSheets(s){
   setSyncStatus('saving');
-  const data=encodeURIComponent(JSON.stringify(s));
-  fetch(`${API}?action=write&sheet=BudgetData&data=${data}`)
-  .then(r=>r.json())
-  .then(r=>{
-    if(r.success) setSyncStatus('saved');
-    else setSyncStatus('error');
-    setTimeout(()=>setSyncStatus(''),3000);
+  // Use fetch with no-cors for POST — Apps Script accepts this
+  // We can't read the response in no-cors mode, so we verify with a separate GET
+  const payload=JSON.stringify({sheet:'BudgetData',data:s});
+  fetch(API,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body:payload
+  })
+  .then(()=>{
+    // Verify write succeeded with a ping
+    setTimeout(()=>{
+      fetch(`${API}?action=read&sheet=BudgetData`)
+      .then(r=>r.json())
+      .then(r=>{
+        if(r.success&&r.data){setSyncStatus('saved');}
+        else{setSyncStatus('error');}
+        setTimeout(()=>setSyncStatus(''),3000);
+      }).catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
+    },2000);
   })
   .catch(()=>{setSyncStatus('error');setTimeout(()=>setSyncStatus(''),4000);});
 }
