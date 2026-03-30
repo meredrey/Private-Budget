@@ -1100,33 +1100,37 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
         <div id="mata-loan-paid-lbl">spłacono 0 zł</div>
-        <div id="mata-loan-original-lbl">z 54 490 zł</div>
+        <div id="mata-loan-original-lbl">z 84 135 zł</div>
       </div>
     </div>
 
-    <!-- Aktualna rata -->
+    <!-- Rata w tym miesiącu -->
     <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">RATA W TYM MIESIĄCU</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-size:13px;color:#18102c">💸 Rata pożyczki (70% nadwyżki)</div>
         <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-loan-payment">— zł</div>
       </div>
-      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9" id="mata-loan-breakdown">
+      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9">
         <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">— zł</span></div>
         <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">— zł</span></div>
         <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">— zł</span></div>
       </div>
+      <!-- Przycisk oznacz jako zapłacone → auto-update kapitału -->
+      <button id="mata-loan-paid-btn" onclick="mataLoanMarkPaid()"
+        style="width:100%;margin-top:10px;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">
+        ☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał
+      </button>
     </div>
 
-    <!-- Aktualizacja kapitału -->
+    <!-- Wiadomość do Andy'ego -->
     <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">AKTUALIZUJ KAPITAŁ</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input class="dom-inp" type="number" id="mata-loan-capital-inp" placeholder="54490"
-          style="flex:1" oninput="mataLoanCalc()" onchange="mataLoanCalc()">
-        <span style="font-size:12px;color:#7a6e98">zł pozostało</span>
-      </div>
-      <div style="font-size:11px;color:#7a6e98;margin-top:6px">Wpisz aktualny stan kapitału po każdej racie</div>
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
+      <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
+      <button onclick="mataCopyAndyMsg()"
+        style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
+        📋 Kopiuj wiadomość
+      </button>
     </div>
 
     <!-- Prognoza -->
@@ -1739,8 +1743,19 @@ function domSetVal(expName,field,val,ym){
   if(!domData[ym])domData[ym]={};
   if(!domData[ym][expName])domData[ym][expName]={};
   domData[ym][expName][field]=val===''||isNaN(parseFloat(val))?null:parseFloat(val);
+  // Save last update date
+  domData[ym][expName]._updated = new Date().toISOString().slice(0,10);
   domScheduleSave();
   domUpdateSummary();
+  // Re-render the specific row to show updated date
+  const safeId='domrow_'+ym+'_'+(expName.replace(/[^a-zA-Z0-9]/g,'_'));
+  const rowEl=document.getElementById(safeId);
+  if(rowEl){
+    const allExps=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+    const exp=allExps.find(e=>e.name===expName);
+    if(exp) rowEl.outerHTML=domRenderRow(exp,ym);
+    domRenderRows();
+  }
 }
 
 function domRenderRow(exp,ym){
@@ -1752,9 +1767,28 @@ function domRenderRow(exp,ym){
   const isOver=diff!=null&&diff>0;
   const rowCls='dom-row'+(real!=null?' has-real':'')+(isOver?' is-over':'');
   const safeId='domrow_'+ym+'_'+(exp.name.replace(/[^a-zA-Z0-9]/g,'_'));
+  const updDate=domData[ym]?.[exp.name]?._updated;
+  const entries=domData[ym]?.[exp.name]?._entries||[];
+  const updStr=updDate?`<span style="font-size:9px;color:#b0a4cc;margin-left:4px">· ${updDate}</span>`:'';
+
+  // Entries list (sub-items)
+  const entriesHtml=entries.length>0?`
+    <div style="margin-top:4px;padding-left:8px;border-left:2px solid #e8e4f0">
+      ${entries.map((e,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a6e98;padding:1px 0">
+        <span>${e.name||'wpłata'}</span>
+        <span style="display:flex;align-items:center;gap:4px">
+          ${fmt(e.amount)} zł
+          <button onclick="domRemoveEntry('${safeId}',${i},'${ym}')" style="background:none;border:none;color:#b0a4cc;cursor:pointer;font-size:12px;padding:0 2px">×</button>
+        </span>
+      </div>`).join('')}
+    </div>`:'';
+
   return`<div class="${rowCls}" id="${safeId}">
     <div class="dom-name">
-      <div class="dom-label">${exp.icon||''} ${exp.name}</div>
+      <div class="dom-label">${exp.icon||''} ${exp.name}${updStr}</div>
+      ${entriesHtml}
+      <button onclick="domAddEntry('${safeId}','${ym}')"
+        style="margin-top:3px;font-size:10px;color:#5e4d82;background:none;border:none;cursor:pointer;padding:0;text-align:left">+ dodaj wpłatę</button>
     </div>
     <div class="dom-inputs">
       <div class="dom-plan-val">
@@ -1770,6 +1804,45 @@ function domRenderRow(exp,ym){
       <div class="dom-diff ${diffCls}">${diffStr}</div>
     </div>
   </div>`;
+}
+
+function domAddEntry(safeId, ym){
+  const meta=_domRowMeta[safeId];
+  if(!meta) return;
+  const {exp}=meta;
+  const nameInput=prompt('Opis (opcjonalnie):','');
+  if(nameInput===null) return;
+  const amtInput=prompt('Kwota (zł):','');
+  if(!amtInput||isNaN(parseFloat(amtInput))) return;
+  const amt=parseFloat(amtInput);
+  if(!domData[ym])domData[ym]={};
+  if(!domData[ym][exp.name])domData[ym][exp.name]={};
+  if(!domData[ym][exp.name]._entries)domData[ym][exp.name]._entries=[];
+  domData[ym][exp.name]._entries.push({name:nameInput||'wpłata', amount:amt});
+  domData[ym][exp.name]._updated=new Date().toISOString().slice(0,10);
+  // Auto-sum entries into real
+  const total=domData[ym][exp.name]._entries.reduce((s,e)=>s+e.amount,0);
+  domData[ym][exp.name].real=total;
+  domScheduleSave();
+  domUpdateSummary();
+  // Re-render row
+  const rowEl=document.getElementById(safeId);
+  if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
+}
+
+function domRemoveEntry(safeId, idx, ym){
+  const meta=_domRowMeta[safeId];
+  if(!meta) return;
+  const {exp}=meta;
+  if(!domData[ym]?.[exp.name]?._entries) return;
+  domData[ym][exp.name]._entries.splice(idx,1);
+  const total=domData[ym][exp.name]._entries.reduce((s,e)=>s+e.amount,0);
+  domData[ym][exp.name].real=total>0?total:null;
+  domData[ym][exp.name]._updated=new Date().toISOString().slice(0,10);
+  domScheduleSave();
+  domUpdateSummary();
+  const rowEl=document.getElementById(safeId);
+  if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
 }
 
 // Store row metadata for editing
@@ -2576,88 +2649,160 @@ const MATA_SAVE_SPLIT = 0.30;
 const MATA_CAR_RATE = 0.005; // 0.5%/mies = 6% rocznie
 const MATA_CAR_MIN = 2000;
 
-function mataLoanCalc(){
-  // Get current capital from input or saved data
-  const capitalInp = parseFloat(document.getElementById('mata-loan-capital-inp')?.value);
-  const saved = mataData[mataYM];
-  const capital = !isNaN(capitalInp) ? capitalInp : (saved?.loanCapital ?? 54490);
+const MATA_LOAN_ORIGINAL = 84135;
 
-  // Save
-  if(!mataData[mataYM]) mataData[mataYM]={};
-  if(!isNaN(capitalInp)) mataData[mataYM].loanCapital = capitalInp;
-  mataScheduleSave();
+function mataLoanCalc(){
+  const saved = mataData[mataYM]||{};
+  const capital = saved.loanCapital ?? 54490;
 
   // Get this month's payment = 70% of surplus, min 2000
   const surplus = mataGetSurplus();
   const payment70 = Math.round(surplus * 0.70);
   const payment = Math.max(MATA_CAR_MIN, payment70);
 
-  // Calculate interest and capital
+  // Interest and capital breakdown
   const interest = Math.round(capital * MATA_CAR_RATE * 100) / 100;
-  const capitalPayment = Math.max(0, payment - interest);
+  const capitalPayment = Math.max(0, Math.round(payment - interest));
   const remaining = Math.max(0, capital - capitalPayment);
 
-  // Original capital (first month)
-  const original = mataData[mataYM]?.loanOriginal ?? 54490;
+  // Store calculated values for this month (for Andy message)
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  mataData[mataYM]._loanInterest = interest;
+  mataData[mataYM]._loanCapitalPayment = capitalPayment;
+  mataData[mataYM]._loanPayment = payment;
+  mataData[mataYM]._loanRemaining = remaining;
 
-  // Update UI
-  const remEl = document.getElementById('mata-loan-remaining');
-  if(remEl) remEl.textContent = fmt(capital) + ' zł';
-
-  const pct = original > 0 ? Math.min(100, Math.round(((original-capital)/original)*100)) : 0;
+  // Progress bar
+  const paidTotal = MATA_LOAN_ORIGINAL - capital;
+  const pct = Math.min(100, Math.round((paidTotal/MATA_LOAN_ORIGINAL)*100));
   const bar = document.getElementById('mata-loan-bar');
-  if(bar) bar.style.width = pct + '%';
+  if(bar) bar.style.width = pct+'%';
+  const remEl=document.getElementById('mata-loan-remaining'); if(remEl)remEl.textContent=fmt(capital)+' zł';
+  const paidLbl=document.getElementById('mata-loan-paid-lbl'); if(paidLbl)paidLbl.textContent=`spłacono ${fmt(paidTotal)} zł (${pct}%)`;
+  const origLbl=document.getElementById('mata-loan-original-lbl'); if(origLbl)origLbl.textContent=`z ${fmt(MATA_LOAN_ORIGINAL)} zł`;
 
-  const paidLbl = document.getElementById('mata-loan-paid-lbl');
-  if(paidLbl) paidLbl.textContent = `spłacono ${fmt(original-capital)} zł (${pct}%)`;
-  const origLbl = document.getElementById('mata-loan-original-lbl');
-  if(origLbl) origLbl.textContent = `z ${fmt(original)} zł`;
+  // Rata breakdown
+  const payEl=document.getElementById('mata-loan-payment'); if(payEl)payEl.textContent=fmt(payment)+' zł'+(payment70<MATA_CAR_MIN?' (minimum)':'');
+  const intEl=document.getElementById('mata-loan-interest'); if(intEl)intEl.textContent=fmt(interest)+' zł';
+  const capEl=document.getElementById('mata-loan-capital'); if(capEl)capEl.textContent=fmt(capitalPayment)+' zł';
+  const afterEl=document.getElementById('mata-loan-after');
+  if(afterEl){afterEl.textContent=fmt(remaining)+' zł';afterEl.style.color=remaining<10000?'#3d7a60':'#7a4868';}
 
-  const payEl = document.getElementById('mata-loan-payment');
-  if(payEl) payEl.textContent = fmt(payment) + ' zł' + (payment70 < MATA_CAR_MIN ? ' (minimum)' : '');
-
-  const intEl = document.getElementById('mata-loan-interest');
-  if(intEl) intEl.textContent = fmt(interest) + ' zł';
-  const capEl = document.getElementById('mata-loan-capital');
-  if(capEl) capEl.textContent = fmt(Math.round(capitalPayment)) + ' zł';
-  const afterEl = document.getElementById('mata-loan-after');
-  if(afterEl){
-    afterEl.textContent = fmt(Math.round(remaining)) + ' zł';
-    afterEl.style.color = remaining < 10000 ? '#3d7a60' : '#7a4868';
+  // Paid button state
+  const paidBtn=document.getElementById('mata-loan-paid-btn');
+  const ratePaid = saved.loanRatePaid||false;
+  if(paidBtn){
+    paidBtn.textContent=ratePaid?'✅ Rata zapłacona (kapitał zaktualizowany)':'☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał';
+    paidBtn.style.background=ratePaid?'#d4f0e4':'#eeebf5';
+    paidBtn.style.borderColor=ratePaid?'#3d7a60':'#b0a4cc';
+    paidBtn.style.color=ratePaid?'#3d7a60':'#4a4060';
   }
 
-  // Forecast — how many months left
-  const forecastEl = document.getElementById('mata-loan-forecast');
-  if(forecastEl && capital > 0){
-    // Simulate with average payment
-    const avgPayment = Math.max(MATA_CAR_MIN, payment);
-    let sim = capital;
-    let months = 0;
-    while(sim > 0 && months < 120){
-      const int = sim * MATA_CAR_RATE;
-      const cap = Math.min(sim, avgPayment - int);
-      if(cap <= 0){months=999;break;}
-      sim -= cap;
-      months++;
+  // Andy message
+  mataGenerateAndyMsg(payment, interest, capitalPayment, remaining, capital);
+
+  // Forecast
+  const forecastEl=document.getElementById('mata-loan-forecast');
+  if(forecastEl && capital>0){
+    let sim=capital, months=0;
+    while(sim>0&&months<120){
+      const i=sim*MATA_CAR_RATE;
+      const c=Math.min(sim,payment-i);
+      if(c<=0){months=999;break;}
+      sim-=c; months++;
     }
-    if(months < 120){
-      const d = new Date();
-      d.setMonth(d.getMonth() + months);
-      const totalInterest = Math.round(avgPayment * months - capital);
-      forecastEl.innerHTML = `
-        ⏱️ Przy racie ${fmt(avgPayment)} zł — spłata za <b>${months} mies.</b><br>
-        📅 Przewidywana data: <b>${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}</b><br>
-        💸 Łączne odsetki: ~${fmt(Math.max(0,totalInterest))} zł<br>
-        <span style="color:#b0a4cc;font-size:11px">* Prognoza orientacyjna — rata zmienia się co miesiąc wraz z nadwyżką</span>
-      `;
-    } else {
-      forecastEl.innerHTML = '⚠️ Zwiększ ratę — przy minimum 2 000 zł spłata potrwa bardzo długo';
-    }
-  } else if(forecastEl && capital <= 0){
-    forecastEl.innerHTML = '✅ Kredyt spłacony!';
-    forecastEl.style.color = '#3d7a60';
+    if(months<120){
+      const d=new Date(); d.setMonth(d.getMonth()+months);
+      forecastEl.innerHTML=`⏱️ Przy racie ${fmt(payment)} zł — spłata za <b>${months} mies.</b> (${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})})<br>
+      <span style="color:#b0a4cc;font-size:11px">* Orientacyjnie — rata zmienia się co miesiąc</span>`;
+    } else forecastEl.innerHTML='⚠️ Zwiększ ratę ponad minimum 2 000 zł';
+  } else if(forecastEl&&capital<=0){
+    forecastEl.innerHTML='<b style="color:#3d7a60">✅ Pożyczka spłacona!</b>';
   }
 }
+
+function mataLoanMarkPaid(){
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  const already = mataData[mataYM].loanRatePaid||false;
+  if(already){
+    // Undo
+    mataData[mataYM].loanRatePaid = false;
+    mataData[mataYM].loanCapital = mataData[mataYM]._loanCapitalBefore ?? mataData[mataYM].loanCapital;
+  } else {
+    // Mark paid — update capital
+    const capital = mataData[mataYM].loanCapital ?? 54490;
+    const capitalPayment = mataData[mataYM]._loanCapitalPayment ?? 0;
+    mataData[mataYM]._loanCapitalBefore = capital;
+    mataData[mataYM].loanCapital = Math.max(0, capital - capitalPayment);
+    mataData[mataYM].loanRatePaid = true;
+    mataData[mataYM].loanRatePaidDate = new Date().toISOString().slice(0,10);
+  }
+  mataScheduleSave();
+  mataLoanCalc();
+}
+
+function mataGenerateAndyMsg(payment, interest, capitalPayment, remaining, capitalBefore){
+  const msgEl = document.getElementById('mata-andy-msg');
+  if(!msgEl) return;
+
+  const now = new Date();
+  const monthName = now.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+
+  // Get składka
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
+  const skladka=Math.max(0,(planSum-domGetIncome())/2);
+  const total = Math.round(payment + skladka);
+
+  const msg = `Hi Andy 👋
+
+Here's my monthly summary for ${monthName}:
+
+🏠 Household contribution (my share): ${fmt(Math.round(skladka))} PLN
+
+🚗 Car loan payment: ${fmt(payment)} PLN
+   • Interest: ${fmt(interest)} PLN
+   • Principal: ${fmt(capitalPayment)} PLN
+   • Remaining balance: ${fmt(remaining)} PLN
+
+💸 Total transfer to our account: ${fmt(total)} PLN
+
+Please send ${fmt(total)} PLN to our shared account.
+
+Thanks! 🙏`;
+
+  msgEl.textContent = msg;
+}
+
+function mataCopyAndyMsg(){
+  const msg = document.getElementById('mata-andy-msg')?.textContent||'';
+  navigator.clipboard.writeText(msg).then(()=>{
+    const btn = event.target;
+    btn.textContent = '✅ Skopiowano!';
+    btn.style.background = '#3d7a60';
+    setTimeout(()=>{btn.textContent='📋 Kopiuj wiadomość';btn.style.background='#5e4d82';},2000);
+  }).catch(()=>{
+    // Fallback for Safari
+    const ta = document.createElement('textarea');
+    ta.value = msg;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = event.target;
+    btn.textContent = '✅ Skopiowano!';
+    btn.style.background = '#3d7a60';
+    setTimeout(()=>{btn.textContent='📋 Kopiuj wiadomość';btn.style.background='#5e4d82';},2000);
+  });
+}
+
+function mataLoanRender(){
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = MATA_LOAN_ORIGINAL;
+  if(mataData[mataYM].loanCapital === undefined) mataData[mataYM].loanCapital = 54490;
+  mataLoanCalc();
+}
+
 
 function mataLoanRender(){
   const saved = mataData[mataYM];
