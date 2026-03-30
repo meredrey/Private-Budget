@@ -210,113 +210,157 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
 <!-- ══ DASHBOARD ══ -->
 <div class="page active" id="page-dash">
-  <div class="header">
-    <div class="hc1"></div><div class="hc2"></div>
-    <div class="h-eye">Private Budget</div>
-    <h1>Dzień <em>dobry</em> 👋</h1>
-    <div class="h-sub" id="dash-date">—</div>
+
+  <!-- FULL-BLEED HEADER -->
+  <div style="position:relative;background:linear-gradient(145deg,#3d2f5e 0%,#5e4d82 50%,#7a6098 100%);padding:52px 20px 80px;overflow:hidden">
+    <!-- Decorative circles -->
+    <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)"></div>
+    <div style="position:absolute;bottom:-20px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)"></div>
+    <div style="position:absolute;top:30px;right:60px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.08)"></div>
+
+    <div style="position:relative;z-index:1">
+      <div style="font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:6px" id="dash-date">—</div>
+      <div style="font-size:28px;font-weight:300;color:#fff;font-family:Georgia,serif;margin-bottom:2px">Cześć, Mata 👋</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6)" id="dash-greeting-sub">—</div>
+    </div>
   </div>
 
-  <div style="height:14px"></div>
+  <!-- FLOATING CARDS — pulled up over header -->
+  <div style="margin:-44px 16px 0;position:relative;z-index:10;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
 
-  <!-- ALERT — czy coś wymaga uwagi -->
-  <div id="dash-alerts" style="margin:0 12px 12px"></div>
+    <!-- Fundusz tygodnia -->
+    <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 20px rgba(61,47,94,.18);cursor:pointer" onclick="showPage('week')">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:6px">TYDZIEŃ</div>
+      <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;line-height:1;margin-bottom:2px" id="dash-week-amt" style="color:#18102c">—</div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:8px" id="dash-week-sub">zostało</div>
+      <div style="height:4px;background:#e8e4f0;border-radius:99px;overflow:hidden">
+        <div id="dash-week-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#5e4d82);transition:width .5s"></div>
+      </div>
+    </div>
 
-  <!-- FUNDUSZ SWOBODNY -->
-  <div class="sec-lbl">💸 Fundusz swobodny</div>
-  <div class="card" style="margin-bottom:12px;cursor:pointer" onclick="showPage('week')">
-    <div style="padding:14px 16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;font-weight:600;color:#18102c" id="dash-week-label">Ten tydzień</div>
-        <div style="font-size:11px;color:#7a6e98">→ szczegóły</div>
-      </div>
-      <div style="font-family:Georgia,serif;font-size:36px;font-weight:600;color:#18102c;margin-bottom:6px" id="dash-remains">—</div>
-      <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:4px">
-        <div id="dash-week-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#5e4d82);transition:width .4s;width:0%"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
-        <div id="dash-spent">wydano 0 zł</div>
-        <div id="dash-budget">budżet 0 zł</div>
+    <!-- Cykl -->
+    <div style="background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 20px rgba(61,47,94,.18);cursor:pointer" onclick="showPage('week')">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:6px">CYKL</div>
+      <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;line-height:1;margin-bottom:2px" id="dash-cycle-amt">—</div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:8px" id="dash-cycle-sub">zostało</div>
+      <div style="height:4px;background:#e8e4f0;border-radius:99px;overflow:hidden">
+        <div id="dash-cycle-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#5e4d82);transition:width .5s"></div>
       </div>
     </div>
   </div>
 
-  <!-- DOM -->
-  <div class="sec-lbl">🏠 Budżet domowy</div>
-  <div class="card" style="margin-bottom:12px;cursor:pointer" onclick="showPage('dom')">
-    <div style="padding:14px 16px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:600;color:#18102c" id="dash-dom-month">—</div>
-        <div style="font-size:11px;color:#7a6e98">→ szczegóły</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#f4f1fc;border-radius:12px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;letter-spacing:1px;margin-bottom:4px">SKŁADKA</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#5e4d82" id="dash-skladka">— zł</div>
-          <div style="font-size:10px;color:#7a6e98;margin-top:2px">każdy z Was</div>
-        </div>
-        <div style="background:#f4f1fc;border-radius:12px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;letter-spacing:1px;margin-bottom:4px">WYDANO</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#18102c" id="dash-dom-real">— zł</div>
-          <div style="font-size:10px;color:#7a6e98;margin-top:2px" id="dash-dom-plan-sub">z — zł planu</div>
-        </div>
-      </div>
+  <!-- ALERTY -->
+  <div id="dash-alerts" style="margin:0 16px 12px"></div>
+
+  <!-- PRZELEWY STATUS -->
+  <div id="dash-transfers-card" style="margin:0 16px 12px;border-radius:16px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="showPage('mata')">
+    <div style="font-size:24px" id="dash-transfers-icon">💸</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:#18102c" id="dash-transfers-title">Przelewy tego miesiąca</div>
+      <div style="font-size:11px;margin-top:2px" id="dash-transfers-sub">—</div>
+    </div>
+    <div style="font-size:18px;color:#b0a4cc">›</div>
+  </div>
+
+  <!-- DOM + MATA w jednym rzędzie -->
+  <div style="margin:0 16px 12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+    <!-- Dom -->
+    <div style="background:#fff;border:2px solid #e8e4f0;border-radius:16px;padding:14px;cursor:pointer" onclick="showPage('dom')">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:8px">🏠 DOM</div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">Składka</div>
+      <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#5e4d82;margin-bottom:8px" id="dash-skladka">— zł</div>
+      <div style="height:1px;background:#e8e4f0;margin-bottom:8px"></div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">Wydano</div>
+      <div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#18102c" id="dash-dom-real">— zł</div>
+      <div style="font-size:10px;color:#b0a4cc;margin-top:1px" id="dash-dom-plan-sub">z — zł</div>
+    </div>
+
+    <!-- Finanse -->
+    <div style="background:#fff;border:2px solid #e8e4f0;border-radius:16px;padding:14px;cursor:pointer" onclick="showPage('mata')">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:8px">💸 FINANSE</div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">Dochód</div>
+      <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60;margin-bottom:8px" id="dash-salary">— zł</div>
+      <div style="height:1px;background:#e8e4f0;margin-bottom:8px"></div>
+      <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">Zostaje</div>
+      <div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dash-pozostaje">— zł</div>
+      <div style="font-size:10px;color:#b0a4cc;margin-top:1px">na oszczędności</div>
     </div>
   </div>
 
-  <!-- MATA -->
-  <div class="sec-lbl">👩 Moje finanse</div>
-  <div class="card" style="margin-bottom:12px;cursor:pointer" onclick="showPage('mata')">
-    <div style="padding:14px 16px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:600;color:#18102c">Ten miesiąc</div>
-        <div style="font-size:11px;color:#7a6e98">→ szczegóły</div>
+  <!-- BUDŻET SWOBODNY — status -->
+  <div style="margin:0 16px 12px;background:#fff;border:2px solid #e8e4f0;border-radius:16px;padding:14px 16px;cursor:pointer" onclick="showPage('week')">
+    <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:8px">✨ BUDŻET SWOBODNY</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="dash-free-badge" style="padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#e8f4ee;color:#3d7a60">
+        ✅ Available to spend
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div style="background:#f4f1fc;border-radius:12px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;letter-spacing:1px;margin-bottom:4px">DOCHÓD</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dash-salary">— zł</div>
-        </div>
-        <div style="background:#f4f1fc;border-radius:12px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:#4a4060;letter-spacing:1px;margin-bottom:4px">ZOSTAJE</div>
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#5e4d82" id="dash-pozostaje">— zł</div>
-        </div>
-      </div>
-      <!-- Przelewy status -->
-      <div id="dash-transfers-status" style="font-size:12px;padding:8px 10px;border-radius:10px;background:#eeebf5;color:#4a4060;font-weight:600">
-        ☐ Przelewy tego miesiąca — nie wykonane
-      </div>
+      <div style="font-size:12px;color:#7a6e98" id="dash-free-sub">—</div>
     </div>
   </div>
 
-  <!-- OSZCZĘDNOŚCI -->
-  <div class="sec-lbl">🏦 Oszczędności</div>
-  <div class="card" style="margin-bottom:12px;cursor:pointer" onclick="showPage('mata')">
-    <div style="padding:14px 16px">
-      <!-- Poduszka -->
-      <div style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:13px;font-weight:600;color:#18102c">🛡️ Poduszka bezpieczeństwa</div>
-          <div style="font-size:12px;font-weight:700;color:#5e4d82" id="dash-cushion-pct">—%</div>
+  <!-- OSZCZĘDNOŚCI — wykresy kołowe -->
+  <div style="margin:0 16px 12px;background:#fff;border:2px solid #e8e4f0;border-radius:16px;padding:16px;cursor:pointer" onclick="showPage('mata')">
+    <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#7a6e98;text-transform:uppercase;margin-bottom:14px">🏦 OSZCZĘDNOŚCI</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <!-- Poduszka donut -->
+      <div style="text-align:center">
+        <div style="position:relative;width:96px;height:96px;margin:0 auto 8px">
+          <svg viewBox="0 0 96 96" style="transform:rotate(-90deg);width:96px;height:96px">
+            <circle cx="48" cy="48" r="38" fill="none" stroke="#e8e4f0" stroke-width="10"/>
+            <circle cx="48" cy="48" r="38" fill="none" stroke="url(#cushionGrad)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="238.76" id="dash-cushion-dash" stroke-dashoffset="238.76"/>
+            <defs>
+              <linearGradient id="cushionGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#8a78b0"/>
+                <stop offset="100%" stop-color="#3d7a60"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#18102c" id="dash-cushion-pct">—%</div>
+          </div>
         </div>
-        <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:4px">
-          <div id="dash-cushion-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#3d7a60);width:0%;transition:width .5s"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
-          <div id="dash-cushion-val">0 zł</div>
-          <div>cel: 50 000 zł</div>
-        </div>
+        <div style="font-size:11px;font-weight:700;color:#18102c;margin-bottom:2px">🛡️ Poduszka</div>
+        <div style="font-size:11px;color:#5e4d82;font-weight:600" id="dash-cushion-val">0 zł</div>
+        <div style="font-size:10px;color:#b0a4cc">cel 50 000 zł</div>
       </div>
-      <!-- Kredyt Andy -->
-      <div style="border-top:1.5px solid #e8e4f0;padding-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:13px;font-weight:600;color:#18102c">🚗 Pożyczka od Andy'ego</div>
-          <div style="font-size:12px;font-weight:700;color:#7a4868" id="dash-loan-remaining">— zł</div>
+
+      <!-- Kredyt donut -->
+      <div style="text-align:center">
+        <div style="position:relative;width:96px;height:96px;margin:0 auto 8px">
+          <svg viewBox="0 0 96 96" style="transform:rotate(-90deg);width:96px;height:96px">
+            <circle cx="48" cy="48" r="38" fill="none" stroke="#e8e4f0" stroke-width="10"/>
+            <circle cx="48" cy="48" r="38" fill="none" stroke="url(#carGrad)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="238.76" id="dash-car-dash" stroke-dashoffset="0"/>
+            <defs>
+              <linearGradient id="carGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9a607a"/>
+                <stop offset="100%" stop-color="#5e4d82"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#18102c" id="dash-car-pct">—%</div>
+          </div>
         </div>
-        <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden">
-          <div id="dash-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s;width:0%"></div>
-        </div>
-        <div style="font-size:11px;color:#7a6e98;margin-top:4px" id="dash-loan-eta">—</div>
+        <div style="font-size:11px;font-weight:700;color:#18102c;margin-bottom:2px">🚗 Kredyt</div>
+        <div style="font-size:11px;color:#7a4868;font-weight:600" id="dash-car-remaining">— zł</div>
+        <div style="font-size:10px;color:#b0a4cc">zostało</div>
+      </div>
+    </div>
+
+    <!-- Zostaje na oszczędności -->
+    <div style="margin-top:12px;padding-top:12px;border-top:1.5px solid #e8e4f0;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">30% nadwyżki → oszczędności</div>
+        <div style="font-size:10px;color:#b0a4cc" id="dash-car-eta">—</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#7a6e98;margin-bottom:2px">Ten miesiąc</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#3d7a60" id="dash-savings-amt">— zł</div>
       </div>
     </div>
   </div>
@@ -2812,9 +2856,12 @@ function budRenderList(){
         <div style="font-size:20px">${p.emoji||'🗓️'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:#18102c">${p.name}</div>
-          <div style="font-size:11px;color:#7a6e98">${p.date}</div>
+          <div style="font-size:11px;color:#7a6e98">${p.date} · ${fmt(p.amount)} zł</div>
         </div>
-        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#5e4d82">${fmt(p.amount)} zł</div>
+        <button onclick="budConfirmPlan('${p.id}')"
+          style="padding:5px 10px;background:#3d7a60;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+          ✓ Zapłacono
+        </button>
         <button onclick="deletePlan('${p.id}')" style="background:none;border:none;font-size:16px;color:#b0a4cc;cursor:pointer;padding:0 4px">×</button>
       </div>`).join('');
   } else {
@@ -2925,6 +2972,35 @@ function budQuickSave(){
   document.getElementById('bud-add-name').value='';
   document.getElementById('bud-add-amt').value='';
   document.getElementById('bud-inline-alert').style.display='none';
+  renderBudget();
+}
+
+function budConfirmPlan(id){
+  const st = load();
+  const plan = (st.planned||[]).find(p=>p.id===id);
+  if(!plan) return;
+
+  // Ask for actual amount
+  const input = prompt(`Ile zapłaciłaś za "${plan.name}"?\n(zostaw puste = ${fmt(plan.amount)} zł)`, plan.amount);
+  if(input === null) return; // cancelled
+
+  const actualAmt = input.trim()==='' ? plan.amount : parseFloat(input);
+  if(isNaN(actualAmt)||actualAmt<=0){ alert('Nieprawidłowa kwota'); return; }
+
+  // Add as expense today
+  if(!st.expenses) st.expenses=[];
+  st.expenses.push({
+    id: Date.now()+'',
+    name: plan.name,
+    amount: actualAmt,
+    emoji: plan.emoji||'💸',
+    cat: '📦 Inne',
+    date: dKey(new Date())
+  });
+
+  // Remove from plans
+  st.planned = (st.planned||[]).filter(p=>p.id!==id);
+  save(st);
   renderBudget();
 }
 
@@ -3077,119 +3153,147 @@ function renderStrategy(){
 // ── DASHBOARD ──
 function renderDash(){
   const now = new Date();
-  document.getElementById('dash-date').textContent =
-    now.toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const days = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
+  const months = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+
+  // Date
+  const dateEl = document.getElementById('dash-date');
+  if(dateEl) dateEl.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 
   const st = load();
-  const pd = st.payday||28;
 
-  // Week surplus
-  const {ws} = getWeekStarts(pd);
-  const today = new Date();
-  let curWeek = ws[0];
-  for(let i=0;i<ws.length;i++){
-    const next = ws[i+1]||new Date(9999,0,1);
-    if(today>=ws[i]&&today<next){curWeek=ws[i];break;}
-  }
-  const nextWeek = ws[ws.indexOf(curWeek)+1]||new Date(9999,0,1);
-  const weekDays = Math.round((nextWeek-curWeek)/86400000);
-  const {start:cycleStart,end:cycleEnd} = getCycle(pd);
-  const cycleDays = Math.round((cycleEnd-cycleStart)/86400000)+1;
-  const weekBudget = Math.round((st.budget||0)*(weekDays/cycleDays));
-  const weekKey = d=>d.toISOString().slice(0,10);
-  const wStart = weekKey(curWeek);
-  const wEnd = weekKey(new Date(nextWeek-86400000));
-  const weekSpent = (st.expenses||[])
-    .filter(e=>e.date>=wStart&&e.date<=wEnd)
-    .reduce((s,e)=>s+e.amount,0);
-  const weekRemains = weekBudget - weekSpent;
+  // Budget data via budGetWeekBounds
+  const {cStart, cEnd, freeBudget, curWeek, weekBudget} = budGetWeekBounds();
+  const cycleSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
+  const weekSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end)).reduce((s,e)=>s+e.amount,0);
+  const weekLeft = weekBudget - weekSpent;
+  const cycleLeft = freeBudget - cycleSpent;
   const weekPct = weekBudget>0 ? Math.min(100,Math.round((weekSpent/weekBudget)*100)) : 0;
+  const cyclePct = freeBudget>0 ? Math.min(100,Math.round((cycleSpent/freeBudget)*100)) : 0;
 
-  const remEl=document.getElementById('dash-remains');
-  if(remEl){
-    remEl.textContent = fmt(weekRemains)+' zł';
-    remEl.style.color = weekRemains<0?'#9a607a':'#18102c';
+  // Greeting sub
+  const subEl = document.getElementById('dash-greeting-sub');
+  if(subEl){
+    if(weekLeft<0) subEl.textContent = `Przekroczony budżet tygodnia o ${fmt(Math.abs(weekLeft))} zł`;
+    else if(weekPct>80) subEl.textContent = `Prawie koniec budżetu tygodnia — zostało ${fmt(Math.round(weekLeft))} zł`;
+    else subEl.textContent = `Wszystko pod kontrolą 💛`;
   }
-  const bar=document.getElementById('dash-week-bar');
-  if(bar){bar.style.width=weekPct+'%';bar.style.background=weekPct>100?'#f4a8c0':weekPct>80?'#ffe0a0':'linear-gradient(90deg,#8a78b0,#5e4d82)';}
-  const spEl=document.getElementById('dash-spent');if(spEl)spEl.textContent=`wydano ${fmt(Math.round(weekSpent))} zł`;
-  const buEl=document.getElementById('dash-budget');if(buEl)buEl.textContent=`budżet ${fmt(weekBudget)} zł`;
-  const wlEl=document.getElementById('dash-week-label');if(wlEl)wlEl.textContent=`Tydzień ${ws.indexOf(curWeek)+1} z ${ws.length}`;
+
+  // Week card
+  const waEl = document.getElementById('dash-week-amt');
+  if(waEl){ waEl.textContent = fmt(Math.round(weekLeft))+' zł'; waEl.style.color = weekLeft<0?'#9a607a':'#18102c'; }
+  const wsEl = document.getElementById('dash-week-sub');
+  if(wsEl) wsEl.textContent = `wydano ${fmt(Math.round(weekSpent))} z ${fmt(weekBudget)} zł`;
+  const wBar = document.getElementById('dash-week-bar');
+  if(wBar){ wBar.style.width=(100-weekPct)+'%'; wBar.style.background=weekLeft<0?'#f4a8c0':weekPct>80?'#ffe0a0':'linear-gradient(90deg,#8a78b0,#5e4d82)'; }
+
+  // Cycle card
+  const caEl = document.getElementById('dash-cycle-amt');
+  if(caEl){ caEl.textContent = fmt(Math.round(cycleLeft))+' zł'; caEl.style.color = cycleLeft<0?'#9a607a':'#18102c'; }
+  const csEl = document.getElementById('dash-cycle-sub');
+  if(csEl) csEl.textContent = `wydano ${fmt(Math.round(cycleSpent))} z ${fmt(freeBudget)} zł`;
+  const cBar = document.getElementById('dash-cycle-bar');
+  if(cBar){ cBar.style.width=(100-cyclePct)+'%'; cBar.style.background=cycleLeft<0?'#f4a8c0':cyclePct>80?'#ffe0a0':'linear-gradient(90deg,#8a78b0,#5e4d82)'; }
 
   // Dom
-  const domYMnow = domGetThisYM();
+  const domYM = domGetThisYM();
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
-  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYMnow)||0),0);
-  const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYMnow)||0),0);
-  const realCnt=allExp.filter(e=>domGetReal(e,domYMnow)!=null).length;
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+  const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
   const income=domGetIncome();
   const skladka=Math.max(0,(planSum-income)/2);
-  const domLbl=document.getElementById('dash-dom-month');
-  if(domLbl)domLbl.textContent=domYmLabel(domYMnow).charAt(0).toUpperCase()+domYmLabel(domYMnow).slice(1);
   const skEl=document.getElementById('dash-skladka');if(skEl)skEl.textContent=fmt(Math.round(skladka))+' zł';
-  const drEl=document.getElementById('dash-dom-real');if(drEl)drEl.textContent=realCnt>0?fmt(Math.round(realSum))+' zł':'brak danych';
-  const dpEl=document.getElementById('dash-dom-plan-sub');if(dpEl)dpEl.textContent=`z ${fmt(Math.round(planSum))} zł planu`;
+  const drEl=document.getElementById('dash-dom-real');if(drEl)drEl.textContent=fmt(Math.round(realSum))+' zł';
+  const dpEl=document.getElementById('dash-dom-plan-sub');if(dpEl)dpEl.textContent=`z ${fmt(Math.round(planSum))} zł`;
 
-  // Mata
-  const mataSaved = mataData[mataYM];
-  const hours = mataSaved?.hours;
-  const params = mataGetParams();
-  const salary = hours!=null ? mataCalcSalary(hours,params).total : params.base;
-  const extra = mataGetExtraIncomeTotal();
-  const totalIncome = salary + extra;
-  const mbankStd = mataSaved?.mbankStd||2000;
-  const mbankExtra = mataSaved?.mbankExtra||0;
-  const pozostaje = totalIncome - 2500 - Math.round(skladka) - mbankStd - mbankExtra;
-
+  // Finanse
+  const params=mataGetParams();
+  const hours=mataData[mataYM]?.hours;
+  const salary=hours!=null?mataCalcSalary(hours,params).total:params.base;
+  const extra=mataGetExtraIncomeTotal();
+  const totalIncome=salary+extra;
+  const mbankStd=mataData[mataYM]?.mbankStd||2000;
+  const mbankExtra=mataData[mataYM]?.mbankExtra||0;
+  const pozostaje=totalIncome-2500-Math.round(skladka)-mbankStd-mbankExtra;
   const salEl=document.getElementById('dash-salary');if(salEl)salEl.textContent=fmt(Math.round(totalIncome))+' zł';
   const pozEl=document.getElementById('dash-pozostaje');
   if(pozEl){pozEl.textContent=fmt(Math.round(pozostaje))+' zł';pozEl.style.color=pozostaje<0?'#9a607a':'#5e4d82';}
 
-  // Transfer status
-  const tEl=document.getElementById('dash-transfers-status');
-  if(tEl){
-    const done=mataData[mataYM]?.transfersDone||false;
-    tEl.textContent=done?'✅ Przelewy wykonane':'☐ Przelewy tego miesiąca — kliknij aby wykonać';
-    tEl.style.background=done?'#d4f0e4':'#eeebf5';
-    tEl.style.color=done?'#3d7a60':'#4a4060';
-  }
+  // Transfers card
+  const done=mataData[mataYM]?.transfersDone||false;
+  const doneSteps=mataData[mataYM]?.doneSteps||{};
+  const stepCount=Object.values(doneSteps).filter(Boolean).length;
+  const tCard=document.getElementById('dash-transfers-card');
+  const tIcon=document.getElementById('dash-transfers-icon');
+  const tTitle=document.getElementById('dash-transfers-title');
+  const tSub=document.getElementById('dash-transfers-sub');
+  if(tCard){tCard.style.background=done?'#d4f0e4':'#fff8e8';tCard.style.border=`2px solid ${done?'#a8d8c4':'#e8d080'}`;}
+  if(tIcon)tIcon.textContent=done?'✅':'⏳';
+  if(tTitle)tTitle.textContent=done?'Przelewy wykonane':'Przelewy tego miesiąca';
+  if(tSub){tSub.textContent=done?'Wszystkie 5 kroków zaliczone':`${stepCount}/5 kroków wykonanych`;tSub.style.color=done?'#3d7a60':'#7a6020';}
 
-  // Cushion
-  const cushion = mataData[mataYM]?.cushion||9500;
-  const cpct=Math.min(100,Math.round((cushion/50000)*100));
-  const cbar=document.getElementById('dash-cushion-bar');if(cbar)cbar.style.width=cpct+'%';
+  // Cushion donut
+  const cushion=mataData[mataYM]?.cushion||9500;
+  const cushionGoal=mataData._settings?.cushionGoal||50000;
+  const cpct=Math.min(100,Math.round((cushion/cushionGoal)*100));
+  const circumference=238.76;
+  const cushionDash=document.getElementById('dash-cushion-dash');
+  if(cushionDash) cushionDash.style.strokeDashoffset=String(circumference*(1-cpct/100));
   const cpctEl=document.getElementById('dash-cushion-pct');if(cpctEl)cpctEl.textContent=cpct+'%';
   const cvalEl=document.getElementById('dash-cushion-val');if(cvalEl)cvalEl.textContent=fmt(cushion)+' zł';
 
-  // Car
-  const carCap=mataData[mataYM]?.loanCapital||54490;
-  const carOrig=mataData[mataYM]?.loanOriginal||54490;
-  const carPct=carOrig>0?Math.min(100,Math.round(((carOrig-carCap)/carOrig)*100)):0;
-  const carBar=document.getElementById('dash-loan-bar');if(carBar)carBar.style.width=carPct+'%';
-  const carEl=document.getElementById('dash-loan-remaining');if(carEl)carEl.textContent=fmt(carCap)+' zł';
-  const carEta=document.getElementById('dash-loan-eta');
+  // Car donut — original loan 84135
+  const CAR_ORIGINAL = 84135;
+  const carCap=mataData[mataYM]?.carCapital||54490;
+  const carSpłacono=CAR_ORIGINAL-carCap;
+  const carPct=Math.min(100,Math.max(0,Math.round((carSpłacono/CAR_ORIGINAL)*100)));
+  const carDash=document.getElementById('dash-car-dash');
+  if(carDash) carDash.style.strokeDashoffset=String(circumference*(1-carPct/100));
+  const carPctEl=document.getElementById('dash-car-pct');if(carPctEl)carPctEl.textContent=carPct+'%';
+  const carEl=document.getElementById('dash-car-remaining');if(carEl)carEl.textContent=fmt(carCap)+' zł';
+  const carEta=document.getElementById('dash-car-eta');
   if(carEta){
     const payment=Math.max(2000,Math.round(pozostaje*0.7));
-    if(payment>0&&carCap>0){
+    if(payment>carCap*0.005&&carCap>0){
       const months=Math.ceil(carCap/(payment-carCap*0.005));
-      carEta.textContent=`~${months} mies. do spłaty (orientacyjnie)`;
-    } else {
-      carEta.textContent='Wpisz wynagrodzenie aby zobaczyć prognozę';
-    }
+      carEta.textContent=`~${months} mies. do spłaty · spłacono ${fmt(carSpłacono)} z ${fmt(CAR_ORIGINAL)} zł`;
+    } else carEta.textContent=`spłacono ${fmt(carSpłacono)} z ${fmt(CAR_ORIGINAL)} zł`;
   }
 
-  // Alerts
+  // Savings 30%
+  const surplus=mataGetSurplus();
+  const savings30=Math.round(surplus*0.30);
+  const savEl=document.getElementById('dash-savings-amt');
+  if(savEl)savEl.textContent=savings30>0?fmt(savings30)+' zł':'— zł';
+
+  // Free budget status
+  const {curWeek:cw,cStart:cs,cEnd:ce,freeBudget:fb} = budGetWeekBounds();
+  const st2=load();
+  const wSpent=(st2.expenses||[]).filter(e=>e.date>=dKeyB(cw.start)&&e.date<=dKeyB(cw.end)).reduce((s,e)=>s+e.amount,0);
+  const wLeft2=weekBudget-wSpent;
+  const freeBadge=document.getElementById('dash-free-badge');
+  const freeSub=document.getElementById('dash-free-sub');
+  const freezeUntil=st2.freezeUntil;
+  const today2=dKeyB(new Date());
+  if(freezeUntil&&freezeUntil>=today2){
+    const d=new Date(freezeUntil);
+    const dateStr=d.toLocaleDateString('pl-PL',{day:'numeric',month:'long'});
+    if(freeBadge){freeBadge.style.background='#fdf0f4';freeBadge.style.color='#7a4868';freeBadge.textContent='❄️ Freeze do '+dateStr;}
+    if(freeSub){freeSub.textContent='budżet wstrzymany';freeSub.style.color='#9a607a';}
+  } else {
+    if(freeBadge){freeBadge.style.background='#e8f4ee';freeBadge.style.color='#3d7a60';freeBadge.textContent='✅ Available to spend';}
+    if(freeSub){freeSub.textContent=`${fmt(Math.round(wLeft2))} zł w tygodniu`;freeSub.style.color='#7a6e98';}
+  }
+
+  // Alerts — only critical ones
   const alertsEl=document.getElementById('dash-alerts');
   if(alertsEl){
     const alerts=[];
-    if(weekRemains<0) alerts.push({type:'red',msg:`⚠️ Przekroczony budżet tygodnia o ${fmt(Math.abs(weekRemains))} zł`});
-    if(!mataData[mataYM]?.transfersDone) alerts.push({type:'yellow',msg:'💸 Przelewy tego miesiąca nie są oznaczone jako wykonane'});
-    if(cushion<50000) alerts.push({type:'blue',msg:`🛡️ Do poduszki brakuje ${fmt(50000-cushion)} zł`});
+    if(weekLeft<0) alerts.push({type:'red',msg:`⚠️ Przekroczony budżet tygodnia o ${fmt(Math.abs(weekLeft))} zł`});
+    if(cycleLeft<0) alerts.push({type:'red',msg:`❌ Przekroczony budżet cyklu o ${fmt(Math.abs(cycleLeft))} zł`});
     alertsEl.innerHTML=alerts.map(a=>`
       <div style="padding:10px 14px;border-radius:12px;margin-bottom:8px;font-size:12px;font-weight:600;
-        background:${a.type==='red'?'#fdf0f4':a.type==='yellow'?'#fff8e8':'#f0f4ff'};
-        color:${a.type==='red'?'#7a4868':a.type==='yellow'?'#7a6020':'#4060a0'};
-        border:1.5px solid ${a.type==='red'?'#e8c0cc':a.type==='yellow'?'#e8d080':'#c0d0f0'}">
+        background:#fdf0f4;color:#7a4868;border:1.5px solid #e8c0cc">
         ${a.msg}
       </div>`).join('');
   }
