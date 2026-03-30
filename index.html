@@ -2179,6 +2179,11 @@ function mataCalc(){
     document.getElementById('mata-calc-detail').innerHTML = 'Wpisz liczbę godzin aby zobaczyć kalkulację.';
     const bar = document.getElementById('mata-hours-bar');
     if(bar) bar.style.width = '0%';
+    // Still update total income and render transfers with base salary
+    const extra0 = mataGetExtraIncomeTotal();
+    const totEl0 = document.getElementById('mata-total-income');
+    if(totEl0) totEl0.textContent = fmt(Math.round(params.base + extra0)) + ' zł';
+    mataTransferCalc();
     return;
   }
 
@@ -2480,8 +2485,8 @@ function mataTransferCalc(){
     pozEl.textContent = `${fmt(Math.round(pozostaje))} zł`;
     pozEl.style.color = pozostaje < 0 ? '#f4a8c0' : '#fff';
   }
-  // Trigger savings calc after transfer calc updates surplus
-  setTimeout(()=>{mataSavingsCalc();mataLoanCalc();}, 50);
+  // Render transfers synchronously - no setTimeout
+  mataRenderTransfers();
 }
 
 function mataScheduleSave(){
