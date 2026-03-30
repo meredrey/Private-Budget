@@ -2118,15 +2118,16 @@ function domQuickCheck(){
   if(!rentPaid) total += wynajem;
 
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
-  const expected=Math.round(planSum/2-realSum/2+skladka);
+  // Expected = what's left to spend according to plan
+  const expected = Math.round(planSum - realSum);
   const diff=Math.round(total-expected);
 
   if(Math.abs(diff)<20){
-    resEl.textContent=`✅ Zgadza się!`;resEl.style.color='#a8e6c8';
+    resEl.textContent=`✅ Zgadza się! (${fmt(total)} zł vs ${fmt(expected)} zł planu)`;resEl.style.color='#a8e6c8';
   } else if(diff>0){
-    resEl.textContent=`↑ Nadwyżka ${fmt(diff)} zł`;resEl.style.color='#ffe0a0';
+    resEl.textContent=`↑ Nadwyżka ${fmt(diff)} zł (masz ${fmt(total)}, plan ${fmt(expected)})`;resEl.style.color='#ffe0a0';
   } else {
-    resEl.textContent=`↓ Brakuje ${fmt(Math.abs(diff))} zł`;resEl.style.color='#f4a8c0';
+    resEl.textContent=`↓ Brakuje ${fmt(Math.abs(diff))} zł (masz ${fmt(total)}, plan ${fmt(expected)})`;resEl.style.color='#f4a8c0';
   }
 }
 
