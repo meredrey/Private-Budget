@@ -708,7 +708,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <!-- view toggle -->
   <div style="display:flex;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:12px;overflow:hidden">
     <button class="tab" id="domvtab-month" onclick="setDomView('month')" style="flex:1;padding:10px;font-size:12px;border:none;background:#5e4d82;color:#fff;font-weight:700;letter-spacing:.5px">📅 Miesiąc</button>
-    <button class="tab" id="domvtab-check" onclick="setDomView('check')" style="flex:1;padding:10px;font-size:12px;border:none;background:none;color:#7a6e98;font-weight:700;letter-spacing:.5px">✅ Weryfikacja</button>
     <button class="tab" id="domvtab-year" onclick="setDomView('year')" style="flex:1;padding:10px;font-size:12px;border:none;background:none;color:#7a6e98;font-weight:700;letter-spacing:.5px">📊 Rok</button>
   </div>
 
@@ -785,6 +784,41 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
             <input type="number" id="chk-cash-inline" placeholder="0"
               style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
               oninput="domQuickCheck()">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer">
+          <input type="checkbox" id="chk-before-hipoteka" onchange="domQuickCheck()"
+            style="width:16px;height:16px;cursor:pointer;accent-color:#a8e6c8">
+          <span style="font-size:11px;color:rgba(255,255,255,.7)">Przed spłatą hipoteki (+ 3 350 zł)</span>
+        </label>
+        <!-- Wpłynęło -->
+        <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:4px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:6px">WPŁYNĘŁO</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">💸 Składka Andy'ego</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-andy-expected-inline">— zł</span>
+                <input type="checkbox" id="chk-andy-inline" onchange="domQuickCheck()"
+                  style="width:16px;height:16px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">👶 800+ × 2</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)">1 600 zł</span>
+                <input type="checkbox" id="chk-800plus-inline" onchange="domQuickCheck()"
+                  style="width:16px;height:16px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">🏠 Wynajem</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-rent-expected-inline">— zł</span>
+                <input type="checkbox" id="chk-rent-inline" onchange="domQuickCheck()"
+                  style="width:16px;height:16px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
           </div>
         </div>
         <div id="dom-quick-check-result" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);min-height:16px"></div>
@@ -2004,7 +2038,7 @@ function domUpdateSummary(){
   const skEl=document.getElementById('dom-skladka-plan');
   if(skEl) skEl.textContent=fmt(Math.round(skPlan))+' zł';
   const skREl=document.getElementById('dom-skladka-real');
-  if(skREl) skREl.textContent=skReal!=null?`Real: ${fmt(Math.round(skReal))} zł`:'na podst. planu';
+  if(skREl) skREl.textContent='wg planu';
 
   // Dostępne kafelek
   const avEl=document.getElementById('dom-available');
@@ -2052,26 +2086,46 @@ function domUpdateSummary(){
 function domQuickCheck(){
   const mil=parseFloat(document.getElementById('chk-millennium-inline')?.value)||0;
   const cash=parseFloat(document.getElementById('chk-cash-inline')?.value)||0;
-  const total=mil+cash;
+  const beforeHipoteka=document.getElementById('chk-before-hipoteka')?.checked||false;
+  const andyPaid=document.getElementById('chk-andy-inline')?.checked||false;
+  const plus800Paid=document.getElementById('chk-800plus-inline')?.checked||false;
+  const rentPaid=document.getElementById('chk-rent-inline')?.checked||false;
   const resEl=document.getElementById('dom-quick-check-result');
-  if(!resEl||(!mil&&!cash))return;
+  if(!resEl) return;
+  if(!mil&&!cash){resEl.textContent='';return;}
 
-  // Expected: plan balance
+  // Update expected labels
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();
-  const skladka=Math.max(0,(planSum-income)/2);
-  // Expected remaining = income - already spent plan + both contributions
+  const skladka=Math.max(0,Math.round((planSum-income)/2));
+  const wynajem = 2000;
+  const loanPayment = mataData[mataYM]?._loanPayment || Math.max(2000, Math.round(mataGetSurplus()*0.70));
+  const andySkladka = Math.max(0, skladka - loanPayment);
+
+  const andyEl=document.getElementById('chk-andy-expected-inline');
+  if(andyEl) andyEl.textContent=fmt(andySkladka)+' zł';
+  const rentEl=document.getElementById('chk-rent-expected-inline');
+  if(rentEl) rentEl.textContent=fmt(wynajem)+' zł';
+
+  // What should be on account: hipoteka adjustment + missing incoming payments
+  let total = mil + cash;
+  if(beforeHipoteka) total -= 3350;
+  if(!andyPaid) total -= andySkladka;
+  if(!plus800Paid) total -= 1600;
+  if(!rentPaid) total -= wynajem;
+
+  // Expected after all incoming received and expenses paid
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
   const expected=Math.round(planSum/2-realSum/2+skladka);
   const diff=Math.round(total-expected);
 
-  if(Math.abs(diff)<10){
-    resEl.textContent=`✅ Zgadza się! Masz ${fmt(total)} zł`;resEl.style.color='#a8e6c8';
+  if(Math.abs(diff)<20){
+    resEl.textContent=`✅ Zgadza się!`;resEl.style.color='#a8e6c8';
   } else if(diff>0){
-    resEl.textContent=`↑ Nadwyżka ${fmt(diff)} zł (masz ${fmt(total)} zł)`;resEl.style.color='#ffe0a0';
+    resEl.textContent=`↑ Nadwyżka ${fmt(diff)} zł`;resEl.style.color='#ffe0a0';
   } else {
-    resEl.textContent=`↓ Brakuje ${fmt(Math.abs(diff))} zł (masz ${fmt(total)} zł)`;resEl.style.color='#f4a8c0';
+    resEl.textContent=`↓ Brakuje ${fmt(Math.abs(diff))} zł`;resEl.style.color='#f4a8c0';
   }
 }
 
