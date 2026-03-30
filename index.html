@@ -2092,9 +2092,8 @@ function domQuickCheck(){
   const rentPaid=document.getElementById('chk-rent-inline')?.checked||false;
   const resEl=document.getElementById('dom-quick-check-result');
   if(!resEl) return;
-  if(!mil&&!cash){resEl.textContent='';return;}
 
-  // Update expected labels
+  // Always update labels
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();
@@ -2108,14 +2107,16 @@ function domQuickCheck(){
   const rentEl=document.getElementById('chk-rent-expected-inline');
   if(rentEl) rentEl.textContent=fmt(wynajem)+' zł';
 
-  // What should be on account: hipoteka adjustment + missing incoming payments
+  // Only calculate result when saldo is entered
+  if(!mil&&!cash){resEl.textContent='';return;}
+
   let total = mil + cash;
   if(beforeHipoteka) total -= 3350;
-  if(!andyPaid) total -= andySkladka;
-  if(!plus800Paid) total -= 1600;
-  if(!rentPaid) total -= wynajem;
+  // Add back payments not yet received (to normalize to "full month" state)
+  if(!andyPaid) total += andySkladka;
+  if(!plus800Paid) total += 1600;
+  if(!rentPaid) total += wynajem;
 
-  // Expected after all incoming received and expenses paid
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
   const expected=Math.round(planSum/2-realSum/2+skladka);
   const diff=Math.round(total-expected);
@@ -2150,6 +2151,8 @@ function renderDom(){
   document.getElementById('dom-month-ym').textContent=domYM;
   document.getElementById('h-dom-sub').textContent=domYM;
   domUpdateLastUpdated();
+  // Populate verification labels immediately
+  setTimeout(()=>domQuickCheck(), 50);
   const inp=document.getElementById('dom-wynajem-inp');
   if(inp&&domData[domYM]?.wynajem!=null)inp.value=domData[domYM].wynajem;
   domRenderRows();
