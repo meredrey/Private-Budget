@@ -731,7 +731,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div id="dom-pending-list" style="font-size:12px;color:#7a6e98;line-height:1.8"></div>
     </div>
 
-    <!-- SUMMARY CARD -->
+    <!-- MINI DASHBOARD -->
     <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
 
       <!-- Progress bar -->
@@ -749,16 +749,45 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         </div>
       </div>
 
-      <!-- Andy składka — główny CTA -->
-      <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:14px 16px">
-        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px">💸 Składka Andy'ego</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div>
-            <div style="font-family:Georgia,serif;font-size:34px;font-weight:600;color:#fff" id="dom-skladka-plan">—</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px" id="dom-skladka-real">Wpisz rzeczywiste kwoty</div>
-          </div>
-          <button onclick="domCopySkladka()" style="padding:10px 16px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0" id="dom-copy-btn">📋 Kopiuj</button>
+      <!-- 3 kafelki -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <!-- Składka -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">SKŁADKA</div>
+          <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="dom-skladka-plan">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px" id="dom-skladka-real">każdy</div>
         </div>
+        <!-- Dostępne -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">DOSTĘPNE</div>
+          <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#a8e6c8" id="dom-available">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px">zostało</div>
+        </div>
+        <!-- Ostatnia aktualizacja -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">AKTUALIZACJA</div>
+          <div style="font-size:11px;font-weight:600;color:#fff;line-height:1.4" id="dom-last-updated-card">—</div>
+        </div>
+      </div>
+
+      <!-- Weryfikacja inline -->
+      <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:8px">✅ SZYBKA WERYFIKACJA</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Saldo Millennium</div>
+            <input type="number" id="chk-millennium-inline" placeholder="0"
+              style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
+              oninput="domQuickCheck()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Gotówka</div>
+            <input type="number" id="chk-cash-inline" placeholder="0"
+              style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
+              oninput="domQuickCheck()">
+          </div>
+        </div>
+        <div id="dom-quick-check-result" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);min-height:16px"></div>
       </div>
     </div>
 
@@ -1958,29 +1987,41 @@ function domUpdateSummary(){
   const income=domGetIncome();
   const skPlan=Math.max(0,(planSum-income)/2);
   const skReal=realCnt>0?Math.max(0,(realSum-income)/2):null;
+  const available=planSum>0?planSum-realSum:null;
 
   // Progress bar
   const pct=planSum>0?Math.min(100,Math.round((realSum/planSum)*100)):0;
   const bar=document.getElementById('dom-progress-bar');
-  if(bar){
-    bar.style.width=pct+'%';
-    bar.style.background=pct>100?'#f4a8c0':pct>80?'#ffe0a0':'#a8e6c8';
-  }
+  if(bar){bar.style.width=pct+'%';bar.style.background=pct>100?'#f4a8c0':pct>80?'#ffe0a0':'#a8e6c8';}
   const pctEl=document.getElementById('dom-progress-pct');
   if(pctEl) pctEl.textContent=realCnt>0?pct+'%':'—';
-
   const planEl=document.getElementById('dom-plan-total');
   if(planEl) planEl.textContent=fmt(planSum)+' zł planu';
   const realEl=document.getElementById('dom-real-total');
   if(realEl) realEl.textContent=realCnt>0?fmt(realSum)+' zł wydano':'brak danych';
 
-  // Składka
+  // Składka kafelek
   const skEl=document.getElementById('dom-skladka-plan');
-  if(skEl) skEl.textContent=fmt(skPlan)+' zł';
+  if(skEl) skEl.textContent=fmt(Math.round(skPlan))+' zł';
   const skREl=document.getElementById('dom-skladka-real');
-  if(skREl) skREl.textContent=skReal!=null?`Real: ${fmt(skReal)} zł`:'na podstawie planu';
+  if(skREl) skREl.textContent=skReal!=null?`Real: ${fmt(Math.round(skReal))} zł`:'na podst. planu';
 
-  // Copy button
+  // Dostępne kafelek
+  const avEl=document.getElementById('dom-available');
+  if(avEl){
+    avEl.textContent=available!=null?fmt(Math.round(available))+' zł':'— zł';
+    avEl.style.color=available!=null&&available<0?'#f4a8c0':'#a8e6c8';
+  }
+
+  // Ostatnia aktualizacja kafelek
+  const updCard=document.getElementById('dom-last-updated-card');
+  const updBanner=document.getElementById('dom-last-updated');
+  const d=domData[domYM]?._lastUpdated?.date;
+  const updTxt=d?d:'brak';
+  if(updCard) updCard.textContent=updTxt;
+  if(updBanner) updBanner.textContent=d?`ostatnia aktualizacja: ${d}`:'';
+
+  // Copy button data
   const copyBtn=document.getElementById('dom-copy-btn');
   if(copyBtn) copyBtn.setAttribute('data-val',skPlan.toFixed(0));
 
@@ -1994,21 +2035,48 @@ function domUpdateSummary(){
     statusBar.style.display='none';
   }
 
-  // Section totals — only update if elements exist (month view)
+  // Section totals
   const rTot=document.getElementById('dom-total-rachunki');
-  const zTot=document.getElementById('dom-total-zycie');
-  const dTot=document.getElementById('dom-total-dzieci');
-  const eTot=document.getElementById('dom-total-extra');
   if(rTot){
     const rp=DOM_EXPENSES.rachunki.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
     const zp=DOM_EXPENSES.zycie.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
     const dp=DOM_EXPENSES.dzieci.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
     const ep=DOM_EXPENSES.extra.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
     rTot.textContent=fmt(rp)+' zł';
-    if(zTot)zTot.textContent=fmt(zp)+' zł';
-    if(dTot)dTot.textContent=fmt(dp)+' zł';
-    if(eTot)eTot.textContent=fmt(ep)+' zł';
+    const zTot=document.getElementById('dom-total-zycie');if(zTot)zTot.textContent=fmt(zp)+' zł';
+    const dTot=document.getElementById('dom-total-dzieci');if(dTot)dTot.textContent=fmt(dp)+' zł';
+    const eTot=document.getElementById('dom-total-extra');if(eTot)eTot.textContent=fmt(ep)+' zł';
   }
+}
+
+function domQuickCheck(){
+  const mil=parseFloat(document.getElementById('chk-millennium-inline')?.value)||0;
+  const cash=parseFloat(document.getElementById('chk-cash-inline')?.value)||0;
+  const total=mil+cash;
+  const resEl=document.getElementById('dom-quick-check-result');
+  if(!resEl||(!mil&&!cash))return;
+
+  // Expected: plan balance
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+  const income=domGetIncome();
+  const skladka=Math.max(0,(planSum-income)/2);
+  // Expected remaining = income - already spent plan + both contributions
+  const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
+  const expected=Math.round(planSum/2-realSum/2+skladka);
+  const diff=Math.round(total-expected);
+
+  if(Math.abs(diff)<10){
+    resEl.textContent=`✅ Zgadza się! Masz ${fmt(total)} zł`;resEl.style.color='#a8e6c8';
+  } else if(diff>0){
+    resEl.textContent=`↑ Nadwyżka ${fmt(diff)} zł (masz ${fmt(total)} zł)`;resEl.style.color='#ffe0a0';
+  } else {
+    resEl.textContent=`↓ Brakuje ${fmt(Math.abs(diff))} zł (masz ${fmt(total)} zł)`;resEl.style.color='#f4a8c0';
+  }
+}
+
+function domUpdateLastUpdated(){
+  domUpdateSummary();
 }
 
 function domCopySkladka(){
