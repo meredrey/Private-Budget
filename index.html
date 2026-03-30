@@ -2238,6 +2238,8 @@ function renderMata(){
   mataRenderSavings();
   mataLoanRender();
   mataUpdateDoneBtn();
+  // Force render transfers directly
+  mataRenderTransfers();
 }
 
 function changeMataMonth(dir){
@@ -2268,13 +2270,56 @@ function mataGetSurplus(){
   return Math.max(0, totalIncome - 2500 - skladka - mbankStd - mbankExtra);
 }
 
+function mataRenderTransfers(){
+  const transferEl = document.getElementById('mata-transfers-list');
+  if(!transferEl) return;
+
+  const cushion = parseFloat(document.getElementById('mata-cushion-inp')?.value)||9500;
+  const cushionGoal = mataData._settings?.cushionGoal||50000;
+  const loanPaid = mataData[mataYM]?.loanPaid||false;
+  const stage = mataGetStage(cushion, loanPaid);
+
+  const surplus = mataGetSurplus();
+  const autoAmount = Math.round(surplus * MATA_CAR_SPLIT);
+  const savAmount = Math.round(surplus * MATA_SAVE_SPLIT);
+
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
+  const skladka=Math.max(0,(planSum-domGetIncome())/2);
+  const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
+  const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
+
+  const steps=[
+    {id:'hipoteka', n:1, icon:'🏦', label:'Kredyt hipoteczny', target:'Millennium → auto', amt:2500, color:'#7a4868'},
+    {id:'skladka',  n:2, icon:'🏠', label:'Składka na Dom',    target:'Wspólne konto (Andy)', amt:Math.round(skladka), color:'#7a4868'},
+    {id:'mbank',    n:3, icon:'📱', label:'Fundusz swobodny',  target:'mBank', amt:mbankStd+mbankExtra, color:'#5e4d82'},
+    {id:'loan',     n:4, icon:stage===3?'🏠':'🚗', label:stage===3?'Nadpłata hipoteki':"Pożyczka Andy'ego", target:stage===3?'Millennium kredyt':"Konto Andy'ego", amt:autoAmount, color:'#9a607a'},
+    {id:'savings',  n:5, icon:stage===1?'🛡️':'📈', label:stage===1?'Poduszka':'Inwestycje', target:stage===1?'Millennium oszczędnościowe':'XTB / obligacje', amt:savAmount, color:'#3d7a60'},
+  ];
+
+  const doneSteps = mataData[mataYM]?.doneSteps||{};
+  transferEl.innerHTML = steps.map(s => {
+    const done = doneSteps[s.id]||false;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #e8e4f0;${done?'opacity:0.55':''}">
+      <button onclick="mataToggleStep('${s.id}')" style="width:28px;height:28px;border-radius:50%;border:2px solid ${done?'#3d7a60':s.color};background:${done?'#3d7a60':s.color};color:#fff;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+        ${done?'✓':s.n}
+      </button>
+      <div style="font-size:16px;flex-shrink:0">${s.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:#18102c;${done?'text-decoration:line-through':''}">${s.label}</div>
+        <div style="font-size:10px;color:#7a6e98">→ ${s.target}</div>
+      </div>
+      <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:${done?'#3d7a60':s.color}">${fmt(s.amt)} zł</div>
+    </div>`;
+  }).join('');
+}
+
 function mataToggleStep(stepId){
   if(!mataData[mataYM])mataData[mataYM]={};
   if(!mataData[mataYM].doneSteps)mataData[mataYM].doneSteps={};
   mataData[mataYM].doneSteps[stepId]=!mataData[mataYM].doneSteps[stepId];
   mataScheduleSave();
-  // Re-render transfers
-  setTimeout(()=>mataSavingsCalc(),50);
+  mataRenderTransfers();
   mataUpdateDoneBtn();
 }
 
@@ -2599,7 +2644,9 @@ function mataSavingsCalc(){
   // Podział nadwyżki
   const splitEl=document.getElementById('mata-split-list');
   if(splitEl){
-    if(surplus<=0){splitEl.innerHTML='<div style="color:#7a6e98;font-size:12px">Wpisz wynagrodzenie aby zobaczyć podział.</div>';return;}
+    if(surplus<=0){
+      splitEl.innerHTML='<div style="color:#7a6e98;font-size:12px">Wpisz wynagrodzenie aby zobaczyć podział.</div>';
+    } else {
 
     let html=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e8e4f0;font-weight:700">
       <div>💰 Nadwyżka łącznie</div><div>${fmt(Math.round(surplus))} zł</div></div>`;
@@ -2633,11 +2680,12 @@ function mataSavingsCalc(){
         </div></div>`;
     }
     splitEl.innerHTML=html;
+    } // end else surplus>0
   }
 
-  // Instrukcja przelewów
+  // Instrukcja przelewów — zawsze pokazuj (używa bazy gdy brak godzin)
   const transferEl=document.getElementById('mata-transfers-list');
-  if(transferEl&&surplus>=0){
+  if(transferEl){
     const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
     const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
     const skladka=Math.max(0,(planSum-domGetIncome())/2);
