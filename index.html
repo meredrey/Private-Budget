@@ -328,160 +328,145 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 <div class="page" id="page-week">
   <div class="header">
     <div class="hc1"></div><div class="hc2"></div>
-    <div class="h-eye">Personal Finance</div>
-    <h1>Private <em>Budget</em></h1>
+    <div class="h-eye">Mój Budżet</div>
+    <h1>Fundusz <em>Swobodny</em></h1>
     <div class="h-sub" id="h-cycle-week">—</div>
-    <div id="sync-status" style="font-size:11px;margin-top:4px;min-height:16px"></div>
   </div>
 
-  <!-- BUDGET SUB-TABS -->
-  <div style="display:flex;margin:14px 12px 0;background:#fff;border:2px solid #b0a4cc;border-radius:12px;overflow:hidden">
-    <button id="budgettab-week" onclick="showBudgetTab('week')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;border:none;background:#5e4d82;color:#fff;cursor:pointer;letter-spacing:.3px">📅 Tydzień</button>
-    <button id="budgettab-month" onclick="showBudgetTab('month')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;border:none;background:none;color:#7a6e98;cursor:pointer;letter-spacing:.3px">📊 Miesiąc</button>
-    <button id="budgettab-plans" onclick="showBudgetTab('plans')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;border:none;background:none;color:#7a6e98;cursor:pointer;letter-spacing:.3px">🗓️ Plany</button>
-    <button id="budgettab-bsettings" onclick="showBudgetTab('bsettings')" style="flex:1;padding:9px 4px;font-size:11px;font-weight:700;border:none;background:none;color:#7a6e98;cursor:pointer;letter-spacing:.3px">⚙️</button>
-  </div>
+  <div style="height:14px"></div>
 
-  <!-- WEEK CONTENT -->
-  <div id="budget-week-content">
-  <div id="freeze-slot"></div>
-  <div id="warn-slot"></div>
-  <div class="week-bar">
-    <div><div class="wk-label" id="week-label">—</div><div class="wk-dates" id="week-dates">—</div></div>
-    <div class="wk-btns">
-      <button class="wk-btn" onclick="changeWeek(-1)">‹</button>
-      <button class="wk-btn" onclick="changeWeek(1)">›</button>
+  <!-- 1. STATUS — ile zostało -->
+  <div style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+
+    <!-- Cykl -->
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAŁO W CYKLU</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.5)" id="bud-cycle-dates">—</div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-head"><div class="card-label" id="hero-label">Realnie zostało</div></div>
-    <div class="hero-wrap">
-      <div class="hero-row"><div class="hero-num" id="hero-num">—</div><div class="hero-unit">zł</div></div>
+    <div style="font-family:Georgia,serif;font-size:48px;font-weight:600;color:#fff;line-height:1;margin-bottom:4px" id="bud-cycle-left">—</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:12px" id="bud-cycle-sub">—</div>
+    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:14px">
+      <div id="bud-cycle-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
     </div>
-    <div class="hero-sub" id="hero-sub">—</div>
-    <div class="prog-wrap">
-      <div class="prog-track">
-        <div class="prog-fill" id="w-prog" style="width:0%"></div>
-        <div class="prog-planned" id="w-prog-pl" style="left:0%;width:0%"></div>
+
+    <!-- Tydzień -->
+    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;margin-bottom:3px">TEN TYDZIEŃ</div>
+        <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;color:#fff" id="bud-week-left">—</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px" id="bud-week-sub">—</div>
       </div>
-      <div class="prog-labels"><span>0 zł</span><span id="w-prog-max">—</span></div>
-    </div>
-  </div>
-  <div class="two-col">
-    <div class="mini"><div class="mini-head">Budżet tygodnia</div><div class="mini-body"><span class="mini-val sage" id="w-budget">—</span><span class="mini-unit">zł</span><div class="mini-sub">proporcjonalnie</div></div></div>
-    <div class="mini"><div class="mini-head">Wydano</div><div class="mini-body"><span class="mini-val mauve" id="w-spent">—</span><span class="mini-unit">zł</span><div class="mini-sub" id="w-pct">—</div></div></div>
-  </div>
-  <div class="sec-lbl">⚡ Szybkie dodanie</div>
-  <div class="quick-add">
-    <div class="quick-row">
-      <input class="qa-inp" id="qa-name" placeholder="Co kupiłaś?" type="text">
-      <input class="qa-amt" id="qa-amt" placeholder="zł" type="number" inputmode="decimal">
-      <button class="qa-btn" onclick="quickSave()">+</button>
-    </div>
-    <div class="qa-tpls" id="qa-tpls"><span style="font-size:12px;color:#b0a4cc;padding:0 4px">Ostatnie pojawią się tutaj</span></div>
-  </div>
-  <div class="card">
-    <div class="card-head">
-      <div class="card-label">Wydatki tego tygodnia</div>
-      <button onclick="openAddExpense()" style="background:#5e4d82;border:none;color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer">+ opcje</button>
-    </div>
-    <div id="w-list"><div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków</div></div></div>
-  </div>
-  <div class="sp"></div>
-</div>
-
-</div><!-- end budget-week-content -->
-
-<!-- MONTH CONTENT inside page-week -->
-<div id="budget-month-content" style="display:none">
-<div id="page-month-inner">
-  <div class="header">
-    <div class="hc1"></div><div class="hc2"></div>
-    <div class="h-eye">Personal Finance</div>
-    <h1>Ten <em>miesiąc</em></h1>
-    <div class="h-sub" id="h-cycle-month">—</div>
-  </div>
-  <div class="sp"></div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Podsumowanie cyklu</div></div>
-    <div class="hero-wrap">
-      <div class="hero-row"><div class="hero-num" id="m-left">—</div><div class="hero-unit">zł</div></div>
-    </div>
-    <div class="hero-sub" id="m-left-sub">realnie zostało w cyklu</div>
-    <div class="prog-wrap">
-      <div class="prog-track">
-        <div class="prog-fill" id="m-prog" style="width:0%"></div>
-        <div class="prog-planned" id="m-prog-pl" style="left:0%;width:0%"></div>
+      <div style="text-align:right">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;margin-bottom:3px">WYDANO</div>
+        <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;color:#ffe0a0" id="bud-week-spent">—</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px" id="bud-week-pct">— %</div>
       </div>
-      <div class="prog-labels"><span>0 zł</span><span id="m-prog-max">—</span></div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Szczegóły</div></div>
-    <div class="sum-row"><div class="sum-key">Budżet łącznie</div><div class="sum-val" id="s-budget">—</div></div>
-    <div class="sum-row"><div class="sum-key">Stałe wydatki</div><div class="sum-val mauve" id="s-fixed">—</div></div>
-    <div class="sum-row"><div class="sum-key">Na zachcianki</div><div class="sum-val sage" id="s-free">—</div></div>
-    <div class="sum-row"><div class="sum-key">Wydano</div><div class="sum-val mauve" id="s-spent">—</div></div>
-    <div class="sum-row"><div class="sum-key">Zaplanowane</div><div class="sum-val mauve" id="s-planned">—</div></div>
-    <div class="sum-row"><div class="sum-key">Realnie zostało</div><div class="sum-val" id="s-left">—</div></div>
-  </div>
-  <div class="sec-lbl">Tygodnie w cyklu</div>
-  <div class="card">
-    <div id="m-weeks">—</div>
-  </div>
-  <div class="sp"></div>
-</div>
 
-</div><!-- end page-month-inner -->
-</div><!-- end budget-month-content -->
-
-<!-- PLANS CONTENT inside page-week -->
-<div id="budget-plans-content" style="display:none">
-<div id="page-plans-inner">
-  <div class="header">
-    <div class="hc1"></div><div class="hc2"></div>
-    <div class="h-eye">Personal Finance</div>
-    <h1><em>Plany</em></h1>
-    <div class="h-sub" id="h-cycle-plans">—</div>
-  </div>
-  <div class="sp"></div>
-  <div id="plans-total-slot"></div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Zaplanowane wydatki</div></div>
-    <div id="plans-list"><div class="empty"><div class="empty-icon">🗓️</div><div class="empty-text">Brak zaplanowanych wydatków</div></div></div>
-    <button class="add-btn" onclick="openAddPlanned()">+ Zaplanuj wydatek</button>
-  </div>
-  <div class="sp"></div>
-</div>
-
-</div><!-- end page-plans-inner -->
-</div><!-- end budget-plans-content -->
-
-<!-- BUDGET SETTINGS CONTENT inside page-week -->
-<div id="budget-bsettings-content" style="display:none">
-  <div style="height:8px"></div>
-  <div class="sec-lbl">📅 Dzień wypłaty</div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Początek miesiąca budżetowego</div></div>
-    <div class="card-body">
-      <div class="payday-grid" id="payday-grid"></div>
-      <div class="payday-warning">Dni 29–31 w krótszych miesiącach = ostatni dzień miesiąca</div>
-      <div class="payday-note" id="payday-note">—</div>
+  <!-- 2. CZY MNIE STAĆ -->
+  <div class="sec-lbl">🤔 Czy mnie stać?</div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <input type="number" id="bud-afford-inp" placeholder="Wpisz kwotę…" inputmode="decimal"
+          style="flex:1;padding:10px 12px;border:2px solid #b0a4cc;border-radius:12px;font-size:16px;font-weight:600;outline:none;color:#18102c"
+          oninput="budAffordCheck()" onchange="budAffordCheck()">
+        <span style="font-size:13px;color:#7a6e98;font-weight:600">zł</span>
+      </div>
+      <div id="bud-afford-result" style="border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;display:none"></div>
     </div>
   </div>
-  <div class="sec-lbl">💰 Budżet miesięczny funduszu</div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Kwota na fundusz swobodny (zł/cykl)</div></div>
-    <div class="card-body"><input type="number" class="fi-inp" id="budget-input" placeholder="np. 2000" inputmode="decimal" onchange="saveBudget()" oninput="saveBudget()"></div>
+
+  <!-- 3. DODAJ WYDATEK / PLAN -->
+  <div class="sec-lbl">⚡ Dodaj</div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="padding:14px 16px">
+      <!-- Toggle wydatek/plan -->
+      <div style="display:flex;background:#f4f1fc;border-radius:10px;padding:3px;margin-bottom:12px">
+        <button id="bud-type-expense" onclick="budSetType('expense')"
+          style="flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#5e4d82;color:#fff">
+          💸 Wydatek
+        </button>
+        <button id="bud-type-plan" onclick="budSetType('plan')"
+          style="flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:none;color:#7a6e98">
+          🗓️ Planuję kupić
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="text" id="bud-add-name" placeholder="Co?" 
+          style="flex:1;padding:9px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none"
+          onkeydown="if(event.key==='Enter')budQuickSave()">
+        <input type="number" id="bud-add-amt" placeholder="zł" inputmode="decimal"
+          style="width:80px;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;outline:none;text-align:right"
+          oninput="budAffordInline()" onkeydown="if(event.key==='Enter')budQuickSave()">
+      </div>
+      <!-- Alert inline -->
+      <div id="bud-inline-alert" style="display:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;margin-bottom:8px"></div>
+      <!-- Data (tylko dla planu) -->
+      <div id="bud-date-row" style="display:none;margin-bottom:8px">
+        <input type="date" id="bud-add-date"
+          style="width:100%;padding:9px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none">
+      </div>
+      <button onclick="budQuickSave()"
+        style="width:100%;padding:11px;background:#5e4d82;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer"
+        id="bud-save-btn">Zapisz wydatek</button>
+    </div>
   </div>
-  <div class="sec-lbl">🔒 Stałe wydatki miesięczne</div>
-  <div class="card">
-    <div class="card-head"><div class="card-label">Odejmowane automatycznie każdy cykl</div></div>
-    <div id="fi-list"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Brak stałych wydatków</div></div></div>
-    <div style="padding:10px 12px 12px"><button class="dadd-btn" onclick="openAddFixed()">+ Dodaj stały wydatek</button></div>
+
+  <!-- 4. LISTA -->
+  <div class="sec-lbl">📋 Wydatki <span id="bud-list-period">tego tygodnia</span></div>
+  <div style="display:flex;gap:8px;margin:0 12px 10px">
+    <button id="bud-filter-week" onclick="budSetFilter('week')"
+      style="flex:1;padding:7px;border-radius:9px;border:2px solid #5e4d82;background:#5e4d82;color:#fff;font-size:11px;font-weight:700;cursor:pointer">
+      Tydzień
+    </button>
+    <button id="bud-filter-cycle" onclick="budSetFilter('cycle')"
+      style="flex:1;padding:7px;border-radius:9px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">
+      Cały cykl
+    </button>
+    <button id="bud-filter-plans" onclick="budSetFilter('plans')"
+      style="flex:1;padding:7px;border-radius:9px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">
+      Plany
+    </button>
   </div>
+  <div class="card" style="margin-bottom:12px">
+    <div id="bud-list">
+      <div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków</div></div>
+    </div>
+  </div>
+
+  <!-- USTAWIENIA (zwinięte) -->
+  <div class="sec-lbl" onclick="budToggleSettings()" style="cursor:pointer;display:flex;justify-content:space-between">
+    <span>⚙️ Ustawienia budżetu</span>
+    <span id="bud-settings-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
+  </div>
+  <div id="bud-settings-card" style="display:none">
+    <div class="card">
+      <div style="padding:14px 16px">
+        <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:10px">📅 Dzień wypłaty</div>
+        <div class="payday-grid" id="payday-grid"></div>
+        <div class="payday-warning">Dni 29–31 w krótszych miesiącach = ostatni dzień miesiąca</div>
+        <div class="payday-note" id="payday-note">—</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div style="padding:14px 16px">
+        <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:8px">💰 Budżet miesięczny funduszu (zł)</div>
+        <input type="number" class="fi-inp" id="budget-input" placeholder="np. 2000" inputmode="decimal"
+          onchange="saveBudget()" oninput="saveBudget()">
+      </div>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-head"><div class="card-label">🔒 Stałe wydatki miesięczne</div></div>
+      <div id="fi-list"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Brak stałych wydatków</div></div></div>
+      <div style="padding:10px 12px 12px"><button class="dadd-btn" onclick="openAddFixed()">+ Dodaj stały wydatek</button></div>
+    </div>
+  </div>
+
   <div class="sp"></div>
 </div>
+
 
 <!-- ══ STRATEGIA ══ -->
 <div class="page" id="page-settings">
@@ -2687,8 +2672,278 @@ function mataRenderSavings(){
   mataSavingsCalc();
 }
 
-// ── BUDGET SUB-TABS ──
-let curBudgetTab = 'week';
+// ══ BUDGET MODULE (new) ══
+let budFilter = 'week';
+let budType = 'expense';
+
+function budGetCycle(pd){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const lastDay = d => new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  let start, end;
+  const day = Math.min(pd, lastDay(now));
+  if(now.getDate() >= day){
+    start = new Date(y, m, day);
+    const nextMonth = new Date(y, m+1, 1);
+    const nextDay = Math.min(pd, lastDay(nextMonth));
+    end = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), nextDay - 1);
+  } else {
+    const prevMonth = new Date(y, m-1, 1);
+    const prevDay = Math.min(pd, lastDay(prevMonth));
+    start = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), prevDay);
+    end = new Date(y, m, day - 1);
+  }
+  return {start, end};
+}
+
+function budGetWeekBounds(){
+  const st = load();
+  const pd = st.payday||1;
+  const {start: cStart, end: cEnd} = budGetCycle(pd);
+  const cycleDays = Math.round((cEnd - cStart)/86400000) + 1;
+  const budget = st.budget||0;
+  const fixed = (st.fixedExpenses||[]).reduce((s,e)=>s+e.amount,0);
+  const freeBudget = Math.max(0, budget - fixed);
+  // Split cycle into weeks
+  const weeks = [];
+  let d = new Date(cStart);
+  while(d <= cEnd){
+    const wEnd = new Date(Math.min(new Date(d.getFullYear(), d.getMonth(), d.getDate()+6), cEnd));
+    weeks.push({start: new Date(d), end: wEnd});
+    d = new Date(wEnd.getFullYear(), wEnd.getMonth(), wEnd.getDate()+1);
+  }
+  const today = new Date();
+  const curWeek = weeks.find(w => today >= w.start && today <= w.end) || weeks[0];
+  const weekDays = Math.round((curWeek.end - curWeek.start)/86400000) + 1;
+  const weekBudget = Math.round(freeBudget * weekDays / cycleDays);
+  return {cStart, cEnd, freeBudget, curWeek, weekBudget, cycleDays, weeks};
+}
+
+function dKeyB(d){ return d.toISOString().slice(0,10); }
+
+function renderBudget(){
+  const st = load();
+  const pd = st.payday||1;
+  const {cStart, cEnd, freeBudget, curWeek, weekBudget, cycleDays} = budGetWeekBounds();
+
+  // Expenses in cycle
+  const cycleExp = (st.expenses||[]).filter(e => e.date >= dKeyB(cStart) && e.date <= dKeyB(cEnd));
+  const weekExp = cycleExp.filter(e => e.date >= dKeyB(curWeek.start) && e.date <= dKeyB(curWeek.end));
+  const cycleSpent = cycleExp.reduce((s,e)=>s+e.amount, 0);
+  const weekSpent = weekExp.reduce((s,e)=>s+e.amount, 0);
+
+  // Planned in cycle
+  const plans = (st.planned||[]).filter(p => p.date >= dKeyB(cStart) && p.date <= dKeyB(cEnd));
+  const plannedAmt = plans.reduce((s,p)=>s+p.amount, 0);
+
+  const cycleLeft = freeBudget - cycleSpent;
+  const weekLeft = weekBudget - weekSpent;
+  const cyclePct = freeBudget > 0 ? Math.min(100, Math.round((cycleSpent/freeBudget)*100)) : 0;
+  const weekPct = weekBudget > 0 ? Math.min(100, Math.round((weekSpent/weekBudget)*100)) : 0;
+
+  // Cycle dates
+  const fmt2 = d => d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'});
+  const cycDatesEl = document.getElementById('bud-cycle-dates');
+  if(cycDatesEl) cycDatesEl.textContent = `${fmt2(cStart)} — ${fmt2(cEnd)}`;
+
+  // Cycle left
+  const clEl = document.getElementById('bud-cycle-left');
+  if(clEl){ clEl.textContent = fmt(Math.round(cycleLeft))+' zł'; clEl.style.color = cycleLeft<0?'#f4a8c0':'#fff'; }
+  const csEl = document.getElementById('bud-cycle-sub');
+  if(csEl) csEl.textContent = `wydano ${fmt(Math.round(cycleSpent))} z ${fmt(freeBudget)} zł${plannedAmt>0?' · zaplanowano '+fmt(Math.round(plannedAmt))+' zł':''}`;
+  const cbEl = document.getElementById('bud-cycle-bar');
+  if(cbEl){ cbEl.style.width = (100-cyclePct)+'%'; cbEl.style.background = cycleLeft<0?'#f4a8c0':cyclePct>80?'#ffe0a0':'#fff'; }
+
+  // Week
+  const wlEl = document.getElementById('bud-week-left');
+  if(wlEl){ wlEl.textContent = fmt(Math.round(weekLeft))+' zł'; wlEl.style.color = weekLeft<0?'#f4a8c0':'#fff'; }
+  const wsEl = document.getElementById('bud-week-sub');
+  if(wsEl) wsEl.textContent = `budżet tygodnia ${fmt(weekBudget)} zł`;
+  const wspEl = document.getElementById('bud-week-spent');
+  if(wspEl) wspEl.textContent = fmt(Math.round(weekSpent))+' zł';
+  const wppEl = document.getElementById('bud-week-pct');
+  if(wppEl) wppEl.textContent = weekPct+'% budżetu';
+
+  // cycle sub header
+  const hSub = document.getElementById('h-cycle-week');
+  if(hSub) hSub.textContent = `${fmt2(cStart)} — ${fmt2(cEnd)}`;
+
+  // Budget input
+  const budInp = document.getElementById('budget-input');
+  if(budInp && !budInp._touched) budInp.value = st.budget||'';
+
+  // Render list
+  budRenderList();
+  renderSettings();
+}
+
+function budRenderList(){
+  const st = load();
+  const listEl = document.getElementById('bud-list');
+  if(!listEl) return;
+  const {cStart, cEnd, curWeek} = budGetWeekBounds();
+
+  let items = [];
+  if(budFilter === 'week'){
+    items = (st.expenses||[]).filter(e => e.date >= dKeyB(curWeek.start) && e.date <= dKeyB(curWeek.end))
+      .sort((a,b) => b.date.localeCompare(a.date));
+    const lpEl = document.getElementById('bud-list-period');
+    if(lpEl) lpEl.textContent = 'tego tygodnia';
+  } else if(budFilter === 'cycle'){
+    items = (st.expenses||[]).filter(e => e.date >= dKeyB(cStart) && e.date <= dKeyB(cEnd))
+      .sort((a,b) => b.date.localeCompare(a.date));
+    const lpEl = document.getElementById('bud-list-period');
+    if(lpEl) lpEl.textContent = 'tego cyklu';
+  } else {
+    // Plans
+    items = (st.planned||[]).sort((a,b) => a.date.localeCompare(b.date));
+    const lpEl = document.getElementById('bud-list-period');
+    if(lpEl) lpEl.textContent = '— plany';
+  }
+
+  if(items.length === 0){
+    listEl.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wpisów</div></div>';
+    return;
+  }
+
+  if(budFilter === 'plans'){
+    listEl.innerHTML = items.map(p => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e4f0">
+        <div style="font-size:20px">${p.emoji||'🗓️'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#18102c">${p.name}</div>
+          <div style="font-size:11px;color:#7a6e98">${p.date}</div>
+        </div>
+        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#5e4d82">${fmt(p.amount)} zł</div>
+        <button onclick="deletePlan('${p.id}')" style="background:none;border:none;font-size:16px;color:#b0a4cc;cursor:pointer;padding:0 4px">×</button>
+      </div>`).join('');
+  } else {
+    listEl.innerHTML = items.map(e => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e4f0">
+        <div style="font-size:20px">${e.emoji||'💸'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#18102c">${e.name}</div>
+          <div style="font-size:11px;color:#7a6e98">${e.date}</div>
+        </div>
+        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868">${fmt(e.amount)} zł</div>
+        <button onclick="deleteExpense('${e.id}')" style="background:none;border:none;font-size:16px;color:#b0a4cc;cursor:pointer;padding:0 4px">×</button>
+      </div>`).join('');
+  }
+}
+
+function budSetFilter(f){
+  budFilter = f;
+  ['week','cycle','plans'].forEach(t => {
+    const btn = document.getElementById('bud-filter-'+t);
+    if(btn){ btn.style.background = t===f?'#5e4d82':'none'; btn.style.color = t===f?'#fff':'#7a6e98'; btn.style.borderColor = t===f?'#5e4d82':'#b0a4cc'; }
+  });
+  budRenderList();
+}
+
+function budSetType(t){
+  budType = t;
+  const eBtn = document.getElementById('bud-type-expense');
+  const pBtn = document.getElementById('bud-type-plan');
+  const dateRow = document.getElementById('bud-date-row');
+  const saveBtn = document.getElementById('bud-save-btn');
+  if(eBtn){ eBtn.style.background = t==='expense'?'#5e4d82':'none'; eBtn.style.color = t==='expense'?'#fff':'#7a6e98'; }
+  if(pBtn){ pBtn.style.background = t==='plan'?'#5e4d82':'none'; pBtn.style.color = t==='plan'?'#fff':'#7a6e98'; }
+  if(dateRow) dateRow.style.display = t==='plan'?'block':'none';
+  if(saveBtn) saveBtn.textContent = t==='plan'?'Zapisz plan':'Zapisz wydatek';
+  budAffordInline();
+}
+
+function budAffordCheck(){
+  const amt = parseFloat(document.getElementById('bud-afford-inp')?.value);
+  const resEl = document.getElementById('bud-afford-result');
+  if(!resEl) return;
+  if(isNaN(amt)||amt<=0){ resEl.style.display='none'; return; }
+  const {freeBudget, curWeek, weekBudget} = budGetWeekBounds();
+  const st = load();
+  const {cStart, cEnd} = budGetWeekBounds();
+  const cycleSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
+  const weekSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end)).reduce((s,e)=>s+e.amount,0);
+  const cycleLeft = freeBudget - cycleSpent;
+  const weekLeft = weekBudget - weekSpent;
+  resEl.style.display = 'block';
+  if(amt <= weekLeft){
+    resEl.style.background = '#d4f0e4'; resEl.style.color = '#2d6a50';
+    resEl.textContent = `✅ Tak! Zostało ${fmt(Math.round(weekLeft))} zł w tygodniu — stać Cię.`;
+  } else if(amt <= cycleLeft){
+    resEl.style.background = '#fff8e8'; resEl.style.color = '#7a6020';
+    resEl.textContent = `⚠️ Wyjdzie poza tydzień — ale masz ${fmt(Math.round(cycleLeft))} zł w cyklu.`;
+  } else {
+    resEl.style.background = '#fdf0f4'; resEl.style.color = '#7a4868';
+    resEl.textContent = `❌ Nie — brakuje ${fmt(Math.round(amt-cycleLeft))} zł do końca cyklu.`;
+  }
+}
+
+function budAffordInline(){
+  if(budType !== 'expense'){ document.getElementById('bud-inline-alert').style.display='none'; return; }
+  const amt = parseFloat(document.getElementById('bud-add-amt')?.value);
+  const alertEl = document.getElementById('bud-inline-alert');
+  if(!alertEl) return;
+  if(isNaN(amt)||amt<=0){ alertEl.style.display='none'; return; }
+  const {freeBudget, curWeek, weekBudget} = budGetWeekBounds();
+  const st = load();
+  const {cStart, cEnd} = budGetWeekBounds();
+  const cycleSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
+  const weekSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end)).reduce((s,e)=>s+e.amount,0);
+  const weekLeft = weekBudget - weekSpent;
+  const cycleLeft = freeBudget - cycleSpent;
+  alertEl.style.display = 'block';
+  if(amt <= weekLeft){
+    alertEl.style.background='#d4f0e4'; alertEl.style.color='#2d6a50';
+    alertEl.textContent=`✅ Zostanie ${fmt(Math.round(weekLeft-amt))} zł w tygodniu`;
+  } else if(amt <= cycleLeft){
+    alertEl.style.background='#fff8e8'; alertEl.style.color='#7a6020';
+    alertEl.textContent=`⚠️ Przekracza tydzień — zostanie ${fmt(Math.round(cycleLeft-amt))} zł w cyklu`;
+  } else {
+    alertEl.style.background='#fdf0f4'; alertEl.style.color='#7a4868';
+    alertEl.textContent=`❌ Przekracza budżet o ${fmt(Math.round(amt-cycleLeft))} zł`;
+  }
+}
+
+function budQuickSave(){
+  const name = document.getElementById('bud-add-name')?.value.trim();
+  const amt = parseFloat(document.getElementById('bud-add-amt')?.value);
+  if(!name||!amt||amt<=0){ return; }
+  const st = load();
+  if(budType==='expense'){
+    st.expenses.push({id:Date.now()+'',name,amount:amt,emoji:'💸',cat:'📦 Inne',date:dKey(new Date())});
+  } else {
+    const date = document.getElementById('bud-add-date')?.value || dKey(new Date());
+    if(!st.planned) st.planned=[];
+    st.planned.push({id:Date.now()+'',name,amount:amt,emoji:'🗓️',date});
+  }
+  save(st);
+  document.getElementById('bud-add-name').value='';
+  document.getElementById('bud-add-amt').value='';
+  document.getElementById('bud-inline-alert').style.display='none';
+  renderBudget();
+}
+
+function deletePlan(id){
+  const st=load(); st.planned=(st.planned||[]).filter(p=>p.id!==id); save(st); budRenderList();
+}
+
+function deleteExpense(id){
+  const st=load(); st.expenses=(st.expenses||[]).filter(e=>e.id!==id); save(st); renderBudget();
+}
+
+function budToggleSettings(){
+  const card = document.getElementById('bud-settings-card');
+  const arrow = document.getElementById('bud-settings-arrow');
+  if(!card) return;
+  const open = card.style.display==='block';
+  card.style.display = open?'none':'block';
+  if(arrow) arrow.textContent = open?'▼ rozwiń':'▲ zwiń';
+  if(!open) renderSettings();
+}
+
+function renderWeek(){ renderBudget(); }
+function renderMonth(){ renderBudget(); }
+function renderPlans(){ budSetFilter('plans'); }
 function showBudgetTab(tab){
   curBudgetTab = tab;
   ['week','month','plans','bsettings'].forEach(t=>{
