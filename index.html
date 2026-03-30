@@ -2242,39 +2242,90 @@ function mataCalc(){
 
 function renderMata(){
   const lbl = mataYmLabel(mataYM);
-  document.getElementById('mata-month-label').textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
-  document.getElementById('mata-month-ym').textContent = mataYM;
-  document.getElementById('h-mata-sub').textContent = mataYM;
+  const lbl2 = lbl.charAt(0).toUpperCase()+lbl.slice(1);
 
-  // Restore saved data for this month
-  const saved = mataData[mataYM];
-  if(saved?.params){
-    const p = saved.params;
-    const baseEl = document.getElementById('mata-base-inp');
-    const thrEl = document.getElementById('mata-threshold-inp');
-    const bonEl = document.getElementById('mata-bonus-pct-inp');
-    const otEl = document.getElementById('mata-ot-pct-inp');
-    if(baseEl) baseEl.value = p.base;
-    if(thrEl) thrEl.value = p.threshold;
-    if(bonEl) bonEl.value = p.bonusPct;
-    if(otEl) otEl.value = p.otPct;
-  }
-  const hoursEl = document.getElementById('mata-hours-inp');
-  if(hoursEl) hoursEl.value = saved?.hours ?? '';
+  // Update labels
+  const ml=document.getElementById('mata-month-label'); if(ml)ml.textContent=lbl2;
+  const mm=document.getElementById('mata-month-ym'); if(mm)mm.textContent=mataYM;
+  const hs=document.getElementById('h-mata-sub'); if(hs)hs.textContent=mataYM;
 
-  const mbStdEl = document.getElementById('mata-mbank-std');
-  if(mbStdEl) mbStdEl.value = saved?.mbankStd ?? 2000;
-  const mbExtraEl = document.getElementById('mata-mbank-extra');
-  if(mbExtraEl) mbExtraEl.value = saved?.mbankExtra ?? '';
+  // Restore params from saved data
+  const saved = mataData[mataYM]||{};
+  const p = saved.params||{};
+  const baseEl=document.getElementById('mata-base-inp');
+  const thrEl=document.getElementById('mata-threshold-inp');
+  const bonEl=document.getElementById('mata-bonus-pct-inp');
+  const otEl=document.getElementById('mata-ot-pct-inp');
+  if(baseEl) baseEl.value = p.base||14880;
+  if(thrEl)  thrEl.value  = p.threshold||125;
+  if(bonEl)  bonEl.value  = p.bonusPct||20;
+  if(otEl)   otEl.value   = p.otPct||150;
 
+  const hoursEl=document.getElementById('mata-hours-inp');
+  if(hoursEl) hoursEl.value = saved.hours??'';
+
+  const mbStdEl=document.getElementById('mata-mbank-std');
+  if(mbStdEl) mbStdEl.value = saved.mbankStd??2000;
+  const mbExtraEl=document.getElementById('mata-mbank-extra');
+  if(mbExtraEl) mbExtraEl.value = saved.mbankExtra??'';
+
+  const cushionEl=document.getElementById('mata-cushion-inp');
+  if(cushionEl) cushionEl.value = saved.cushion??9500;
+  const ikeEl=document.getElementById('mata-ike-paid');
+  if(ikeEl) ikeEl.value = saved.ikePaid??'';
+  const ikzeEl=document.getElementById('mata-ikze-paid');
+  if(ikzeEl) ikzeEl.value = saved.ikzePaid??'';
+  const loanEl=document.getElementById('mata-loan-capital-inp');
+  if(loanEl) loanEl.value = saved.loanCapital??54490;
+
+  // --- Oblicz wynagrodzenie ---
+  const params = mataGetParams();
+  const hours = parseFloat(hoursEl?.value);
+  const salary = isNaN(hours) ? params.base : mataCalcSalary(hours,params).total;
+  const bonus  = isNaN(hours) ? 0 : mataCalcSalary(hours,params).bonus;
+  const overtime = isNaN(hours) ? 0 : mataCalcSalary(hours,params).overtime;
+  const extra = mataGetExtraIncomeTotal();
+  const totalIncome = salary + extra;
+
+  // Ustaw wynagrodzenie w UI
+  const stEl=document.getElementById('mata-salary-total');
+  if(stEl) stEl.textContent=fmt(Math.round(salary))+' zł';
+  const sbEl=document.getElementById('mata-salary-breakdown');
+  if(sbEl) sbEl.textContent=isNaN(hours)?'Wpisz godziny aby zobaczyć pełne wynagrodzenie':`Baza ${fmt(params.base)} + Bonus ${fmt(Math.round(bonus))} + Nadgodziny ${fmt(Math.round(overtime))}`;
+  const bvEl=document.getElementById('mata-base-val'); if(bvEl)bvEl.textContent=fmt(params.base);
+  const bnEl=document.getElementById('mata-bonus-val'); if(bnEl)bnEl.textContent=fmt(Math.round(bonus));
+  const ovEl=document.getElementById('mata-overtime-val'); if(ovEl)ovEl.textContent=fmt(Math.round(overtime));
+  const pvEl=document.getElementById('mata-pct-val');
+  if(pvEl) pvEl.textContent=isNaN(hours)?'—':Math.round((Math.min(hours,params.threshold)/params.threshold)*100)+'%';
+  const tiEl=document.getElementById('mata-total-income');
+  if(tiEl) tiEl.textContent=fmt(Math.round(totalIncome))+' zł';
+  const cdEl=document.getElementById('mata-calc-detail');
+  if(cdEl) cdEl.innerHTML=isNaN(hours)?'Wpisz liczbę godzin aby zobaczyć kalkulację.':`Baza <b>${fmt(params.base)} zł</b> + Bonus <b>${fmt(Math.round(bonus))} zł</b>${overtime>0?` + Nadgodziny <b>${fmt(Math.round(overtime))} zł</b>`:''}`;
+
+  // --- Oblicz składkę i zostaje ---
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
+  const skladka=Math.max(0,(planSum-domGetIncome())/2);
+  const mbankStd=parseFloat(mbStdEl?.value)||2000;
+  const mbankExtra=parseFloat(mbExtraEl?.value)||0;
+  const mbankTotal=mbankStd+mbankExtra;
+  const pozostaje=totalIncome-2500-skladka-mbankTotal;
+
+  // Ustaw w UI
+  const skEl=document.getElementById('mata-skladka-dom'); if(skEl)skEl.textContent=`− ${fmt(Math.round(skladka))} zł`;
+  const ssEl=document.getElementById('mata-sum-salary'); if(ssEl)ssEl.textContent=extra>0?`${fmt(Math.round(salary))} + ${fmt(Math.round(extra))} = ${fmt(Math.round(totalIncome))} zł`:`${fmt(Math.round(totalIncome))} zł`;
+  const sk2=document.getElementById('mata-sum-skladka'); if(sk2)sk2.textContent=`${fmt(Math.round(skladka))} zł`;
+  const mbEl=document.getElementById('mata-sum-mbank'); if(mbEl)mbEl.textContent=`${fmt(mbankTotal)} zł`;
+  const mtEl=document.getElementById('mata-mbank-total'); if(mtEl)mtEl.textContent=`${fmt(mbankTotal)} zł`;
+  const pzEl=document.getElementById('mata-pozostaje');
+  if(pzEl){pzEl.textContent=`${fmt(Math.round(pozostaje))} zł`;pzEl.style.color=pozostaje<0?'#f4a8c0':'#fff';}
+
+  // --- Reszta ---
   mataRenderExtraIncome();
-  mataCalc();
-  mataTransferCalc();
+  mataRenderTransfers();
   mataRenderSavings();
   mataLoanRender();
   mataUpdateDoneBtn();
-  // Force render transfers directly
-  mataRenderTransfers();
 }
 
 function changeMataMonth(dir){
