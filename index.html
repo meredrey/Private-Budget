@@ -539,7 +539,10 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0" id="strat-s1-icon">🎯</div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 1 — Poduszka bezpieczeństwa</div>
-          <div style="font-size:12px;color:#7a6e98;line-height:1.6">Całe 30% nadwyżki → konto oszczędnościowe Millennium.<br>Cel: <b>50 000 zł</b>. Masz teraz <b id="strat-cushion-now">9 500 zł</b>.</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.7">
+            <b>100% oszczędności</b> → konto oszczędnościowe Millennium.<br>
+            Cel: <b>50 000 zł</b>. Masz teraz <b id="strat-cushion-now">9 500 zł</b>.
+          </div>
           <div style="margin-top:6px;height:6px;background:#e8e4f0;border-radius:99px;overflow:hidden">
             <div id="strat-s1-bar" style="height:100%;border-radius:99px;background:#5e4d82;transition:width .5s"></div>
           </div>
@@ -551,33 +554,50 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
         <!-- Etap 2 -->
         <div style="margin-bottom:16px" id="strat-stage2">
-          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 2 — Inwestycje (gdy poduszka gotowa)</div>
-          <div style="font-size:12px;color:#7a6e98;line-height:1.7">
-            Z 30% nadwyżki:<br>
-            📘 <b>60% → IKE</b> w XTB (VWCE ETF) — limit <b>26 019 zł/rok</b><br>
-            📗 Gdy IKE pełne → <b>IKZE</b> (limit 10 407 zł/rok)<br>
-            📙 <b>20% → EDO</b> obligacje 10-letnie (obligacjeskarbowe.pl)<br>
-            👧 <b>20% → córki</b> (po połowie, obligacje lub ETF)<br>
-            🚗 70% nadwyżki nadal na <b>spłatę pożyczki Andy'emu</b>
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 2 — IKE (gdy poduszka gotowa)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Z miesięcznych oszczędności (30% nadwyżki):<br>
+            📘 <b>60% → IKE w XTB</b> (VWCE ETF)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~26 000 zł/rok</b>, reset co roku ✓<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Zero podatku Belki przy wypłacie po 60.<br>
+            📙 <b>30% → EDO obligacje</b> (obligacjeskarbowe.pl)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;10-letnie, indeksowane inflacją + 1,5%<br>
+            👧 <b>10% → córki</b> (po połowie na każdą)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;70% VWCE + 30% obligacje ROS 6-letnie<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Horyzont 16-17 lat — czas pracuje dla nich
           </div>
         </div>
 
         <!-- Etap 3 -->
-        <div id="strat-stage3">
-          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 3 — Nadpłata hipoteki (gdy auto spłacone)</div>
-          <div style="font-size:12px;color:#7a6e98;line-height:1.7">
-            🏠 <b>70% nadwyżki → nadpłata hipoteki</b> Millennium<br>
-            💹 30% nadal wg podziału z Etapu 2<br>
-            ✨ Fundusz swobodny rośnie do <b>2 500 zł/mies.</b>
+        <div style="margin-bottom:16px" id="strat-stage3">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 3 — IKZE (gdy limit IKE w roku wypełniony)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Gdy 60% oszczędności przekroczy limit IKE (~2 167 zł/mies.):<br>
+            📗 Nadwyżka ponad IKE → <b>IKZE w XTB</b> (VWCE ETF)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~10 400 zł/rok</b>, dodatkowa ulga podatkowa<br>
+            📙 <b>30% → EDO</b> bez zmian<br>
+            👧 <b>10% → córki</b> bez zmian
+          </div>
+        </div>
+
+        <!-- Etap 4 -->
+        <div id="strat-stage4">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 4 — Agresywne inwestycje (IKE + IKZE pełne)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Gdy oba limity wypełnione → rachunek maklerski XTB:<br>
+            🌍 <b>60% → VWCE</b> (globalny ETF, baza)<br>
+            📈 <b>25% → ZPDM</b> (małe spółki rynki rozwinięte — wyższy potencjał)<br>
+            💡 <b>15% → QQQ/QQQM</b> (tech/Nasdaq — koncentracja na innowacji)<br>
+            📙 <b>+ EDO i córki</b> bez zmian
           </div>
         </div>
       </div>
 
-      <!-- Etap 4 -->
+      <!-- Etap 5 -->
       <div style="display:flex;gap:12px">
         <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0">🏁</div>
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 4 — Po spłacie hipoteki</div>
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 5 — Wolność finansowa</div>
           <div style="font-size:12px;color:#7a6e98;line-height:1.6">Aktualizujemy strategię razem gdy tu dojdziesz 🎉</div>
         </div>
       </div>
@@ -589,26 +609,36 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <div class="sec-lbl">📈 Jak inwestować — przewodnik</div>
   <div class="card" style="margin-bottom:12px">
     <div style="padding:14px 16px;font-size:12px;color:#4a4060;line-height:1.9">
+
       <div style="font-weight:700;color:#18102c;margin-bottom:6px">🏦 Kolejność otwierania kont</div>
-      <div style="margin-bottom:12px">
-        <div>1️⃣ <b>XTB</b> — otwórz już teraz, za darmo, online (xStation app). Zajmuje 15 min. Tam będzie Twoje IKE i IKZE.</div>
-        <div>2️⃣ <b>obligacjeskarbowe.pl</b> — rejestracja online, kupujesz obligacje EDO dla siebie i córek.</div>
-        <div>3️⃣ Konto maklerskie małoletniego dla córek — dostępne w XTB po kontakcie z obsługą.</div>
+      <div style="margin-bottom:14px">
+        <div>1️⃣ <b>XTB</b> — otwórz już teraz, za darmo, online (xStation app). 15 min. Tu będzie IKE i IKZE.</div>
+        <div>2️⃣ <b>obligacjeskarbowe.pl</b> — rejestracja online. Tu kupujesz EDO dla siebie i ROS dla córek.</div>
+        <div>3️⃣ Konto dla córek — możesz kupować obligacje ROS już teraz na ich imię przez obligacjeskarbowe.pl.</div>
       </div>
 
-      <div style="font-weight:700;color:#18102c;margin-bottom:6px">📊 Co kupować</div>
-      <div style="margin-bottom:12px">
-        <div>🌍 <b>VWCE</b> — Vanguard FTSE All-World. Jeden ETF, 9000+ spółek z całego świata. Kupujesz w XTB. Historycznie ~8% rocznie.</div>
-        <div>📙 <b>EDO</b> — 10-letnie obligacje skarbowe, indeksowane inflacją + 1,5% marży. Bezpieczne, lepsze niż lokata.</div>
-        <div>📗 <b>ROS/ROD</b> — 6-letnie obligacje dla dzieci. Idealne na konta córek.</div>
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">📊 Co kupować i gdzie</div>
+      <div style="margin-bottom:14px">
+        <div>🌍 <b>VWCE</b> — ETF na cały świat (9000+ spółek). W XTB. Historycznie ~8%/rok. Kupujesz co miesiąc.</div>
+        <div>📈 <b>ZPDM</b> — małe spółki rynki rozwinięte. Wyższe ryzyko, wyższy potencjał. Domieszka w Etapie 4.</div>
+        <div>💡 <b>QQQM</b> — tech/Nasdaq. Koncentracja na innowacji. Domieszka w Etapie 4.</div>
+        <div>📙 <b>EDO</b> — 10-letnie obligacje skarbowe, inflacja + 1,5%. Twoja bezpieczna kotwica.</div>
+        <div>📗 <b>ROS</b> — 6-letnie obligacje dla dzieci. Kupujesz na imię córki przez obligacjeskarbowe.pl.</div>
       </div>
 
-      <div style="font-weight:700;color:#18102c;margin-bottom:6px">💡 Kluczowe zasady</div>
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">👧 Czy ETF jest bezpieczny dla córek?</div>
+      <div style="background:#f4f1fc;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.8">
+        Przy horyzoncie <b>16-17 lat</b> — tak. VWCE nigdy nie miał ujemnego zwrotu w żadnym 15-letnim oknie historycznym. Nawet ktoś kto kupił tuż przed kryzysem 2008 był solidnie na plusie po 15 latach.<br><br>
+        Dlatego przyjęłyśmy podział <b>70% VWCE + 30% ROS</b> — ETF daje wzrost, obligacje dają kotwicę bezpieczeństwa. Czas pracuje dla córek — nie ruszaj tych pieniędzy nawet gdy giełda spada.
+      </div>
+
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">💡 Żelazne zasady</div>
       <div>
-        <div>✅ Najpierw wypełnij IKE i IKZE — zero podatku Belki (19%) przy wypłacie</div>
-        <div>✅ Nie próbuj "wyczuć rynku" — kupuj co miesiąc niezależnie od kursu</div>
-        <div>✅ Nie ruszaj IKE przed 60. rokiem życia — tracisz ulgę podatkową</div>
-        <div>✅ Lokata = przegraną z inflacją. ETF + obligacje = wygrywasz długoterminowo</div>
+        <div>✅ IKE i IKZE najpierw — zero podatku Belki (19%) przy wypłacie po 60.</div>
+        <div>✅ Kupuj VWCE co miesiąc niezależnie od kursu — nie próbuj wyczuć dołka.</div>
+        <div>✅ Nie ruszaj IKE przed 60. rokiem życia — tracisz całą ulgę podatkową.</div>
+        <div>✅ Nie ruszaj pieniędzy córek nawet podczas krachu — horyzont to ich siła.</div>
+        <div>✅ Lokata 5% − Belka = 4,05% netto ≈ inflacja. Realnie zarabiasz 0%. ETF bije to długoterminowo.</div>
       </div>
     </div>
   </div>
@@ -2586,9 +2616,15 @@ function mataLoanRender(){
 }
 
 function mataGetStage(cushion, loanPaid){
-  if(cushion < MATA_CUSHION_GOAL) return 1;
-  if(!loanPaid) return 2;
-  return 3;
+  const cushionGoal = mataData._settings?.cushionGoal||50000;
+  const ikeLimit = mataData._settings?.ikeLimit||26019;
+  const ikzeLimit = mataData._settings?.ikzeLimit||10407;
+  const ikePaid = mataData[mataYM]?.ikePaid||0;
+  const ikzePaid = mataData[mataYM]?.ikzePaid||0;
+  if(cushion < cushionGoal) return 1;   // Poduszka
+  if(ikePaid < ikeLimit) return 2;      // IKE
+  if(ikzePaid < ikzeLimit) return 3;    // IKZE
+  return 4;                              // Agresywne
 }
 
 function mataSavingsCalc(){
@@ -2630,9 +2666,10 @@ function mataSavingsCalc(){
 
   // Stage badge
   const stageData={
-    1:{icon:'🎯',name:'Etap 1 — Poduszka',sub:`Zostało ${fmt(MATA_CUSHION_GOAL-cushion)} zł do celu`,color:'#5e4d82'},
-    2:{icon:'📈',name:'Etap 2 — Inwestycje',sub:'IKE + obligacje + córki',color:'#2d6a50'},
-    3:{icon:'🏠',name:'Etap 3 — Nadpłata hipoteki',sub:'70% nadwyżki na hipotekę',color:'#7a6050'},
+    1:{icon:'🎯',name:'Etap 1 — Poduszka',sub:`Zostało ${fmt(Math.max(0,(mataData._settings?.cushionGoal||50000)-cushion))} zł do celu`,color:'#5e4d82'},
+    2:{icon:'📘',name:'Etap 2 — IKE',sub:'60% oszczędności → VWCE w XTB',color:'#2d6a50'},
+    3:{icon:'📗',name:'Etap 3 — IKZE',sub:'Limit IKE wypełniony → teraz IKZE',color:'#3d6a7a'},
+    4:{icon:'🚀',name:'Etap 4 — Agresywne inwestycje',sub:'IKE + IKZE pełne → rachunek maklerski',color:'#6a3d2d'},
   };
   const sd=stageData[stage];
   const badge=document.getElementById('mata-stage-badge');
@@ -2683,37 +2720,8 @@ function mataSavingsCalc(){
     } // end else surplus>0
   }
 
-  // Instrukcja przelewów — zawsze pokazuj (używa bazy gdy brak godzin)
-  const transferEl=document.getElementById('mata-transfers-list');
-  if(transferEl){
-    const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
-    const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
-    const skladka=Math.max(0,(planSum-domGetIncome())/2);
-    const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
-    const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
-    const steps=[
-      {id:'hipoteka',n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:2500,color:'#7a4868'},
-      {id:'skladka',n:2,icon:'🏠',label:'Składka na Dom',target:'Wspólne konto (Andy)',amt:Math.round(skladka),color:'#7a4868'},
-      {id:'mbank',n:3,icon:'📱',label:'Fundusz swobodny',target:'mBank',amt:mbankStd+mbankExtra,color:'#5e4d82'},
-      {id:'loan',n:4,icon:stage===3?'🏠':'🚗',label:stage===3?'Nadpłata hipoteki':'Pożyczka Andy\'ego',target:stage===3?'Millennium kredyt':'Andy — zwrot\'ego',amt:autoAmount,color:'#9a607a'},
-      {id:'savings',n:5,icon:stage===1?'🛡️':'📈',label:stage===1?'Poduszka':'Inwestycje',target:stage===1?'Millennium oszczędnościowe':'XTB / obligacje',amt:savAmount,color:'#3d7a60'},
-    ];
-    const doneSteps=mataData[mataYM]?.doneSteps||{};
-    transferEl.innerHTML=steps.map(s=>{
-      const done=doneSteps[s.id]||false;
-      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #e8e4f0;${done?'opacity:0.6':''}">
-        <button onclick="mataToggleStep('${s.id}')" style="width:26px;height:26px;border-radius:50%;border:2px solid ${done?'#3d7a60':s.color};background:${done?'#3d7a60':s.color};color:#fff;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-          ${done?'✓':s.n}
-        </button>
-        <div style="font-size:16px;flex-shrink:0">${s.icon}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;color:#18102c;${done?'text-decoration:line-through':''}">${s.label}</div>
-          <div style="font-size:10px;color:#7a6e98">→ ${s.target}</div>
-        </div>
-        <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:${done?'#3d7a60':s.color}">${fmt(s.amt)} zł</div>
-      </div>`;
-    }).join('');
-  }
+  // Instrukcja przelewów — deleguj do dedykowanej funkcji
+  mataRenderTransfers();
 
   // Cele
   const goalsEl=document.getElementById('mata-goals-list');
@@ -3160,39 +3168,52 @@ function renderStrategy(){
   const adviceEl = document.getElementById('strategy-advice');
   if(!adviceEl) return;
 
-  const monthsLeft = new Date(now.getFullYear(),11,31) - now;
-  const monthsLeftInYear = Math.ceil(monthsLeft/(1000*60*60*24*30));
+  const monthsLeftInYear = Math.ceil((new Date(now.getFullYear(),11,31)-now)/(1000*60*60*24*30));
   const ikeLeft = ikeLimit - ikePaid;
-  const ikeMonthly = stage>=2 ? Math.round(savAmount*0.6) : 0;
+  const ikzeLimit2 = mataData._settings?.ikzeLimit||10407;
+  const ikzePaid2 = mataData[mataYM]?.ikzePaid||0;
+  const ikzeLeft = ikzeLimit2 - ikzePaid2;
+  const savAmount2 = Math.round(mataGetSurplus() * MATA_SAVE_SPLIT);
+  const ikeMonthly = Math.round(savAmount2 * 0.6);
+  const kidsMonthly = Math.round(savAmount2 * 0.1);
 
   let advice = '';
 
   if(stage===1){
-    const mToGoal = savAmount>0 ? Math.ceil((cushionGoal-cushion)/savAmount) : null;
-    advice = `🎯 <b>Jesteś w Etapie 1 — budowanie poduszki.</b><br><br>`;
-    advice += `Masz ${fmt(cushion)} zł z ${fmt(cushionGoal)} zł celu (${pct}%). `;
-    if(mToGoal){
-      advice += `Przy obecnym tempie osiągniesz cel za <b>${mToGoal} miesięcy</b>.<br><br>`;
-    }
-    advice += `💡 <b>Co teraz zrobić:</b> Załóż konto w <b>XTB</b> (zajmie 15 minut) — będziesz gotowa gdy tylko poduszka będzie pełna. Nie czekaj do ostatniej chwili.<br><br>`;
-    advice += `📙 Możesz też już teraz kupić pierwsze <b>obligacje ROS dla córek</b> na obligacjeskarbowe.pl — nawet 100 zł miesięcznie to świetny start.`;
+    const mToGoal = savAmount2>0 ? Math.ceil((cushionGoal-cushion)/savAmount2) : null;
+    advice = `🎯 <b>Etap 1 — budujesz poduszkę.</b><br><br>`;
+    advice += `Masz <b>${fmt(cushion)} zł</b> z ${fmt(cushionGoal)} zł celu (${pct}%). `;
+    if(mToGoal) advice += `Przy obecnym tempie osiągniesz cel za <b>${mToGoal} miesięcy</b>.<br><br>`;
+    advice += `💡 <b>Zrób teraz:</b> Załóż konto w <b>XTB</b> (15 min, za darmo) — będziesz gotowa gdy poduszka będzie pełna.<br><br>`;
+    advice += `👧 <b>Dla córek:</b> Możesz już dziś kupić pierwsze obligacje ROS na obligacjeskarbowe.pl. Nawet ${fmt(kidsMonthly>0?kidsMonthly:100)} zł/mies. przez 16 lat to ogromna różnica.`;
   } else if(stage===2){
-    advice = `📈 <b>Jesteś w Etapie 2 — inwestycje.</b><br><br>`;
-    if(ikeLeft>0){
-      advice += `📘 Do limitu IKE zostało <b>${fmt(ikeLeft)} zł</b> w tym roku (${monthsLeftInYear} mies.). `;
-      if(ikeMonthly>0){
-        const mToFill = Math.ceil(ikeLeft/ikeMonthly);
-        advice += `Przy ${fmt(ikeMonthly)} zł/mies. wypełnisz go za <b>${mToFill} mies.</b><br><br>`;
-      }
+    if(ikeLeft > 0){
+      const mToFill = ikeMonthly>0 ? Math.ceil(ikeLeft/ikeMonthly) : null;
+      advice = `📘 <b>Etap 2 — wypełniasz IKE.</b><br><br>`;
+      advice += `Do limitu IKE zostało <b>${fmt(ikeLeft)} zł</b> w tym roku (${monthsLeftInYear} mies. do końca roku). `;
+      if(mToFill) advice += `Przy ${fmt(ikeMonthly)} zł/mies. wypełnisz limit za <b>${mToFill} mies.</b><br><br>`;
+      advice += `🌍 Kupuj <b>VWCE co miesiąc</b> w XTB — nie czekaj na "dobry moment". Czas w rynku bije timing rynku.<br><br>`;
+      advice += `👧 Córki: ${fmt(kidsMonthly)} zł/mies. → 70% VWCE + 30% ROS. Nie ruszaj tych pieniędzy nawet podczas krachu.`;
     } else {
-      advice += `✅ Limit IKE na ten rok wypełniony! Teraz wpłacaj na <b>IKZE</b> albo rachunek maklerski.<br><br>`;
+      advice = `✅ <b>Limit IKE na ${now.getFullYear()} wypełniony!</b><br><br>`;
+      advice += `Przechodzisz do Etapu 3 — teraz wpłacaj na <b>IKZE</b> (zostało ${fmt(ikzeLeft)} zł limitu).<br><br>`;
+      advice += `📙 30% → EDO, 👧 10% → córki — bez zmian.`;
     }
-    advice += `💡 Pamiętaj: kupuj <b>VWCE co miesiąc</b> niezależnie od kursu. Nie próbuj wyczuć dołka — czas w rynku bije timing rynku.`;
+  } else if(stage===3){
+    if(ikzeLeft > 0){
+      advice = `📗 <b>Etap 3 — wypełniasz IKZE.</b><br><br>`;
+      advice += `Do limitu IKZE zostało <b>${fmt(ikzeLeft)} zł</b> w tym roku. IKZE daje Ci dodatkowo odliczenie od PIT.<br><br>`;
+      advice += `📙 30% → EDO, 👧 10% → córki — bez zmian.<br><br>`;
+      advice += `💡 Po wypełnieniu IKZE reszta idzie na rachunek maklerski — VWCE + domieszki agresywne.`;
+    } else {
+      advice = `🎉 <b>IKE i IKZE wypełnione w tym roku!</b><br><br>`;
+      advice += `Przechodisz do Etapu 4 — rachunek maklerski: <b>VWCE 60% + ZPDM 25% + QQQM 15%</b>.<br><br>`;
+      advice += `To jest najlepsza pozycja — wszystkie podatkowe tarcze wypełnione, teraz budujesz majątek bez ograniczeń.`;
+    }
   } else {
-    advice = `🏠 <b>Jesteś w Etapie 3 — nadpłacasz hipotekę.</b><br><br>`;
-    advice += `Każda nadpłata skraca okres kredytowania i zmniejsza łączne odsetki. `;
-    advice += `Sprawdź w Millennium ile wynosi kapitał do spłaty i jaka jest data zakończenia kredytu.<br><br>`;
-    advice += `💡 Kontynuuj inwestycje wg Etapu 2 — 30% nadal pracuje dla Ciebie.`;
+    advice = `🏆 <b>Etap 4 — agresywne inwestycje.</b><br><br>`;
+    advice += `IKE + IKZE pełne. Rachunek maklerski: VWCE + ZPDM + QQQM.<br><br>`;
+    advice += `💡 Raz w roku zrób rebalancing — przywróć proporcje 60/25/15 jeśli się rozjechały.`;
   }
 
   adviceEl.innerHTML = advice;
@@ -3507,6 +3528,7 @@ document.addEventListener('keydown',e=>{
 
 function showPage(name){
   curPage=name;
+  try{sessionStorage.setItem('curPage',name);}catch{}
   // Map budget sub-pages to week page
   const pageId = ['month','plans'].includes(name) ? 'week' : name;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3526,6 +3548,12 @@ function showPage(name){
 }
 
 renderAll();
+
+// Restore last page after refresh
+try{
+  const savedPage = sessionStorage.getItem('curPage');
+  if(savedPage && savedPage !== 'dash') showPage(savedPage);
+}catch{}
 
 // Auto-sync from Sheets every 30 seconds
 setInterval(()=>syncFromSheets(), 30000);
