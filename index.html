@@ -1012,11 +1012,11 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   
 
   <!-- CO ZOSTAJE -->
-  <div class="sec-lbl">💸 Co zostaje</div>
-
-
-
-  <div class="card">
+  <div class="sec-lbl" onclick="mataToggleSection('mata-zostaje-card','mata-zostaje-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+    <span>💸 Co zostaje</span>
+    <span id="mata-zostaje-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
+  </div>
+  <div id="mata-zostaje-card" style="display:none">
     <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
 
       <!-- Stałe odliczenia -->
@@ -1125,12 +1125,17 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
     <!-- Wiadomość do Andy'ego -->
     <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
-      <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
-      <button onclick="mataCopyAndyMsg()"
-        style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
-        📋 Kopiuj wiadomość
-      </button>
+      <div onclick="mataToggleSection('mata-andy-card','mata-andy-arrow')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0">
+        <div style="font-size:11px;font-weight:700;color:#4a4060;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
+        <span id="mata-andy-arrow" style="font-size:11px;color:#7a6e98">▼ rozwiń</span>
+      </div>
+      <div id="mata-andy-card" style="display:none;margin-top:8px">
+        <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
+        <button onclick="mataCopyAndyMsg()"
+          style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
+          📋 Kopiuj wiadomość
+        </button>
+      </div>
     </div>
 
     <!-- Prognoza -->
@@ -2406,6 +2411,15 @@ function changeMataMonth(dir){
   renderMata();
 }
 
+function mataToggleSection(cardId, arrowId){
+  const card=document.getElementById(cardId);
+  const arrow=document.getElementById(arrowId);
+  if(!card)return;
+  const open=card.style.display==='block';
+  card.style.display=open?'none':'block';
+  if(arrow)arrow.textContent=open?'▼ rozwiń':'▲ zwiń';
+}
+
 function mataToggleParams(){
   const card=document.getElementById('mata-params-card');
   const arrow=document.getElementById('mata-params-arrow');
@@ -2653,71 +2667,89 @@ const MATA_LOAN_ORIGINAL = 84135;
 
 function mataLoanCalc(){
   const saved = mataData[mataYM]||{};
-  const capital = saved.loanCapital ?? 54490;
+  const ratePaid = saved.loanRatePaid||false;
 
-  // Get this month's payment = 70% of surplus, min 2000
-  const surplus = mataGetSurplus();
-  const payment70 = Math.round(surplus * 0.70);
-  const payment = Math.max(MATA_CAR_MIN, payment70);
+  // If rate already paid this month — use saved values, don't recalculate
+  let capital, payment, interest, capitalPayment, remaining;
 
-  // Interest and capital breakdown
-  const interest = Math.round(capital * MATA_CAR_RATE * 100) / 100;
-  const capitalPayment = Math.max(0, Math.round(payment - interest));
-  const remaining = Math.max(0, capital - capitalPayment);
+  if(ratePaid){
+    // Show what WAS paid this month (before capital was updated)
+    capital = saved._loanCapitalBefore ?? (saved.loanCapital ?? 54490);
+    payment = saved._loanPayment ?? 0;
+    interest = saved._loanInterest ?? 0;
+    capitalPayment = saved._loanCapitalPayment ?? 0;
+    remaining = saved.loanCapital ?? 0; // current capital after payment
+  } else {
+    // Calculate what will be paid
+    capital = saved.loanCapital ?? 54490;
+    const surplus = mataGetSurplus();
+    const payment70 = Math.round(surplus * 0.70);
+    payment = Math.max(MATA_CAR_MIN, payment70);
+    interest = Math.round(capital * MATA_CAR_RATE * 100) / 100;
+    capitalPayment = Math.max(0, Math.round(payment - interest));
+    remaining = Math.max(0, capital - capitalPayment);
+    // Store for later
+    if(!mataData[mataYM]) mataData[mataYM]={};
+    mataData[mataYM]._loanInterest = interest;
+    mataData[mataYM]._loanCapitalPayment = capitalPayment;
+    mataData[mataYM]._loanPayment = payment;
+    mataData[mataYM]._loanRemaining = remaining;
+  }
 
-  // Store calculated values for this month (for Andy message)
-  if(!mataData[mataYM]) mataData[mataYM]={};
-  mataData[mataYM]._loanInterest = interest;
-  mataData[mataYM]._loanCapitalPayment = capitalPayment;
-  mataData[mataYM]._loanPayment = payment;
-  mataData[mataYM]._loanRemaining = remaining;
-
-  // Progress bar
-  const paidTotal = MATA_LOAN_ORIGINAL - capital;
+  // Progress bar (always based on current capital)
+  const currentCapital = saved.loanCapital ?? 54490;
+  const paidTotal = MATA_LOAN_ORIGINAL - currentCapital;
   const pct = Math.min(100, Math.round((paidTotal/MATA_LOAN_ORIGINAL)*100));
   const bar = document.getElementById('mata-loan-bar');
   if(bar) bar.style.width = pct+'%';
-  const remEl=document.getElementById('mata-loan-remaining'); if(remEl)remEl.textContent=fmt(capital)+' zł';
+  const remEl=document.getElementById('mata-loan-remaining'); if(remEl)remEl.textContent=fmt(currentCapital)+' zł';
   const paidLbl=document.getElementById('mata-loan-paid-lbl'); if(paidLbl)paidLbl.textContent=`spłacono ${fmt(paidTotal)} zł (${pct}%)`;
   const origLbl=document.getElementById('mata-loan-original-lbl'); if(origLbl)origLbl.textContent=`z ${fmt(MATA_LOAN_ORIGINAL)} zł`;
 
   // Rata breakdown
-  const payEl=document.getElementById('mata-loan-payment'); if(payEl)payEl.textContent=fmt(payment)+' zł'+(payment70<MATA_CAR_MIN?' (minimum)':'');
+  const payEl=document.getElementById('mata-loan-payment');
+  if(payEl) payEl.textContent = ratePaid ? `${fmt(payment)} zł ✓` : `${fmt(payment)} zł`;
   const intEl=document.getElementById('mata-loan-interest'); if(intEl)intEl.textContent=fmt(interest)+' zł';
   const capEl=document.getElementById('mata-loan-capital'); if(capEl)capEl.textContent=fmt(capitalPayment)+' zł';
   const afterEl=document.getElementById('mata-loan-after');
-  if(afterEl){afterEl.textContent=fmt(remaining)+' zł';afterEl.style.color=remaining<10000?'#3d7a60':'#7a4868';}
+  if(afterEl){
+    afterEl.textContent = ratePaid ? `${fmt(remaining)} zł (zaktualizowano)` : `${fmt(remaining)} zł`;
+    afterEl.style.color = remaining<10000?'#3d7a60':'#7a4868';
+  }
 
   // Paid button state
   const paidBtn=document.getElementById('mata-loan-paid-btn');
-  const ratePaid = saved.loanRatePaid||false;
   if(paidBtn){
-    paidBtn.textContent=ratePaid?'✅ Rata zapłacona (kapitał zaktualizowany)':'☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał';
+    paidBtn.textContent=ratePaid?`✅ Rata zapłacona ${saved.loanRatePaidDate||''}`:'☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał';
     paidBtn.style.background=ratePaid?'#d4f0e4':'#eeebf5';
     paidBtn.style.borderColor=ratePaid?'#3d7a60':'#b0a4cc';
     paidBtn.style.color=ratePaid?'#3d7a60':'#4a4060';
   }
 
   // Andy message
-  mataGenerateAndyMsg(payment, interest, capitalPayment, remaining, capital);
+  mataGenerateAndyMsg(payment, interest, capitalPayment, remaining);
 
-  // Forecast
+  // Forecast — only show when not paid yet
   const forecastEl=document.getElementById('mata-loan-forecast');
-  if(forecastEl && capital>0){
-    let sim=capital, months=0;
-    while(sim>0&&months<120){
-      const i=sim*MATA_CAR_RATE;
-      const c=Math.min(sim,payment-i);
-      if(c<=0){months=999;break;}
-      sim-=c; months++;
+  if(forecastEl){
+    if(ratePaid){
+      forecastEl.innerHTML='';
+    } else if(currentCapital>0){
+      let sim=currentCapital, months=0;
+      while(sim>0&&months<120){
+        const i=sim*MATA_CAR_RATE;
+        const c=Math.min(sim,payment-i);
+        if(c<=0){months=999;break;}
+        sim-=c; months++;
+      }
+      if(months<120){
+        const d=new Date(); d.setMonth(d.getMonth()+months);
+        forecastEl.innerHTML=`⏱️ Spłata za <b>${months} mies.</b> · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}<br>
+        <span style="color:#b0a4cc;font-size:11px">* Orientacyjnie</span>`;
+      }
+    } else {
+      forecastEl.innerHTML='<b style="color:#3d7a60">✅ Pożyczka spłacona!</b>';
     }
-    if(months<120){
-      const d=new Date(); d.setMonth(d.getMonth()+months);
-      forecastEl.innerHTML=`⏱️ Przy racie ${fmt(payment)} zł — spłata za <b>${months} mies.</b> (${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})})<br>
-      <span style="color:#b0a4cc;font-size:11px">* Orientacyjnie — rata zmienia się co miesiąc</span>`;
-    } else forecastEl.innerHTML='⚠️ Zwiększ ratę ponad minimum 2 000 zł';
-  } else if(forecastEl&&capital<=0){
-    forecastEl.innerHTML='<b style="color:#3d7a60">✅ Pożyczka spłacona!</b>';
   }
 }
 
@@ -2741,35 +2773,27 @@ function mataLoanMarkPaid(){
   mataLoanCalc();
 }
 
-function mataGenerateAndyMsg(payment, interest, capitalPayment, remaining, capitalBefore){
+function mataGenerateAndyMsg(payment, interest, capitalPayment, remaining){
   const msgEl = document.getElementById('mata-andy-msg');
   if(!msgEl) return;
 
   const now = new Date();
   const monthName = now.toLocaleDateString('en-US',{month:'long', year:'numeric'});
 
-  // Get składka
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
-  const skladka=Math.max(0,(planSum-domGetIncome())/2);
-  const total = Math.round(payment + skladka);
+  const skladka=Math.round(Math.max(0,(planSum-domGetIncome())/2));
 
-  const msg = `Hi Andy 👋
+  // Andy sends: składka - car payment (because car payment goes from Mata to Andy, so Andy's net is składka - payment)
+  const toSend = Math.max(0, skladka - payment);
 
-Here's my monthly summary for ${monthName}:
+  const msg = `Hi Hun 💛
 
-🏠 Household contribution (my share): ${fmt(Math.round(skladka))} PLN
+${monthName}:
 
-🚗 Car loan payment: ${fmt(payment)} PLN
-   • Interest: ${fmt(interest)} PLN
-   • Principal: ${fmt(capitalPayment)} PLN
-   • Remaining balance: ${fmt(remaining)} PLN
+The chip in is ${fmt(skladka)} PLN. I'm paying you ${fmt(payment)} PLN for the car (${fmt(capitalPayment)} PLN principal, ${fmt(interest)} PLN interest, ${fmt(remaining)} PLN left).
 
-💸 Total transfer to our account: ${fmt(total)} PLN
-
-Please send ${fmt(total)} PLN to our shared account.
-
-Thanks! 🙏`;
+Please send ${fmt(toSend)} PLN to our account.`;
 
   msgEl.textContent = msg;
 }
@@ -2942,7 +2966,7 @@ function mataSavingsCalc(){
       else goals.push(`📘 IKE limit ${new Date().getFullYear()} → <b style="color:#3d7a60">✅ Wypełniony!</b>`);
     }
     const kidsM=Math.round(savAmount*0.2/2);
-    if(kidsM>0){
+    if(kidsM>0 && stage>=2){
       const m18=18*12;
       const fv=n=>Math.round(kidsM*((Math.pow(1+0.08/12,n)-1)/(0.08/12)));
       goals.push(`👧 Córki: ${fmt(kidsM)} zł/mies. każda → <b>~${fmt(fv(m18))} zł</b> za 18 lat (8% rocznie)`);
