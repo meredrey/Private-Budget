@@ -1994,8 +1994,11 @@ let domSyncTimer=null;
 let domWynajem=1145; // editable
 
 function domGetThisYM(){
-  const n = new Date();
-  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+  // Zwraca YM bieżącego okresu rozliczeniowego (miesiąc końca cyklu wypłaty)
+  const st = load();
+  const pd = st.payday || 1;
+  const {end} = budGetCycle(pd);
+  return `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
@@ -3243,9 +3246,11 @@ function mataCopyAndyMsg(){
 
 function mataLoanRender(){
   if(!mataData[mataYM]) mataData[mataYM]={};
-  // Dziedzicz kapitał z poprzedniego miesiąca jeśli brak w tym
-  if(mataData[mataYM].loanCapital === undefined){
-    mataData[mataYM].loanCapital = mataGetPrevVal('loanCapital', 54490);
+  // Dziedzicz kapitał z poprzedniego miesiąca
+  // ZAWSZE gdy rata nie była jeszcze opłacona w tym miesiącu
+  if(!mataData[mataYM].loanRatePaid){
+    const prevCap = mataGetPrevVal('loanCapital', 54490);
+    mataData[mataYM].loanCapital = prevCap;
   }
   if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = MATA_LOAN_ORIGINAL;
   mataLoanCalc();
@@ -3275,11 +3280,12 @@ function mataSavingsCalc(){
   const autoAmount = Math.round(surplus * MATA_CAR_SPLIT);
   const savAmount = Math.round(surplus * MATA_SAVE_SPLIT);
 
-  // Save state
+  // Save state — oznacz że użytkownik ręcznie aktualizował w tym miesiącu
   if(!mataData[mataYM]) mataData[mataYM]={};
   mataData[mataYM].cushion = cushion;
   mataData[mataYM].ikePaid = ikePaid||null;
   mataData[mataYM].ikzePaid = ikzePaid||null;
+  mataData[mataYM]._savingsUpdated = true;
   mataScheduleSave();
 
   // Poduszka progress
@@ -3416,10 +3422,17 @@ function mataSavingsCalc(){
 
 // Helper: znajdź wartość z ostatniego miesiąca który ją ma
 function mataGetPrevVal(key, defaultVal){
-  const months = Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
-  const prev = months.filter(m=>m < mataYM);
-  for(let i=prev.length-1; i>=0; i--){
-    const v = mataData[prev[i]]?.[key];
+  // Szuka ostatniej zapisanej wartości — przeszukuje wszystkie miesiące posortowane
+  // aby obsłużyć dane zapisane pod błędnym miesiącem
+  const months = Object.keys(mataData)
+    .filter(k => /^\d{4}-\d{2}$/.test(k))
+    .sort();
+  // Preferuj miesiące <= mataYM, ale jeśli nie ma to weź najbliższy
+  const before = months.filter(m => m <= mataYM);
+  const after  = months.filter(m => m >  mataYM);
+  const ordered = [...before.reverse(), ...after]; // najpierw tuż przed, potem tuż po
+  for(const m of ordered){
+    const v = mataData[m]?.[key];
     if(v !== undefined && v !== null) return v;
   }
   return defaultVal;
@@ -3427,11 +3440,12 @@ function mataGetPrevVal(key, defaultVal){
 
 function mataRenderSavings(){
   const saved = mataData[mataYM];
-  // Jeśli brak danych w tym miesiącu — dziedzicz z poprzedniego
-  const cushionVal = saved?.cushion ?? mataGetPrevVal('cushion', 9500);
-  const ikeVal = saved?.ikePaid ?? mataGetPrevVal('ikePaid', null);
-  const ikzeVal = saved?.ikzePaid ?? mataGetPrevVal('ikzePaid', null);
-  const el=document.getElementById('mata-cushion-inp'); if(el) el.value=cushionVal;
+  // Dziedzicz z poprzedniego miesiąca jeśli użytkownik nie aktualizował w tym miesiącu
+  // (brak flagi _savingsUpdated oznacza że dane są odziedziczone)
+  const cushionVal = saved?._savingsUpdated ? saved.cushion : mataGetPrevVal('cushion', 9500);
+  const ikeVal = saved?._savingsUpdated ? saved.ikePaid : mataGetPrevVal('ikePaid', null);
+  const ikzeVal = saved?._savingsUpdated ? saved.ikzePaid : mataGetPrevVal('ikzePaid', null);
+  const el=document.getElementById('mata-cushion-inp'); if(el) el.value=cushionVal??'';
   const ie=document.getElementById('mata-ike-paid'); if(ie) ie.value=ikeVal??'';
   const ize=document.getElementById('mata-ikze-paid'); if(ize) ize.value=ikzeVal??'';
   mataSavingsCalc();
@@ -4077,7 +4091,15 @@ function renderDash(){
 }
 
 
-function renderAll(){renderWeek();renderMonth();renderPlans();renderSettings();renderDash();}
+let _monthsInitialized = false;
+function renderAll(){
+  if(!_monthsInitialized){
+    domYM = domGetThisYM();
+    mataYM = domGetThisYM();
+    _monthsInitialized = true;
+  }
+  renderWeek();renderMonth();renderPlans();renderSettings();renderDash();
+}
 
 // ── ACTIONS ──
 function saveBudget(){const v=parseFloat(document.getElementById('budget-input').value)||0;const s=load();s.budget=v;save(s);renderAll();}
@@ -4272,8 +4294,8 @@ function showPage(name){
   else if(name==='month'){showBudgetTab('month');}
   else if(name==='plans'){showBudgetTab('plans');}
   else if(name==='settings')renderSettings();
-  else if(name==='dom'){domView='month';setDomView('month');domSyncFromSheets();}
-  else if(name==='mata'){renderMata();mataSyncFromSheets();}
+  else if(name==='dom'){domYM=domGetThisYM();domView='month';setDomView('month');domSyncFromSheets();}
+  else if(name==='mata'){mataYM=domGetThisYM();renderMata();mataSyncFromSheets();}
   else if(name==='settings'){renderStrategy();}
   else if(name==='dash'){renderDash();domSyncFromSheets();mataSyncFromSheets();}
   else renderWeek();
