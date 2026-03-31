@@ -3990,14 +3990,18 @@ function renderDash(){
     set('dash-greeting-sub', weekLeft>weekBudget*.5 ? 'Wszystko pod kontrolą 💛' : `${fmt(Math.round(weekLeft))} zł do końca tygodnia`);
   }
 
+  // Używamy aktualnego miesiąca kalendarzowego (nie cyklu wypłaty)
+  const dashYM = (()=>{ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; })();
+  const dashMataData = mataData[dashYM] || mataData[mataYM] || {};
+
   // ── DOM ──
-  const domYM = domGetThisYM();
+  const dashDomYM = domYM; // aktualnie wybrany miesiąc w zakładce Dom
   const allExp = [...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
-  const planSum = allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-  const realSum = allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
+  const planSum = allExp.reduce((s,e)=>s+(domGetPlan(e,dashDomYM)||0),0);
+  const realSum = allExp.reduce((s,e)=>s+(domGetReal(e,dashDomYM)||0),0);
   const pct = planSum>0 ? Math.min(100,Math.round((realSum/planSum)*100)) : 0;
-  const pendingCnt = allExp.filter(e=>(domGetPlan(e,domYM)||0)>0&&domGetReal(e,domYM)==null).length;
-  const updDate = domData[domYM]?._lastUpdated?.date;
+  const pendingCnt = allExp.filter(e=>(domGetPlan(e,dashDomYM)||0)>0&&domGetReal(e,dashDomYM)==null).length;
+  const updDate = domData[dashDomYM]?._lastUpdated?.date;
 
   const domPctEl = el('dash-dom-pct');
   if(domPctEl){
@@ -4014,7 +4018,7 @@ function renderDash(){
   set('dash-dom-pending', pendingCnt>0?`${pendingCnt} czeka na wpis`:'');
 
   // ── PRZELEWY ──
-  const doneSteps = mataData[mataYM]?.doneSteps||{};
+  const doneSteps = dashMataData.doneSteps||{};
   const stepCount = Object.values(doneSteps).filter(Boolean).length;
   const done = stepCount===5;
   const tCard = el('dash-transfers-card');
@@ -4029,7 +4033,7 @@ function renderDash(){
   });
 
   // ── OSZCZĘDNOŚCI ──
-  const cushion = mataData[mataYM]?.cushion ?? 9500;
+  const cushion = dashMataData.cushion ?? 9500;
   const cushionGoal = mataData._settings?.cushionGoal||50000;
   const cpct = Math.min(100,Math.round((cushion/cushionGoal)*100));
   set('dash-cushion-pct', cpct);
@@ -4038,7 +4042,7 @@ function renderDash(){
   if(cBar) cBar.style.width = cpct+'%';
 
   const CAR_ORIGINAL = 84135;
-  const carCap = mataData[mataYM]?.loanCapital ?? 54490;
+  const carCap = dashMataData.loanCapital ?? 54490;
   const carPaid = CAR_ORIGINAL - carCap;
   const carPct = Math.min(100,Math.max(0,Math.round((carPaid/CAR_ORIGINAL)*100)));
   set('dash-car-remaining', fmt(carCap));
