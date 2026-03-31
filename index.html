@@ -321,54 +321,46 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <!-- ══ KARTY ══ -->
   <div style="padding:0 16px 24px; display:flex; flex-direction:column; gap:14px;">
 
-    <!-- ① BUDŻET — hero card -->
-    <div class="gc ri1" id="dash-bud-card" onclick="showPage('week')">
-      <div id="dash-bud-bg" style="
-        background: linear-gradient(145deg, #4a3870 0%, #6e5c95 55%, #8c7ab8 100%);
-        padding: 26px 24px 22px; position:relative; overflow:hidden;">
+    <!-- ① BUDŻET — hero card (styl jak w Mój Budżet) -->
+    <div class="gc ri1" id="dash-bud-card" onclick="showPage('week')"
+      style="border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+      <div id="dash-bud-bg" style="background:#5e4d82;padding:16px;position:relative;overflow:hidden">
 
-        <!-- Dekoracja wewnątrz -->
-        <div class="blob" style="width:200px;height:200px;top:-80px;right:-60px;
-          background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 60%)"></div>
-        <div class="blob" style="width:100px;height:100px;bottom:-40px;left:20px;
-          background:radial-gradient(circle,rgba(255,255,255,.07) 0%,transparent 60%)"></div>
+        <div class="blob" style="width:160px;height:160px;top:-60px;right:-40px;
+          background:radial-gradient(circle,rgba(255,255,255,.10) 0%,transparent 60%)"></div>
 
-        <!-- Wiersz górny: label + badge -->
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;position:relative;z-index:1">
-          <div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;
-            letter-spacing:2.5px;color:rgba(255,255,255,.5);text-transform:uppercase">
-            ✨ Mój Budżet
-          </div>
-          <div id="dash-bud-badge" style="
-            padding:5px 13px; border-radius:20px; font-size:10px; font-weight:700;
-            letter-spacing:.5px; background:rgba(255,255,255,.16);
-            border:1px solid rgba(255,255,255,.25); color:rgba(255,255,255,.9);
-            backdrop-filter:blur(8px)">—</div>
+        <!-- Label + badge -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)" id="bud-week-label-dash">✨ MÓJ BUDŻET</div>
+          <div id="dash-bud-badge" style="padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.9)">—</div>
         </div>
 
-        <!-- DUŻA LICZBA -->
-        <div style="position:relative;z-index:1;margin-bottom:8px">
-          <div id="dash-bud-main-amt" style="
-            font-family:'DM Serif Display',Georgia,serif;
-            font-size:58px; font-weight:400; color:#fff; line-height:.95;
-            letter-spacing:-1px">—</div>
-          <div id="dash-bud-unit" style="font-size:14px;font-weight:300;color:rgba(255,255,255,.6);
-            margin-top:4px;letter-spacing:.5px">złotych</div>
-        </div>
-
-        <!-- Status sub -->
-        <div id="dash-bud-status-sub" style="position:relative;z-index:1;
-          font-size:12px;color:rgba(255,255,255,.6);font-weight:400;margin-bottom:20px">—</div>
+        <!-- Duża liczba -->
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:52px;font-weight:400;line-height:1;margin-bottom:4px;color:#fff" id="dash-bud-main-amt">—</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="dash-bud-status-sub">—</div>
 
         <!-- Pasek -->
-        <div style="position:relative;z-index:1">
-          <div style="height:4px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden;margin-bottom:8px">
-            <div id="dash-bud-bar" style="height:100%;border-radius:99px;
-              background:rgba(255,255,255,.80);
-              transition:width .8s cubic-bezier(.4,0,.2,1);width:0%"></div>
-          </div>
-          <div id="dash-bud-status-text" style="font-size:11px;color:rgba(255,255,255,.45)">—</div>
+        <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
+          <div id="dash-bud-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%"></div>
         </div>
+
+        <!-- 3 kafelki: Wydano / Po planach / Limit -->
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:#fff" id="dash-bud-spent">—</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400" id="dash-bud-after-plans">—</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:rgba(255,255,255,.8)" id="dash-bud-limit">—</div>
+          </div>
+        </div>
+
+        <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:8px" id="dash-bud-status-text">—</div>
       </div>
     </div>
 
@@ -4024,7 +4016,6 @@ function renderDash(){
     const frozenStr = frozenDate ? fmt2(frozenDate) : 'końca cyklu';
     if(bg) bg.style.background='linear-gradient(145deg,#521830 0%,#7a2848 55%,#9a4868 100%)';
     set('dash-bud-main-amt','❄️',{fontSize:'52px',letterSpacing:'0'});
-    set('dash-bud-unit','Budżet zamrożony',{color:'rgba(255,180,180,.7)'});
     set('dash-bud-status-sub',`odmrożenie ${frozenStr} · przekroczony o ${fmt(Math.abs(weekLeft))} zł`);
     set('dash-bud-badge','zamrożony',{background:'rgba(255,120,120,.2)',border:'1px solid rgba(255,150,150,.3)'});
     set('dash-bud-bar','',{width:'100%',background:'rgba(255,160,160,.5)'});
@@ -4034,7 +4025,7 @@ function renderDash(){
   } else if(weekPct > 80 || weekAfterPlans < 0){
     if(bg) bg.style.background='linear-gradient(145deg,#4a3010 0%,#6e5020 55%,#907040 100%)';
     set('dash-bud-main-amt', fmt(Math.round(weekLeft)),{fontSize:'58px',letterSpacing:'-1px'});
-    set('dash-bud-unit','złotych',{color:'rgba(255,230,150,.6)'});
+    
     set('dash-bud-status-sub', weekAfterPlans<0?'plany przekraczają limit tygodnia':'prawie koniec budżetu tygodnia');
     set('dash-bud-badge','uważaj ⚠️',{background:'rgba(255,210,80,.2)',border:'1px solid rgba(255,220,100,.3)'});
     set('dash-bud-bar','',{width:barFill+'%',background:'rgba(255,220,100,.8)'});
@@ -4044,7 +4035,7 @@ function renderDash(){
   } else {
     if(bg) bg.style.background='linear-gradient(145deg,#4a3870 0%,#6e5c95 55%,#8c7ab8 100%)';
     set('dash-bud-main-amt', fmt(Math.round(weekLeft)),{fontSize:'58px',letterSpacing:'-1px'});
-    set('dash-bud-unit','złotych',{color:'rgba(255,255,255,.55)'});
+    
     set('dash-bud-status-sub','zostało w tym tygodniu',{color:'rgba(255,255,255,.6)'});
     set('dash-bud-badge','ok ✓',{background:'rgba(100,220,160,.2)',border:'1px solid rgba(120,220,160,.3)'});
     set('dash-bud-bar','',{width:barFill+'%',background:'rgba(255,255,255,.82)'});
@@ -4056,7 +4047,17 @@ function renderDash(){
   // Używamy mataYM (aktualny miesiąc w zakładce Finanse) dla danych mata/dom
   const dashMataData = mataData[mataYM] || {};
 
-  // ── DOM ──
+  
+  // Kafelki 3 w karcie budżetu
+  set('dash-bud-spent', fmt(Math.round(weekSpent))+' zł');
+  const afterPlansEl = el('dash-bud-after-plans');
+  if(afterPlansEl){
+    afterPlansEl.textContent = fmt(Math.round(weekAfterPlans))+' zł';
+    afterPlansEl.style.color = weekAfterPlans<0 ? '#f4a8c0' : '#a8e6c8';
+  }
+  set('dash-bud-limit', fmt(weekBudget)+' zł');
+
+// ── DOM ──
   const dashDomYM = domYM; // aktualnie wybrany miesiąc w zakładce Dom
   const allExp = [...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum = allExp.reduce((s,e)=>s+(domGetPlan(e,dashDomYM)||0),0);
