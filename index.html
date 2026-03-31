@@ -1353,7 +1353,10 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
     </div>
     <div style="padding:12px 16px;display:flex;align-items:center;gap:10px">
-      <div style="font-size:12px;color:#4a4060;flex:1">Stan konta oszczędnościowego</div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:#4a4060;font-weight:600">Stan konta oszczędnościowego</div>
+        <div style="font-size:11px;color:#7a6e98;margin-top:2px" id="mata-cushion-suggest">—</div>
+      </div>
       <input class="dom-inp" type="number" id="mata-cushion-inp" placeholder="9500"
         style="width:110px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
       <span style="font-size:12px;color:#7a6e98">zł</span>
@@ -3243,21 +3246,23 @@ function mataCopyAndyMsg(){
 
 function mataLoanRender(){
   if(!mataData[mataYM]) mataData[mataYM]={};
+
+  // If this month has no loanCapital, inherit from most recent previous month
+  if(mataData[mataYM].loanCapital === undefined){
+    const months = Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+    const prevMonths = months.filter(m=>m < mataYM);
+    let inherited = 54490;
+    for(let i=prevMonths.length-1; i>=0; i--){
+      const prev = mataData[prevMonths[i]];
+      if(prev?.loanCapital !== undefined){
+        inherited = prev.loanCapital;
+        break;
+      }
+    }
+    mataData[mataYM].loanCapital = inherited;
+  }
+
   if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = MATA_LOAN_ORIGINAL;
-  if(mataData[mataYM].loanCapital === undefined) mataData[mataYM].loanCapital = 54490;
-  mataLoanCalc();
-}
-
-
-function mataLoanRender(){
-  const saved = mataData[mataYM];
-  const inp = document.getElementById('mata-loan-capital-inp');
-  if(inp) inp.value = saved?.loanCapital ?? 54490;
-
-  // Set original if first time
-  if(!mataData[mataYM]) mataData[mataYM]={};
-  if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = saved?.loanCapital ?? 54490;
-
   mataLoanCalc();
 }
 
@@ -3300,6 +3305,20 @@ function mataSavingsCalc(){
   const curEl=document.getElementById('mata-cushion-current');if(curEl)curEl.textContent=fmt(cushion)+' zł';
 
   const etaEl=document.getElementById('mata-cushion-eta');
+  const suggestEl=document.getElementById('mata-cushion-suggest');
+  if(savAmount>0 && suggestEl){
+    const suggested = Math.round(cushion + savAmount);
+    if(cushion < MATA_CUSHION_GOAL){
+      suggestEl.textContent = `Po wpłacie tego mies.: ${fmt(suggested)} zł`;
+      suggestEl.style.color = '#3d7a60';
+    } else {
+      suggestEl.textContent = '✅ Cel osiągnięty';
+      suggestEl.style.color = '#3d7a60';
+    }
+  } else if(suggestEl){
+    suggestEl.textContent = 'Wpisz wynagrodzenie aby zobaczyć sugestię';
+    suggestEl.style.color = '#b0a4cc';
+  }
   if(etaEl){
     if(cushion>=MATA_CUSHION_GOAL){etaEl.textContent='✅ Poduszka gotowa!';etaEl.style.color='#3d7a60';}
     else if(savAmount>0){
@@ -3990,9 +4009,8 @@ function renderDash(){
     set('dash-greeting-sub', weekLeft>weekBudget*.5 ? 'Wszystko pod kontrolą 💛' : `${fmt(Math.round(weekLeft))} zł do końca tygodnia`);
   }
 
-  // Używamy aktualnego miesiąca kalendarzowego (nie cyklu wypłaty)
-  const dashYM = (()=>{ const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; })();
-  const dashMataData = mataData[dashYM] || mataData[mataYM] || {};
+  // Używamy mataYM (aktualny miesiąc w zakładce Finanse) dla danych mata/dom
+  const dashMataData = mataData[mataYM] || {};
 
   // ── DOM ──
   const dashDomYM = domYM; // aktualnie wybrany miesiąc w zakładce Dom
