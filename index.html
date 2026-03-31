@@ -1994,11 +1994,8 @@ let domSyncTimer=null;
 let domWynajem=1145; // editable
 
 function domGetThisYM(){
-  const n=new Date();
-  // Billing cycle starts on 28th — if today >= 28, we're in next month's cycle
-  const d=new Date(n);
-  if(d.getDate()>=28) d.setMonth(d.getMonth()+1);
-  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
@@ -2771,13 +2768,13 @@ function renderMata(){
   if(mbExtraEl) mbExtraEl.value = saved.mbankExtra??'';
 
   const cushionEl=document.getElementById('mata-cushion-inp');
-  if(cushionEl) cushionEl.value = saved.cushion??9500;
+  if(cushionEl) cushionEl.value = saved.cushion ?? mataGetPrevVal('cushion', 9500);
   const ikeEl=document.getElementById('mata-ike-paid');
-  if(ikeEl) ikeEl.value = saved.ikePaid??'';
+  if(ikeEl) ikeEl.value = saved.ikePaid ?? mataGetPrevVal('ikePaid', '') ?? '';
   const ikzeEl=document.getElementById('mata-ikze-paid');
-  if(ikzeEl) ikzeEl.value = saved.ikzePaid??'';
+  if(ikzeEl) ikzeEl.value = saved.ikzePaid ?? mataGetPrevVal('ikzePaid', '') ?? '';
   const loanEl=document.getElementById('mata-loan-capital-inp');
-  if(loanEl) loanEl.value = saved.loanCapital??54490;
+  if(loanEl) loanEl.value = saved.loanCapital ?? mataGetPrevVal('loanCapital', 54490);
 
   // --- Oblicz wynagrodzenie ---
   const params = mataGetParams();
@@ -3246,22 +3243,10 @@ function mataCopyAndyMsg(){
 
 function mataLoanRender(){
   if(!mataData[mataYM]) mataData[mataYM]={};
-
-  // If this month has no loanCapital, inherit from most recent previous month
+  // Dziedzicz kapitał z poprzedniego miesiąca jeśli brak w tym
   if(mataData[mataYM].loanCapital === undefined){
-    const months = Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
-    const prevMonths = months.filter(m=>m < mataYM);
-    let inherited = 54490;
-    for(let i=prevMonths.length-1; i>=0; i--){
-      const prev = mataData[prevMonths[i]];
-      if(prev?.loanCapital !== undefined){
-        inherited = prev.loanCapital;
-        break;
-      }
-    }
-    mataData[mataYM].loanCapital = inherited;
+    mataData[mataYM].loanCapital = mataGetPrevVal('loanCapital', 54490);
   }
-
   if(!mataData[mataYM].loanOriginal) mataData[mataYM].loanOriginal = MATA_LOAN_ORIGINAL;
   mataLoanCalc();
 }
@@ -3429,11 +3414,26 @@ function mataSavingsCalc(){
   }
 }
 
+// Helper: znajdź wartość z ostatniego miesiąca który ją ma
+function mataGetPrevVal(key, defaultVal){
+  const months = Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+  const prev = months.filter(m=>m < mataYM);
+  for(let i=prev.length-1; i>=0; i--){
+    const v = mataData[prev[i]]?.[key];
+    if(v !== undefined && v !== null) return v;
+  }
+  return defaultVal;
+}
+
 function mataRenderSavings(){
-  const saved=mataData[mataYM];
-  const el=document.getElementById('mata-cushion-inp');if(el)el.value=saved?.cushion??9500;
-  const ie=document.getElementById('mata-ike-paid');if(ie)ie.value=saved?.ikePaid??'';
-  const ize=document.getElementById('mata-ikze-paid');if(ize)ize.value=saved?.ikzePaid??'';
+  const saved = mataData[mataYM];
+  // Jeśli brak danych w tym miesiącu — dziedzicz z poprzedniego
+  const cushionVal = saved?.cushion ?? mataGetPrevVal('cushion', 9500);
+  const ikeVal = saved?.ikePaid ?? mataGetPrevVal('ikePaid', null);
+  const ikzeVal = saved?.ikzePaid ?? mataGetPrevVal('ikzePaid', null);
+  const el=document.getElementById('mata-cushion-inp'); if(el) el.value=cushionVal;
+  const ie=document.getElementById('mata-ike-paid'); if(ie) ie.value=ikeVal??'';
+  const ize=document.getElementById('mata-ikze-paid'); if(ize) ize.value=ikzeVal??'';
   mataSavingsCalc();
 }
 
