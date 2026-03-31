@@ -455,36 +455,62 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     </div>
   </div>
 
-  <!-- 5. USTAWIENIA — inline, bez overlaya -->
-  <div class="sec-lbl">📅 Dzień wypłaty</div>
-  <div class="card" style="margin-bottom:12px">
-    <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
-      <label style="font-size:13px;color:#4a4060;font-weight:600;white-space:nowrap">Wypłata dnia</label>
-      <select id="payday-select" onchange="savePaydaySelect(this.value)"
-        style="flex:1;padding:10px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:15px;font-weight:700;color:#18102c;background:#fff;outline:none;cursor:pointer">
-      </select>
+  <!-- 5. USTAWIENIA — nowe, self-contained -->
+  <div class="sec-lbl">⚙️ Ustawienia</div>
+
+  <!-- Podsumowanie — kliknij żeby rozwinąć -->
+  <div id="cfg-summary" onclick="cfgToggle()" style="margin:0 12px 4px;background:#fff;border:2px solid #b0a4cc;border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:20px;align-items:center">
+      <div>
+        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">WYPŁATA</div>
+        <div style="font-size:16px;font-weight:700;color:#18102c" id="cfg-payday-lbl">—</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">BUDŻET</div>
+        <div style="font-size:16px;font-weight:700;color:#18102c" id="cfg-budget-lbl">—</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">STAŁE</div>
+        <div style="font-size:16px;font-weight:700;color:#9a607a" id="cfg-fixed-lbl">—</div>
+      </div>
     </div>
-    <div style="padding:0 16px 12px;font-size:11px;color:#7a6e98" id="payday-note">—</div>
+    <div style="font-size:18px;color:#b0a4cc" id="cfg-arrow">›</div>
   </div>
 
-  <div class="sec-lbl">💰 Budżet miesięczny</div>
-  <div class="card" style="margin-bottom:12px">
-    <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
-      <input type="number" class="fi-inp" id="budget-input" placeholder="np. 2000" inputmode="decimal"
-        style="flex:1" onchange="saveBudget()" oninput="saveBudget()">
-      <span style="font-size:13px;color:#7a6e98;font-weight:600">zł / mies.</span>
-    </div>
-  </div>
+  <!-- Panel rozwinięty -->
+  <div id="cfg-panel" style="display:none;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-top:none;border-radius:0 0 14px 14px;padding:14px 16px">
 
-  <div class="sec-lbl">🔒 Stałe wydatki miesięczne</div>
-  <div class="card" style="margin-bottom:12px" id="fi-card">
-    <div id="fi-list"></div>
-    <div style="padding:10px 14px 14px">
-      <button onclick="openAddFixed()"
-        style="width:100%;padding:12px;background:#eeebf5;border:2px dashed #b0a4cc;border-radius:12px;font-size:13px;font-weight:700;color:#5e4d82;cursor:pointer;touch-action:manipulation">
-        + Dodaj stały wydatek
-      </button>
+    <!-- Dzień wypłaty + budżet -->
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">📅 Dzień wypłaty</div>
+        <select id="cfg-payday-sel" style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;color:#18102c;background:#fff;outline:none;cursor:pointer">
+        </select>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">💰 Budżet (zł/mies.)</div>
+        <input type="number" id="cfg-budget-inp" inputmode="decimal" placeholder="np. 2000"
+          style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;color:#18102c;outline:none;box-sizing:border-box">
+      </div>
     </div>
+    <button onclick="cfgSaveBasic()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px">Zapisz</button>
+
+    <!-- Stałe wydatki -->
+    <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">🔒 STAŁE WYDATKI MIESIĘCZNE</div>
+    <div id="cfg-fi-list" style="margin-bottom:10px"></div>
+
+    <!-- Dodaj nowy -->
+    <div id="cfg-add-form" style="background:#f4f1fc;border-radius:12px;padding:12px;margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px">+ Nowy wydatek</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="text" id="cfg-new-name" placeholder="Nazwa (np. Siłownia)"
+          style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:13px;outline:none">
+        <input type="number" id="cfg-new-amt" placeholder="zł" inputmode="decimal"
+          style="width:80px;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:13px;font-weight:700;text-align:right;outline:none;-webkit-appearance:none">
+      </div>
+      <button onclick="cfgAddFixed()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj</button>
+    </div>
+
   </div>
 
   <div class="sp"></div>
@@ -1647,64 +1673,156 @@ function renderPlans(){
 }
 
 // ── RENDER SETTINGS ──
-function renderSettings(){
-  const st=load(), pd=st.payday||1;
+// ══ CFG — ustawienia budżetu (nowe, self-contained) ══
+function cfgRender(){
+  const s = load();
+  const pd = s.payday||1;
+  const budget = s.budget||0;
+  const fixed = (s.fixedExpenses||[]).reduce((t,e)=>t+e.amount,0);
 
-  // Budget
-  const inp=document.getElementById('budget-input');
-  if(inp && document.activeElement!==inp) inp.value=st.budget||'';
+  // Summary bar
+  const pdLbl = document.getElementById('cfg-payday-lbl');
+  const bgLbl = document.getElementById('cfg-budget-lbl');
+  const fxLbl = document.getElementById('cfg-fixed-lbl');
+  if(pdLbl) pdLbl.textContent = pd+'. każdego';
+  if(bgLbl) bgLbl.textContent = fmt(budget)+' zł';
+  if(fxLbl) fxLbl.textContent = fmt(fixed)+' zł';
 
-  // Payday select
-  const sel=document.getElementById('payday-select');
-  if(sel){
-    if(!sel.options.length){
-      for(let d=1;d<=31;d++){
-        const opt=document.createElement('option');
-        opt.value=d;
-        opt.textContent=d+'. każdego miesiąca'+(d>28?' ⚠️':'');
-        sel.appendChild(opt);
-      }
+  // Select options (build once)
+  const sel = document.getElementById('cfg-payday-sel');
+  if(sel && !sel.options.length){
+    for(let d=1;d<=31;d++){
+      const o = document.createElement('option');
+      o.value = d;
+      o.textContent = d+'. każdego'+(d>28?' ⚠️':'');
+      sel.appendChild(o);
     }
-    sel.value=pd;
   }
+  if(sel) sel.value = pd;
 
-  // Payday note
-  try{
-    const{cycleStart,cycleEnd,ws}=getWeekStarts(pd);
-    const n=document.getElementById('payday-note');
-    if(n) n.textContent=`Aktualny cykl: ${fmtLong(cycleStart)} – ${fmtLong(cycleEnd)} · ${ws.length} tyg.`;
-  }catch(e){}
+  // Budget input
+  const bi = document.getElementById('cfg-budget-inp');
+  if(bi && document.activeElement !== bi) bi.value = budget||'';
 
-  // Fixed expenses
-  const fEl=document.getElementById('fi-list');
-  if(!fEl) return;
-  if(!st.fixedExpenses||!st.fixedExpenses.length){
-    fEl.innerHTML='<div style="padding:16px;text-align:center;color:#b0a4cc;font-size:13px">Brak stałych wydatków</div>';
+  // Fixed list
+  cfgRenderList();
+}
+
+function cfgRenderList(){
+  const s = load();
+  const el = document.getElementById('cfg-fi-list');
+  if(!el) return;
+  const list = s.fixedExpenses||[];
+  if(!list.length){
+    el.innerHTML = '<div style="color:#b0a4cc;font-size:13px;padding:4px 0;text-align:center">Brak stałych wydatków</div>';
     return;
   }
-  fEl.innerHTML=st.fixedExpenses.map(e=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #e8e4f0">
-      <span style="font-size:22px">${e.emoji}</span>
-      <div style="flex:1">
+  el.innerHTML = list.map((e,i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e8e4f0">
+      <span style="font-size:20px;width:28px;text-align:center;flex-shrink:0">${e.emoji||'💸'}</span>
+      <div style="flex:1;min-width:0" id="cfg-row-view-${i}">
         <div style="font-size:13px;font-weight:600;color:#18102c">${esc(e.name)}</div>
         <div style="font-size:11px;color:#7a6e98">${fmt(e.amount)} zł / mies.</div>
       </div>
-      <button onclick="openEditFixed('${e.id}')"
-        style="padding:8px 12px;background:#eeebf5;color:#5e4d82;border:1.5px solid #b0a4cc;border-radius:8px;font-size:15px;cursor:pointer;touch-action:manipulation">✏️</button>
-      <button onclick="confirmDel('fixed','${e.id}','${esc(e.name)}')"
-        style="padding:8px 12px;background:#fdf0f4;color:#9a607a;border:1.5px solid #e8c0cc;border-radius:8px;font-size:15px;cursor:pointer;touch-action:manipulation">✕</button>
+      <div style="flex:1;display:none" id="cfg-row-edit-${i}">
+        <input type="text" value="${esc(e.name)}" id="cfg-edit-name-${i}"
+          style="width:100%;padding:5px 8px;border:1.5px solid #b0a4cc;border-radius:7px;font-size:12px;outline:none;margin-bottom:4px">
+        <input type="number" value="${e.amount}" id="cfg-edit-amt-${i}"
+          style="width:100%;padding:5px 8px;border:1.5px solid #b0a4cc;border-radius:7px;font-size:12px;outline:none;-webkit-appearance:none">
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button id="cfg-btn-edit-${i}" onclick="cfgStartEdit(${i})"
+          style="padding:6px 10px;background:#eeebf5;color:#5e4d82;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;cursor:pointer">✏️</button>
+        <button id="cfg-btn-save-${i}" onclick="cfgSaveEdit(${i},'${e.id}')" style="display:none;padding:6px 10px;background:#3d7a60;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">OK</button>
+        <button onclick="cfgDeleteFixed('${e.id}','${esc(e.name)}')"
+          style="padding:6px 10px;background:#fdf0f4;color:#9a607a;border:1.5px solid #e8c0cc;border-radius:8px;font-size:14px;cursor:pointer">✕</button>
+      </div>
     </div>`).join('');
 }
 
-function savePaydaySelect(val){
-  const d=parseInt(val);
-  if(!d||d<1||d>31) return;
-  const s=load();s.payday=d;save(s);weekOff=0;
-  renderSettings();renderAll();
+function cfgToggle(){
+  const panel = document.getElementById('cfg-panel');
+  const arrow = document.getElementById('cfg-arrow');
+  const summary = document.getElementById('cfg-summary');
+  if(!panel) return;
+  const open = panel.style.display === 'block';
+  panel.style.display = open ? 'none' : 'block';
+  if(arrow) arrow.textContent = open ? '›' : '▾';
+  if(summary){
+    summary.style.borderRadius = open ? '14px' : '14px 14px 0 0';
+    summary.style.borderBottom = open ? '' : 'none';
+  }
+  if(!open) cfgRender();
 }
 
-function budOpenSettings(){}
-function budCloseSettings(){}
+function cfgSaveBasic(){
+  const pd = parseInt(document.getElementById('cfg-payday-sel')?.value)||1;
+  const budget = parseFloat(document.getElementById('cfg-budget-inp')?.value)||0;
+  const s = load();
+  s.payday = pd;
+  s.budget = budget;
+  save(s);
+  weekOff = 0;
+  cfgRender();
+  renderAll();
+  // Flash button
+  const btn = event.target;
+  btn.textContent = '✅ Zapisano';
+  btn.style.background = '#3d7a60';
+  setTimeout(()=>{btn.textContent='Zapisz';btn.style.background='#5e4d82';}, 1500);
+}
+
+function cfgStartEdit(i){
+  document.getElementById('cfg-row-view-'+i).style.display = 'none';
+  document.getElementById('cfg-row-edit-'+i).style.display = 'block';
+  document.getElementById('cfg-btn-edit-'+i).style.display = 'none';
+  document.getElementById('cfg-btn-save-'+i).style.display = 'inline-block';
+  document.getElementById('cfg-edit-name-'+i)?.focus();
+}
+
+function cfgSaveEdit(i, id){
+  const name = document.getElementById('cfg-edit-name-'+i)?.value?.trim();
+  const amount = parseFloat(document.getElementById('cfg-edit-amt-'+i)?.value);
+  if(!name || isNaN(amount) || amount <= 0) return;
+  const s = load();
+  const idx = s.fixedExpenses.findIndex(e=>e.id===id);
+  if(idx >= 0) s.fixedExpenses[idx] = {...s.fixedExpenses[idx], name, amount};
+  save(s);
+  cfgRender();
+  renderAll();
+}
+
+function cfgDeleteFixed(id, name){
+  if(!confirm('Usunąć "'+name+'"?')) return;
+  const s = load();
+  s.fixedExpenses = s.fixedExpenses.filter(e=>e.id!==id);
+  save(s);
+  cfgRender();
+  renderAll();
+}
+
+function cfgAddFixed(){
+  const name = document.getElementById('cfg-new-name')?.value?.trim();
+  const amount = parseFloat(document.getElementById('cfg-new-amt')?.value);
+  if(!name){ document.getElementById('cfg-new-name')?.focus(); return; }
+  if(!amount || amount <= 0){ document.getElementById('cfg-new-amt')?.focus(); return; }
+  const s = load();
+  s.fixedExpenses.push({id: Date.now()+'', name, amount, emoji:'💸'});
+  save(s);
+  document.getElementById('cfg-new-name').value = '';
+  document.getElementById('cfg-new-amt').value = '';
+  cfgRender();
+  renderAll();
+}
+
+function renderSettings(){
+  cfgRender();
+  // Also keep old IDs working for renderAll compatibility
+  const bi = document.getElementById('budget-input');
+  if(bi){ const s=load(); if(document.activeElement!==bi) bi.value=s.budget||''; }
+  const sel = document.getElementById('payday-select');
+  if(sel){ const s=load(); sel.value=s.payday||1; }
+}
 
 function renderTemplates(st){
   const recent=[...new Map((st.expenses||[]).slice().reverse().map(e=>([e.name,{name:e.name,amount:e.amount,emoji:e.emoji||'💸',cat:e.cat||'📦 Inne'}]))).values()].slice(0,5);
