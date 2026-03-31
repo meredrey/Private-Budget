@@ -3289,6 +3289,7 @@ function mataSavingsCalc(opts){
     mataData[mataYM].ikePaid = ikePaid||null;
     mataData[mataYM].ikzePaid = ikzePaid||null;
     mataData[mataYM]._savingsUpdated = true;
+    mataData[mataYM]._savingsTs = Date.now(); // timestamp edycji
     mataScheduleSave();
   }
 
@@ -3439,15 +3440,44 @@ function mataGetPrevVal(key, defaultVal){
 
 function mataRenderSavings(){
   const saved = mataData[mataYM];
-  // Jeśli użytkownik ręcznie zaktualizował — pokaż jego wartość
-  // W przeciwnym razie dziedzicz z poprzedniego miesiąca (bez zapisu)
-  const cushionVal = saved?._savingsUpdated ? saved.cushion : mataGetPrevVal('cushion', 9500);
-  const ikeVal     = saved?._savingsUpdated ? saved.ikePaid : mataGetPrevVal('ikePaid', null);
-  const ikzeVal    = saved?._savingsUpdated ? saved.ikzePaid : mataGetPrevVal('ikzePaid', null);
+
+  // Znajdź poprzedni miesiąc z ręcznie wpisanymi danymi
+  const months = Object.keys(mataData)
+    .filter(k => /^\d{4}-\d{2}$/.test(k) && k < mataYM)
+    .sort();
+  let prevSaved = null;
+  for(let i = months.length-1; i >= 0; i--){
+    const m = mataData[months[i]];
+    if(m?._savingsUpdated){ prevSaved = m; break; }
+  }
+
+  // Pokaż własne dane tego miesiąca TYLKO jeśli są ŚCIŚLE nowsze niż poprzedniego miesiąca
+  // Bez timestamp (stare dane) → zawsze bierz poprzedni miesiąc
+  const ownTs  = saved?._savingsTs  || 0;
+  const prevTs = prevSaved?._savingsTs || 0;
+  const useOwn = saved?._savingsUpdated && ownTs > prevTs;
+
+  let cushionVal, ikeVal, ikzeVal;
+  if(useOwn){
+    cushionVal = saved.cushion;
+    ikeVal     = saved.ikePaid;
+    ikzeVal    = saved.ikzePaid;
+  } else if(prevSaved){
+    cushionVal = prevSaved.cushion;
+    ikeVal     = prevSaved.ikePaid;
+    ikzeVal    = prevSaved.ikzePaid;
+  } else if(saved?._savingsUpdated){
+    // Brak poprzedniego miesiąca — użyj własnych nawet bez nowszego ts
+    cushionVal = saved.cushion;
+    ikeVal     = saved.ikePaid;
+    ikzeVal    = saved.ikzePaid;
+  } else {
+    cushionVal = 9500; ikeVal = null; ikzeVal = null;
+  }
+
   const el  = document.getElementById('mata-cushion-inp'); if(el)  el.value  = cushionVal ?? '';
   const ie  = document.getElementById('mata-ike-paid');    if(ie)  ie.value  = ikeVal     ?? '';
   const ize = document.getElementById('mata-ikze-paid');   if(ize) ize.value = ikzeVal    ?? '';
-  // skipSave=true — nie zapisuje odziedziczonych wartości jako "własnych" użytkownika
   mataSavingsCalc({skipSave: true});
 }
 
