@@ -2620,7 +2620,8 @@ function domSyncFromSheets(){
     if(r.success&&r.data){
       domData=r.data;
       try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
-      if(curPage==='dom')renderDom();
+      if(curPage==='dom') renderDom();
+      if(curPage==='dash') renderDash();
     }
   }).catch(()=>{});
 }
@@ -3064,6 +3065,7 @@ function mataSyncFromSheets(){
       mataData = r.data;
       try{ localStorage.setItem('mata_v1', JSON.stringify(mataData)); }catch{}
       if(curPage === 'mata') renderMata();
+      if(curPage === 'dash') renderDash();
     }
   }).catch(()=>{});
 }
