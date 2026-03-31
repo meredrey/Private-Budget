@@ -4014,10 +4014,10 @@ function renderDash(){
       if(wB>=Math.abs(weekLeft)){frozenDate=w.start;break;}
     }
     const frozenStr = frozenDate ? fmt2(frozenDate) : 'końca cyklu';
-    set('dash-bud-main-amt','❄️ Zamrożony',{fontSize:'32px',letterSpacing:'0'});
-    set('dash-bud-status-sub',`odmrożenie ${frozenStr} · przekroczony o ${fmt(Math.abs(weekLeft))} zł`);
-    set('dash-bud-badge','zamrożony',{background:'rgba(255,120,120,.2)',border:'1px solid rgba(255,150,150,.3)'});
-    set('dash-bud-bar','',{width:'100%',background:'rgba(255,160,160,.5)'});
+    set('dash-bud-main-amt','❄️ Zamrożony',{fontSize:'32px',letterSpacing:'0',color:'#f4a8c0'});
+    set('dash-bud-status-sub',`przekroczony o ${fmt(Math.abs(weekLeft))} zł · odmrożenie ${frozenStr}`,{color:'rgba(255,255,255,.6)'});
+    set('dash-bud-badge','zamrożony',{background:'rgba(255,120,120,.2)',border:'1px solid rgba(255,150,150,.3)',color:'rgba(255,255,255,.9)'});
+    set('dash-bud-bar','',{width:'100%',background:'#f4a8c0'});
     set('dash-bud-status-text','');
     if(dot) dot.style.cssText='width:8px;height:8px;border-radius:50%;background:#e05070;flex-shrink:0;box-shadow:0 0 0 3px rgba(224,80,112,.15)';
     set('dash-greeting-sub','Budżet tygodnia zamrożony');
