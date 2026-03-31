@@ -354,163 +354,137 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
   <div style="height:14px"></div>
 
-  <!-- 1. STATUS — ile zostało -->
-  <div style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+  <!-- GŁÓWNA KARTA — ten tydzień -->
+  <div id="bud-week-card" style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:4px" id="bud-week-label">TEN TYDZIEŃ</div>
 
-    <!-- Cykl -->
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAŁO W CYKLU</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.5)" id="bud-cycle-dates">—</div>
-    </div>
-    <div style="font-family:Georgia,serif;font-size:48px;font-weight:600;color:#fff;line-height:1;margin-bottom:4px" id="bud-cycle-left">—</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:12px" id="bud-cycle-sub">—</div>
-    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:14px">
-      <div id="bud-cycle-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
+    <!-- Stan tygodnia -->
+    <div style="font-family:Georgia,serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px" id="bud-week-main">—</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="bud-week-status">—</div>
+
+    <!-- Pasek tygodnia -->
+    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
+      <div id="bud-week-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
     </div>
 
-    <!-- Tydzień -->
-    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;margin-bottom:3px">TEN TYDZIEŃ</div>
-        <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;color:#fff" id="bud-week-left">—</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px" id="bud-week-sub">—</div>
+    <!-- Dwie liczby: po wydatkach / po planowanych -->
+    <div style="display:flex;gap:8px">
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="bud-week-spent">—</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;margin-bottom:3px">WYDANO</div>
-        <div style="font-family:Georgia,serif;font-size:26px;font-weight:600;color:#ffe0a0" id="bud-week-spent">—</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px" id="bud-week-pct">— %</div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600" id="bud-week-after-plans">—</div>
       </div>
-    </div>
-  </div>
-
-  <!-- 2. CZY MNIE STAĆ -->
-  <div class="sec-lbl">🤔 Czy mnie stać?</div>
-  <div class="card" style="margin-bottom:12px">
-    <div style="padding:14px 16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <input type="number" id="bud-afford-inp" placeholder="Wpisz kwotę…" inputmode="decimal"
-          style="flex:1;padding:10px 12px;border:2px solid #b0a4cc;border-radius:12px;font-size:16px;font-weight:600;outline:none;color:#18102c"
-          oninput="budAffordCheck()" onchange="budAffordCheck()">
-        <span style="font-size:13px;color:#7a6e98;font-weight:600">zł</span>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.8)" id="bud-week-budget">—</div>
       </div>
-      <div id="bud-afford-result" style="border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;display:none"></div>
     </div>
   </div>
 
-  <!-- 3. DODAJ WYDATEK / PLAN -->
-  <div class="sec-lbl">⚡ Dodaj</div>
-  <div class="card" style="margin-bottom:12px">
-    <div style="padding:14px 16px">
-      <!-- Toggle wydatek/plan -->
-      <div style="display:flex;background:#f4f1fc;border-radius:10px;padding:3px;margin-bottom:12px">
-        <button id="bud-type-expense" onclick="budSetType('expense')"
-          style="flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#5e4d82;color:#fff">
-          💸 Wydatek
-        </button>
-        <button id="bud-type-plan" onclick="budSetType('plan')"
-          style="flex:1;padding:8px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:none;color:#7a6e98">
-          🗓️ Planuję kupić
-        </button>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input type="text" id="bud-add-name" placeholder="Co?" 
-          style="flex:1;padding:9px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none"
-          onkeydown="if(event.key==='Enter')budQuickSave()">
-        <input type="number" id="bud-add-amt" placeholder="zł" inputmode="decimal"
-          style="width:80px;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;outline:none;text-align:right"
-          oninput="budAffordInline()" onkeydown="if(event.key==='Enter')budQuickSave()">
-      </div>
-      <!-- Alert inline -->
-      <div id="bud-inline-alert" style="display:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;margin-bottom:8px"></div>
-      <!-- Data (tylko dla planu) -->
-      <div id="bud-date-row" style="display:none;margin-bottom:8px">
-        <input type="date" id="bud-add-date"
-          style="width:100%;padding:9px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none">
-      </div>
-      <button onclick="budQuickSave()"
-        style="width:100%;padding:11px;background:#5e4d82;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer"
-        id="bud-save-btn">Zapisz wydatek</button>
+  <!-- KONTEKST CYKLU — mniejszy, pod główną kartą -->
+  <div style="margin:0 12px 12px;background:#fff;border:2px solid #e8e4f0;border-radius:14px;padding:12px 14px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7a6e98;margin-bottom:8px" id="bud-cycle-label">CAŁY CYKL</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:12px;color:#4a4060">Budżet swobodny</div>
+      <div style="font-size:14px;font-weight:700;color:#18102c" id="bud-free-total">—</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:12px;color:#4a4060">Zostało po wydatkach</div>
+      <div style="font-size:14px;font-weight:700" id="bud-cycle-left-val">—</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid #e8e4f0">
+      <div style="font-size:12px;color:#4a4060">Zostało po planowanych</div>
+      <div style="font-size:14px;font-weight:700" id="bud-cycle-after-plans">—</div>
     </div>
   </div>
 
-  <!-- 4. LISTA -->
-  <div class="sec-lbl">📋 Wydatki <span id="bud-list-period">tego tygodnia</span></div>
-  <div style="display:flex;gap:8px;margin:0 12px 10px">
+  <!-- CZY MNIE STAĆ — inline, ważna funkcja -->
+  <div class="card" style="margin:0 12px 12px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <input type="number" id="bud-afford-inp" placeholder="🤔 Czy mnie stać? Wpisz kwotę…" inputmode="decimal"
+        style="flex:1;padding:10px 12px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:600;outline:none;color:#18102c"
+        oninput="budAffordCheck()" onchange="budAffordCheck()">
+      <span style="font-size:12px;color:#7a6e98;font-weight:600">zł</span>
+    </div>
+    <div id="bud-afford-result" style="display:none;margin-top:8px;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:700"></div>
+  </div>
+
+  <!-- DODAJ -->
+  <div class="card" style="margin:0 12px 12px;padding:12px 14px">
+    <div style="display:flex;background:#f4f1fc;border-radius:9px;padding:3px;margin-bottom:10px">
+      <button id="bud-type-expense" onclick="budSetType('expense')"
+        style="flex:1;padding:7px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#5e4d82;color:#fff">💸 Wydatek</button>
+      <button id="bud-type-plan" onclick="budSetType('plan')"
+        style="flex:1;padding:7px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:none;color:#7a6e98">🗓️ Planuję</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input type="text" id="bud-add-name" placeholder="Co?"
+        style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none"
+        onkeydown="if(event.key==='Enter')budQuickSave()">
+      <input type="number" id="bud-add-amt" placeholder="zł" inputmode="decimal"
+        style="width:76px;padding:9px 8px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;text-align:right;outline:none;-webkit-appearance:none"
+        oninput="budAffordInline()" onkeydown="if(event.key==='Enter')budQuickSave()">
+    </div>
+    <div id="bud-inline-alert" style="display:none;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:700;margin-bottom:8px"></div>
+    <div id="bud-date-row" style="display:none;margin-bottom:8px">
+      <input type="date" id="bud-add-date"
+        style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;outline:none">
+    </div>
+    <button onclick="budQuickSave()" id="bud-save-btn"
+      style="width:100%;padding:11px;background:#5e4d82;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer">Zapisz wydatek</button>
+  </div>
+
+  <!-- LISTA -->
+  <div style="display:flex;gap:6px;margin:0 12px 8px">
     <button id="bud-filter-week" onclick="budSetFilter('week')"
-      style="flex:1;padding:7px;border-radius:9px;border:2px solid #5e4d82;background:#5e4d82;color:#fff;font-size:11px;font-weight:700;cursor:pointer">
-      Tydzień
-    </button>
+      style="flex:1;padding:6px;border-radius:8px;border:2px solid #5e4d82;background:#5e4d82;color:#fff;font-size:11px;font-weight:700;cursor:pointer">Tydzień</button>
     <button id="bud-filter-cycle" onclick="budSetFilter('cycle')"
-      style="flex:1;padding:7px;border-radius:9px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">
-      Cały cykl
-    </button>
+      style="flex:1;padding:6px;border-radius:8px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">Cały cykl</button>
     <button id="bud-filter-plans" onclick="budSetFilter('plans')"
-      style="flex:1;padding:7px;border-radius:9px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">
-      Plany
-    </button>
+      style="flex:1;padding:6px;border-radius:8px;border:2px solid #b0a4cc;background:none;color:#7a6e98;font-size:11px;font-weight:700;cursor:pointer">Plany</button>
   </div>
-  <div class="card" style="margin-bottom:12px">
-    <div id="bud-list">
-      <div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków</div></div>
-    </div>
+  <div class="card" style="margin:0 12px 12px">
+    <div id="bud-list"><div class="empty"><div class="empty-icon">✨</div><div class="empty-text">Brak wydatków</div></div></div>
   </div>
 
-  <!-- 5. USTAWIENIA — nowe, self-contained -->
+  <!-- USTAWIENIA -->
   <div class="sec-lbl">⚙️ Ustawienia</div>
-
-  <!-- Podsumowanie — kliknij żeby rozwinąć -->
-  <div id="cfg-summary" onclick="cfgToggle()" style="margin:0 12px 4px;background:#fff;border:2px solid #b0a4cc;border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-    <div style="display:flex;gap:20px;align-items:center">
-      <div>
-        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">WYPŁATA</div>
-        <div style="font-size:16px;font-weight:700;color:#18102c" id="cfg-payday-lbl">—</div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">BUDŻET</div>
-        <div style="font-size:16px;font-weight:700;color:#18102c" id="cfg-budget-lbl">—</div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:#7a6e98;font-weight:700;letter-spacing:1px">STAŁE</div>
-        <div style="font-size:16px;font-weight:700;color:#9a607a" id="cfg-fixed-lbl">—</div>
-      </div>
+  <div id="cfg-summary" onclick="cfgToggle()" style="margin:0 12px 4px;background:#fff;border:2px solid #b0a4cc;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:16px">
+      <div><div style="font-size:9px;color:#7a6e98;font-weight:700;letter-spacing:1px">WYPŁATA</div><div style="font-size:15px;font-weight:700;color:#18102c" id="cfg-payday-lbl">—</div></div>
+      <div><div style="font-size:9px;color:#7a6e98;font-weight:700;letter-spacing:1px">BUDŻET</div><div style="font-size:15px;font-weight:700;color:#18102c" id="cfg-budget-lbl">—</div></div>
+      <div><div style="font-size:9px;color:#7a6e98;font-weight:700;letter-spacing:1px">STAŁE</div><div style="font-size:15px;font-weight:700;color:#9a607a" id="cfg-fixed-lbl">—</div></div>
     </div>
     <div style="font-size:18px;color:#b0a4cc" id="cfg-arrow">›</div>
   </div>
-
-  <!-- Panel rozwinięty -->
   <div id="cfg-panel" style="display:none;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-top:none;border-radius:0 0 14px 14px;padding:14px 16px">
-
-    <!-- Dzień wypłaty + budżet -->
-    <div style="display:flex;gap:10px;margin-bottom:14px">
+    <div style="display:flex;gap:10px;margin-bottom:12px">
       <div style="flex:1">
-        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">📅 Dzień wypłaty</div>
-        <select id="cfg-payday-sel" style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;color:#18102c;background:#fff;outline:none;cursor:pointer">
-        </select>
+        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">📅 Dzień wypłaty</div>
+        <select id="cfg-payday-sel" style="width:100%;padding:9px 8px;border:2px solid #b0a4cc;border-radius:9px;font-size:14px;font-weight:700;color:#18102c;background:#fff;outline:none;cursor:pointer"></select>
       </div>
       <div style="flex:1">
-        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">💰 Budżet (zł/mies.)</div>
+        <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">💰 Budżet (zł/mies.)</div>
         <input type="number" id="cfg-budget-inp" inputmode="decimal" placeholder="np. 2000"
-          style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;color:#18102c;outline:none;box-sizing:border-box">
+          style="width:100%;padding:9px 8px;border:2px solid #b0a4cc;border-radius:9px;font-size:14px;font-weight:700;color:#18102c;outline:none;box-sizing:border-box">
       </div>
     </div>
-    <button onclick="cfgSaveBasic()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px">Zapisz</button>
-
-    <!-- Stałe wydatki -->
-    <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px;letter-spacing:.5px">🔒 STAŁE WYDATKI MIESIĘCZNE</div>
+    <button onclick="cfgSaveBasic()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px">Zapisz</button>
+    <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px">🔒 STAŁE WYDATKI</div>
     <div id="cfg-fi-list" style="margin-bottom:10px"></div>
-
-    <!-- Dodaj nowy -->
-    <div id="cfg-add-form" style="background:#f4f1fc;border-radius:12px;padding:12px;margin-bottom:4px">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px">+ Nowy wydatek</div>
+    <div style="background:#f4f1fc;border-radius:10px;padding:10px 12px">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:7px">+ Nowy stały wydatek</div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input type="text" id="cfg-new-name" placeholder="Nazwa (np. Siłownia)"
-          style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:13px;outline:none">
+        <input type="text" id="cfg-new-name" placeholder="Nazwa"
+          style="flex:1;padding:8px 10px;border:2px solid #b0a4cc;border-radius:8px;font-size:13px;outline:none">
         <input type="number" id="cfg-new-amt" placeholder="zł" inputmode="decimal"
-          style="width:80px;padding:9px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:13px;font-weight:700;text-align:right;outline:none;-webkit-appearance:none">
+          style="width:74px;padding:8px 8px;border:2px solid #b0a4cc;border-radius:8px;font-size:13px;font-weight:700;text-align:right;outline:none;-webkit-appearance:none">
       </div>
-      <button onclick="cfgAddFixed()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj</button>
+      <button onclick="cfgAddFixed()" style="width:100%;padding:9px;background:#5e4d82;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Dodaj</button>
     </div>
-
   </div>
 
   <div class="sp"></div>
@@ -3354,56 +3328,95 @@ function dKeyB(d){ return d.toISOString().slice(0,10); }
 
 function renderBudget(){
   const st = load();
-  const pd = st.payday||1;
-  const {cStart, cEnd, freeBudget, curWeek, weekBudget, cycleDays} = budGetWeekBounds();
-
-  // Expenses in cycle
-  const cycleExp = (st.expenses||[]).filter(e => e.date >= dKeyB(cStart) && e.date <= dKeyB(cEnd));
-  const weekExp = cycleExp.filter(e => e.date >= dKeyB(curWeek.start) && e.date <= dKeyB(curWeek.end));
-  const cycleSpent = cycleExp.reduce((s,e)=>s+e.amount, 0);
-  const weekSpent = weekExp.reduce((s,e)=>s+e.amount, 0);
-
-  // Planned in cycle
-  const plans = (st.planned||[]).filter(p => p.date >= dKeyB(cStart) && p.date <= dKeyB(cEnd));
-  const plannedAmt = plans.reduce((s,p)=>s+p.amount, 0);
-
-  const cycleLeft = freeBudget - cycleSpent;
-  const weekLeft = weekBudget - weekSpent;
-  const cyclePct = freeBudget > 0 ? Math.min(100, Math.round((cycleSpent/freeBudget)*100)) : 0;
-  const weekPct = weekBudget > 0 ? Math.min(100, Math.round((weekSpent/weekBudget)*100)) : 0;
-
-  // Cycle dates
+  const {cStart, cEnd, freeBudget, curWeek, weekBudget, weeks} = budGetWeekBounds();
   const fmt2 = d => d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'});
-  const cycDatesEl = document.getElementById('bud-cycle-dates');
-  if(cycDatesEl) cycDatesEl.textContent = `${fmt2(cStart)} — ${fmt2(cEnd)}`;
+  const today = new Date();
 
-  // Cycle left
-  const clEl = document.getElementById('bud-cycle-left');
-  if(clEl){ clEl.textContent = fmt(Math.round(cycleLeft))+' zł'; clEl.style.color = cycleLeft<0?'#f4a8c0':'#fff'; }
-  const csEl = document.getElementById('bud-cycle-sub');
-  if(csEl) csEl.textContent = `wydano ${fmt(Math.round(cycleSpent))} z ${fmt(freeBudget)} zł${plannedAmt>0?' · zaplanowano '+fmt(Math.round(plannedAmt))+' zł':''}`;
-  const cbEl = document.getElementById('bud-cycle-bar');
-  if(cbEl){ cbEl.style.width = (100-cyclePct)+'%'; cbEl.style.background = cycleLeft<0?'#f4a8c0':cyclePct>80?'#ffe0a0':'#fff'; }
+  // Expenses
+  const cycleExp = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd));
+  const weekExp  = cycleExp.filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end));
+  const cycleSpent = cycleExp.reduce((s,e)=>s+e.amount,0);
+  const weekSpent  = weekExp.reduce((s,e)=>s+e.amount,0);
 
-  // Week
-  const wlEl = document.getElementById('bud-week-left');
-  if(wlEl){ wlEl.textContent = fmt(Math.round(weekLeft))+' zł'; wlEl.style.color = weekLeft<0?'#f4a8c0':'#fff'; }
-  const wsEl = document.getElementById('bud-week-sub');
-  if(wsEl) wsEl.textContent = `budżet tygodnia ${fmt(weekBudget)} zł`;
-  const wspEl = document.getElementById('bud-week-spent');
-  if(wspEl) wspEl.textContent = fmt(Math.round(weekSpent))+' zł';
-  const wppEl = document.getElementById('bud-week-pct');
-  if(wppEl) wppEl.textContent = weekPct+'% budżetu';
+  // Plans in cycle / this week
+  const cyclePlans = (st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd));
+  const weekPlans  = cyclePlans.filter(p=>p.date>=dKeyB(curWeek.start)&&p.date<=dKeyB(curWeek.end));
+  const cyclePlanned = cyclePlans.reduce((s,p)=>s+p.amount,0);
+  const weekPlanned  = weekPlans.reduce((s,p)=>s+p.amount,0);
 
-  // cycle sub header
+  // Week calculations
+  const weekLeft = weekBudget - weekSpent;
+  const weekAfterPlans = weekLeft - weekPlanned;
+  const weekPct = weekBudget>0 ? Math.min(100,Math.round(((weekSpent+weekPlanned)/weekBudget)*100)) : 0;
+
+  // Cycle calculations
+  const cycleLeft = freeBudget - cycleSpent;
+  const cycleAfterPlans = cycleLeft - cyclePlanned;
+
+  // ── Główna karta tygodnia ──
+  const mainEl = document.getElementById('bud-week-main');
+  const statusEl = document.getElementById('bud-week-status');
+  const barEl = document.getElementById('bud-week-bar');
+  const labelEl = document.getElementById('bud-week-label');
+
+  if(labelEl) labelEl.textContent = `TEN TYDZIEŃ · ${fmt2(curWeek.start)}–${fmt2(curWeek.end)}`;
+
+  if(weekLeft >= 0){
+    // Normal — zostało
+    if(mainEl){ mainEl.textContent=fmt(Math.round(weekLeft))+' zł'; mainEl.style.color='#fff'; }
+    if(statusEl) statusEl.textContent = `zostało z ${fmt(weekBudget)} zł limitu`;
+    if(barEl){ barEl.style.width=Math.max(5,100-weekPct)+'%'; barEl.style.background=weekPct>85?'#ffe0a0':'#fff'; }
+  } else {
+    // Przekroczony — zamrożony do kiedy
+    const overBy = Math.abs(weekLeft);
+    // Znajdź tydzień kiedy się "uwolni"
+    let frozenUntil = null;
+    for(const w of weeks){
+      if(w.start <= curWeek.start) continue;
+      const wBudget = Math.round(freeBudget * (Math.round((w.end-w.start)/86400000)+1) / Math.round((cEnd-cStart)/86400000+1));
+      if(wBudget >= overBy){ frozenUntil = w.start; break; }
+    }
+    if(mainEl){ mainEl.textContent='❄️ Zamrożony'; mainEl.style.color='#f4a8c0'; mainEl.style.fontSize='32px'; }
+    if(statusEl){
+      statusEl.textContent = frozenUntil
+        ? `przekroczony o ${fmt(Math.round(overBy))} zł · odmrożenie ${fmt2(frozenUntil)}`
+        : `przekroczony o ${fmt(Math.round(overBy))} zł do końca cyklu`;
+    }
+    if(barEl){ barEl.style.width='100%'; barEl.style.background='#f4a8c0'; }
+  }
+
+  // Trzy kafelki tygodnia
+  const spentEl = document.getElementById('bud-week-spent');
+  if(spentEl) spentEl.textContent = fmt(Math.round(weekSpent))+' zł';
+  const afterEl = document.getElementById('bud-week-after-plans');
+  if(afterEl){
+    afterEl.textContent = fmt(Math.round(weekAfterPlans))+' zł';
+    afterEl.style.color = weekAfterPlans<0 ? '#f4a8c0' : '#a8e6c8';
+  }
+  const budEl = document.getElementById('bud-week-budget');
+  if(budEl) budEl.textContent = fmt(weekBudget)+' zł';
+
+  // ── Kontekst cyklu ──
+  const cycLabel = document.getElementById('bud-cycle-label');
+  if(cycLabel) cycLabel.textContent = `CAŁY CYKL · ${fmt2(cStart)}–${fmt2(cEnd)}`;
+  const freeTotEl = document.getElementById('bud-free-total');
+  if(freeTotEl) freeTotEl.textContent = fmt(freeBudget)+' zł';
+  const cycLeftEl = document.getElementById('bud-cycle-left-val');
+  if(cycLeftEl){
+    cycLeftEl.textContent = fmt(Math.round(cycleLeft))+' zł';
+    cycLeftEl.style.color = cycleLeft<0 ? '#f4a8c0' : '#3d7a60';
+  }
+  const cycAfterEl = document.getElementById('bud-cycle-after-plans');
+  if(cycAfterEl){
+    cycAfterEl.textContent = fmt(Math.round(cycleAfterPlans))+' zł';
+    cycAfterEl.style.color = cycleAfterPlans<0 ? '#f4a8c0' : '#3d7a60';
+    cycAfterEl.style.fontWeight = '700';
+  }
+
+  // Header sub
   const hSub = document.getElementById('h-cycle-week');
   if(hSub) hSub.textContent = `${fmt2(cStart)} — ${fmt2(cEnd)}`;
 
-  // Budget input
-  const budInp = document.getElementById('budget-input');
-  if(budInp && !budInp._touched) budInp.value = st.budget||'';
-
-  // Render list
   budRenderList();
   renderSettings();
 }
