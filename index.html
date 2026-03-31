@@ -4014,7 +4014,6 @@ function renderDash(){
       if(wB>=Math.abs(weekLeft)){frozenDate=w.start;break;}
     }
     const frozenStr = frozenDate ? fmt2(frozenDate) : 'końca cyklu';
-    if(bg) bg.style.background='linear-gradient(145deg,#521830 0%,#7a2848 55%,#9a4868 100%)';
     set('dash-bud-main-amt','❄️',{fontSize:'52px',letterSpacing:'0'});
     set('dash-bud-status-sub',`odmrożenie ${frozenStr} · przekroczony o ${fmt(Math.abs(weekLeft))} zł`);
     set('dash-bud-badge','zamrożony',{background:'rgba(255,120,120,.2)',border:'1px solid rgba(255,150,150,.3)'});
@@ -4023,7 +4022,6 @@ function renderDash(){
     if(dot) dot.style.cssText='width:8px;height:8px;border-radius:50%;background:#e05070;flex-shrink:0;box-shadow:0 0 0 3px rgba(224,80,112,.15)';
     set('dash-greeting-sub','Budżet tygodnia zamrożony');
   } else if(weekPct > 80 || weekAfterPlans < 0){
-    if(bg) bg.style.background='linear-gradient(145deg,#4a3010 0%,#6e5020 55%,#907040 100%)';
     set('dash-bud-main-amt', fmt(Math.round(weekLeft)),{fontSize:'58px',letterSpacing:'-1px'});
     
     set('dash-bud-status-sub', weekAfterPlans<0?'plany przekraczają limit tygodnia':'prawie koniec budżetu tygodnia');
@@ -4033,7 +4031,6 @@ function renderDash(){
     if(dot) dot.style.cssText='width:8px;height:8px;border-radius:50%;background:#c08020;flex-shrink:0;box-shadow:0 0 0 3px rgba(192,128,32,.15)';
     set('dash-greeting-sub',`Zostało ${fmt(Math.round(weekLeft))} zł — oszczędzaj`);
   } else {
-    if(bg) bg.style.background='linear-gradient(145deg,#4a3870 0%,#6e5c95 55%,#8c7ab8 100%)';
     set('dash-bud-main-amt', fmt(Math.round(weekLeft)),{fontSize:'58px',letterSpacing:'-1px'});
     
     set('dash-bud-status-sub','zostało w tym tygodniu',{color:'rgba(255,255,255,.6)'});
