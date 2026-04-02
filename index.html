@@ -801,6 +801,85 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <button class="tab" id="tab-mata" onclick="showPage('mata')"><span class="tab-icon">💸</span><span class="tab-label">Finanse</span></button>
   <button class="tab" id="tab-week" onclick="showPage('week')"><span class="tab-icon">✨</span><span class="tab-label">Mój Budżet</span></button>
   <button class="tab" id="tab-settings" onclick="showPage('settings')"><span class="tab-icon">🎯</span><span class="tab-label">Strategia</span></button>
+  <button class="tab" id="tab-stats" onclick="showPage('stats')"><span class="tab-icon">📈</span><span class="tab-label">Statystyki</span></button>
+</div>
+
+<!-- ══ PAGE: STATYSTYKI ══ -->
+<div class="page" id="page-stats">
+  <div class="header">
+    <div class="hc1"></div><div class="hc2"></div>
+    <div class="h-eye">Przegląd</div>
+    <h1>Statystyki <em>&amp; Prognozy</em></h1>
+    <div class="h-sub">ostatnie 6 miesięcy + prognoza</div>
+  </div>
+
+  <div style="height:14px"></div>
+
+  <!-- Wynagrodzenie -->
+  <div class="sec-lbl">💰 Wynagrodzenie miesięczne</div>
+  <div class="card" style="margin:0 12px 14px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#18102c" id="stats-salary-avg">śr. — zł</div>
+        <div style="font-size:11px;color:#7a6e98">średnia ostatnie miesiące</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:#3d7a60" id="stats-salary-proj">prognoza — zł</div>
+        <div style="font-size:11px;color:#7a6e98">następny miesiąc</div>
+      </div>
+    </div>
+    <canvas id="chart-salary" height="140" style="width:100%;display:block"></canvas>
+  </div>
+
+  <!-- Spłata kredytu -->
+  <div class="sec-lbl">🚗 Spłata kredytu Andy'ego</div>
+  <div class="card" style="margin:0 12px 14px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#18102c" id="stats-loan-remaining">zostało — zł</div>
+        <div style="font-size:11px;color:#7a6e98">aktualny kapitał</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:#9a607a" id="stats-loan-eta">spłata za — mies.</div>
+        <div style="font-size:11px;color:#7a6e98">prognoza</div>
+      </div>
+    </div>
+    <canvas id="chart-loan" height="140" style="width:100%;display:block"></canvas>
+  </div>
+
+  <!-- Oszczędności -->
+  <div class="sec-lbl">🛡️ Poduszka bezpieczeństwa</div>
+  <div class="card" style="margin:0 12px 14px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#18102c" id="stats-cushion-now">— zł</div>
+        <div style="font-size:11px;color:#7a6e98">aktualnie</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:#3d7a60" id="stats-cushion-eta">cel za — mies.</div>
+        <div style="font-size:11px;color:#7a6e98">50 000 zł</div>
+      </div>
+    </div>
+    <canvas id="chart-cushion" height="140" style="width:100%;display:block"></canvas>
+  </div>
+
+  <!-- Wydatki domowe -->
+  <div class="sec-lbl">🏠 Wydatki domowe miesięczne</div>
+  <div class="card" style="margin:0 12px 14px;padding:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#18102c" id="stats-dom-avg">śr. — zł</div>
+        <div style="font-size:11px;color:#7a6e98">średnia</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:#5e4d82" id="stats-dom-plan">plan — zł</div>
+        <div style="font-size:11px;color:#7a6e98">budżet planu</div>
+      </div>
+    </div>
+    <canvas id="chart-dom" height="140" style="width:100%;display:block"></canvas>
+  </div>
+
+  <div class="sp"></div>
 </div>
 
 <!-- ══ PAGE: DOM ══ -->
@@ -1101,7 +1180,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <!-- GODZINY — wpisz tu -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px">
       <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);flex:1">⏱️ Godziny w poprzednim miesiącu</div>
-      <input type="number" id="mata-hours-inp" placeholder="125" min="0" max="300"
+      <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
         style="width:70px;padding:7px 8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
         oninput="mataCalc()" onchange="mataCalc()">
       <div style="text-align:right">
@@ -1160,7 +1239,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
           <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Baza netto (zł/mies.)</div>
-          <input class="dom-inp" type="number" id="mata-base-inp" value="14880"
+          <input class="dom-inp" type="number" id="mata-base-inp" value="15700"
             style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
         </div>
         <div>
@@ -2635,7 +2714,7 @@ function mataYmLabel(ym){ return domYmLabel(ym); }
 
 function mataGetParams(){
   return {
-    base: parseFloat(document.getElementById('mata-base-inp')?.value) || 14880,
+    base: parseFloat(document.getElementById('mata-base-inp')?.value) || 15700,
     threshold: parseFloat(document.getElementById('mata-threshold-inp')?.value) || 125,
     bonusPct: parseFloat(document.getElementById('mata-bonus-pct-inp')?.value) || 20,
     otPct: parseFloat(document.getElementById('mata-ot-pct-inp')?.value) || 150,
@@ -2749,7 +2828,7 @@ function renderMata(){
   const thrEl=document.getElementById('mata-threshold-inp');
   const bonEl=document.getElementById('mata-bonus-pct-inp');
   const otEl=document.getElementById('mata-ot-pct-inp');
-  if(baseEl) baseEl.value = p.base||14880;
+  if(baseEl) baseEl.value = p.base||15700;
   if(thrEl)  thrEl.value  = p.threshold||125;
   if(bonEl)  bonEl.value  = p.bonusPct||20;
   if(otEl)   otEl.value   = p.otPct||150;
@@ -4120,6 +4199,221 @@ function renderDash(){
 
 
 let _monthsInitialized = false;
+// ══ STATS MODULE ══
+function renderStats(){
+  const now = new Date();
+  const curYM = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  // Generuj ostatnie 6 miesięcy + 3 prognozy
+  function getMonths(n){
+    const months = [];
+    for(let i=n-1;i>=-3;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);
+    }
+    return months;
+  }
+  const months = getMonths(6); // 6 historycznych + 3 prognozy = 9 punktów
+  const histCount = 6;
+
+  function ymLabel(ym){
+    const d = new Date(ym+'-01');
+    return d.toLocaleDateString('pl-PL',{month:'short'});
+  }
+
+  // ── DANE ──
+  // Wynagrodzenie
+  const params = mataGetParams();
+  const salaries = months.map(ym=>{
+    const d = mataData[ym];
+    if(d?.hours!=null) return mataCalcSalary(d.hours, params).total + (d.extraTotal||0);
+    return mataCalcSalary(125, params).total; // prognoza: 125h default
+  });
+
+  // Kredyt — kapitał
+  const loanData = months.map((ym,i)=>{
+    const d = mataData[ym];
+    if(d?.loanCapital!=null) return d.loanCapital;
+    // prognoza
+    const prevYMs = months.slice(0,i).filter(m=>mataData[m]?.loanCapital!=null);
+    if(!prevYMs.length) return mataGetPrevVal('loanCapital',54490);
+    let cap = mataData[prevYMs[prevYMs.length-1]].loanCapital;
+    const surplus = mataGetSurplus();
+    const payment = Math.max(2000, Math.round(surplus*0.7));
+    for(let j=prevYMs.length;j<=i;j++){
+      const interest = Math.round(cap*0.005*100)/100;
+      const capPay = Math.max(0, payment-interest);
+      cap = Math.max(0, cap-capPay);
+    }
+    return cap;
+  });
+
+  // Oszczędności
+  const cushionData = months.map((ym,i)=>{
+    const d = mataData[ym];
+    if(d?._savingsUpdated && d.cushion!=null) return d.cushion;
+    // prognoza: +savAmount per month
+    const prevYMs = months.slice(0,i).filter(m=>mataData[m]?._savingsUpdated);
+    const baseCushion = prevYMs.length ? mataData[prevYMs[prevYMs.length-1]].cushion : mataGetPrevVal('cushion',9500);
+    const surplus = mataGetSurplus();
+    const savAmount = Math.round(surplus*0.3);
+    return baseCushion + savAmount*(i-prevYMs.length+1);
+  });
+
+  // Wydatki domowe
+  const allExp = [...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const domData2 = months.map(ym=>{
+    const real = allExp.reduce((s,e)=>s+(domGetReal(e,ym)||0),0);
+    if(real>0) return real;
+    return allExp.reduce((s,e)=>s+(domGetPlan(e,ym)||0),0);
+  });
+
+  // ── AKTUALIZUJ LABELS ──
+  const avgSalary = Math.round(salaries.slice(0,histCount).reduce((a,b)=>a+b,0)/histCount);
+  const projSalary = salaries[histCount];
+  document.getElementById('stats-salary-avg').textContent=`śr. ${fmt(avgSalary)} zł`;
+  document.getElementById('stats-salary-proj').textContent=`prognoza ${fmt(Math.round(projSalary))} zł`;
+
+  const curLoan = loanData.filter(v=>v>0).slice(-4)[0]||54490;
+  const surplus2 = mataGetSurplus();
+  const payment2 = Math.max(2000,Math.round(surplus2*0.7));
+  const loanMonths = curLoan>0&&payment2>curLoan*0.005 ? Math.ceil(curLoan/(payment2-curLoan*0.005)) : 99;
+  document.getElementById('stats-loan-remaining').textContent=`zostało ${fmt(Math.round(curLoan))} zł`;
+  document.getElementById('stats-loan-eta').textContent=`spłata za ~${loanMonths} mies.`;
+
+  const curCushion = cushionData.filter(v=>v>0).slice(-4)[0]||9500;
+  const savAmount2 = Math.round(surplus2*0.3);
+  const cushionMonths = savAmount2>0 ? Math.ceil(Math.max(0,50000-curCushion)/savAmount2) : 99;
+  document.getElementById('stats-cushion-now').textContent=fmt(Math.round(curCushion))+' zł';
+  document.getElementById('stats-cushion-eta').textContent=cushionMonths<1?'✅ Cel osiągnięty!':`cel za ~${cushionMonths} mies.`;
+
+  const avgDom = Math.round(domData2.slice(0,histCount).filter(v=>v>0).reduce((a,b)=>a+b,0)/histCount||0);
+  const planDom = allExp.reduce((s,e)=>s+(domGetPlan(e,curYM)||0),0);
+  document.getElementById('stats-dom-avg').textContent=`śr. ${fmt(avgDom)} zł`;
+  document.getElementById('stats-dom-plan').textContent=`plan ${fmt(Math.round(planDom))} zł`;
+
+  // ── RYSUJ WYKRESY ──
+  const labels = months.map(ymLabel);
+
+  function drawChart(canvasId, histData, projData, colorHist, colorProj, colorFill, unit='zł', invertBar=false){
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth || 320;
+    canvas.width = W * window.devicePixelRatio;
+    canvas.height = 140 * window.devicePixelRatio;
+    canvas.style.width = W+'px';
+    canvas.style.height = '140px';
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    const allVals = [...histData,...projData];
+    const maxV = Math.max(...allVals)*1.15;
+    const minV = Math.min(0,...allVals)*0.9;
+    const range = maxV-minV||1;
+
+    const pad = {t:10,r:10,b:28,l:50};
+    const cW = W-pad.l-pad.r;
+    const cH = 140-pad.t-pad.b;
+    const n = histData.length+projData.length;
+    const step = cW/(n-1||1);
+
+    function xp(i){ return pad.l+i*step; }
+    function yp(v){ return pad.t+cH*(1-(v-minV)/range); }
+
+    // Grid
+    ctx.strokeStyle='rgba(94,77,130,.08)';
+    ctx.lineWidth=1;
+    [0,.25,.5,.75,1].forEach(f=>{
+      const v = minV+range*f;
+      const y = yp(v);
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+      ctx.fillStyle='#b0a4cc';
+      ctx.font=`${9*window.devicePixelRatio/window.devicePixelRatio}px DM Sans,sans-serif`;
+      ctx.textAlign='right';
+      ctx.fillText(v>=1000?Math.round(v/1000)+'k':Math.round(v), pad.l-4, y+3);
+    });
+
+    // Labels
+    ctx.fillStyle='#b0a4cc';
+    ctx.font='9px DM Sans,sans-serif';
+    ctx.textAlign='center';
+    labels.forEach((l,i)=>ctx.fillText(l, xp(i), 140-pad.b+12));
+
+    // Fill under hist line
+    ctx.beginPath();
+    ctx.moveTo(xp(0), yp(histData[0]));
+    histData.forEach((v,i)=>ctx.lineTo(xp(i),yp(v)));
+    ctx.lineTo(xp(histData.length-1), yp(minV));
+    ctx.lineTo(xp(0), yp(minV));
+    ctx.closePath();
+    ctx.fillStyle = colorFill;
+    ctx.fill();
+
+    // Hist line
+    ctx.beginPath();
+    ctx.strokeStyle = colorHist;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin='round';
+    histData.forEach((v,i)=>{ i===0?ctx.moveTo(xp(i),yp(v)):ctx.lineTo(xp(i),yp(v)); });
+    ctx.stroke();
+
+    // Proj line (dashed)
+    if(projData.length){
+      ctx.beginPath();
+      ctx.setLineDash([5,4]);
+      ctx.strokeStyle = colorProj;
+      ctx.lineWidth = 2;
+      ctx.moveTo(xp(histData.length-1), yp(histData[histData.length-1]));
+      projData.forEach((v,i)=>ctx.lineTo(xp(histData.length+i),yp(v)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Dots on hist
+    histData.forEach((v,i)=>{
+      ctx.beginPath();
+      ctx.arc(xp(i),yp(v),3,0,Math.PI*2);
+      ctx.fillStyle=colorHist; ctx.fill();
+    });
+
+    // Divider hist/proj
+    if(projData.length){
+      ctx.strokeStyle='rgba(94,77,130,.2)';
+      ctx.lineWidth=1;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath();
+      ctx.moveTo(xp(histData.length-1),pad.t);
+      ctx.lineTo(xp(histData.length-1),pad.t+cH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(94,77,130,.5)';
+      ctx.font='8px DM Sans,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText('prognoza →', xp(histData.length-1)+4, pad.t+10);
+    }
+  }
+
+  // Salary chart
+  drawChart('chart-salary',
+    salaries.slice(0,histCount), salaries.slice(histCount),
+    '#5e4d82','#9a8fbe','rgba(94,77,130,.08)');
+
+  // Loan chart (descending — good)
+  drawChart('chart-loan',
+    loanData.slice(0,histCount), loanData.slice(histCount),
+    '#9a607a','#c0a0b0','rgba(154,96,122,.07)');
+
+  // Cushion chart (ascending — good)
+  drawChart('chart-cushion',
+    cushionData.slice(0,histCount), cushionData.slice(histCount),
+    '#3d7a60','#7ab0a0','rgba(61,122,96,.08)');
+
+  // Dom chart
+  drawChart('chart-dom',
+    domData2.slice(0,histCount), domData2.slice(histCount),
+    '#7a6e98','#b0a4cc','rgba(122,110,152,.07)');
+}
+
 function renderAll(){
   if(!_monthsInitialized){
     domYM = domGetThisYM();
@@ -4324,7 +4618,7 @@ function showPage(name){
   else if(name==='settings')renderSettings();
   else if(name==='dom'){domYM=domGetThisYM();domView='month';setDomView('month');domSyncFromSheets();}
   else if(name==='mata'){mataYM=domGetThisYM();renderMata();mataSyncFromSheets();}
-  else if(name==='settings'){renderStrategy();}
+  else if(name==='stats'){renderStats();}
   else if(name==='dash'){renderDash();domSyncFromSheets();mataSyncFromSheets();}
   else renderWeek();
 }
