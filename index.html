@@ -1533,6 +1533,8 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 
 <script>
+console.log('[JS] Script starting...');
+
 const KEY='zachcianki_v1';
 const EMOJIS=['🛍️','☕','🌸','💐','✨','🎀','🧴','💅','👗','👟','🎬','📚','🍦','🍷','🌿','🧘','🎵','🍕','🍣','🍔','🎁','✈️','💊','🧁','💸','🛒','🎨','🌺','🧋','🪴','💍','🫧'];
 const CATS=['🛍️ Zakupy','🍽️ Jedzenie','🚗 Transport','💆 Uroda','🎭 Rozrywka','💊 Zdrowie','🏠 Dom','📦 Inne'];
@@ -3589,7 +3591,6 @@ function budGetWeekBounds(){
   const budget = st.budget||0;
   const fixed = (st.fixedExpenses||[]).reduce((s,e)=>s+e.amount,0);
   const freeBudget = Math.max(0, budget - fixed);
-  // Split cycle into weeks
   const weeks = [];
   let d = new Date(cStart);
   while(d <= cEnd){
@@ -3604,32 +3605,78 @@ function budGetWeekBounds(){
   return {cStart, cEnd, freeBudget, curWeek, weekBudget, cycleDays, weeks};
 }
 
-function dKeyB(d){ return d.toISOString().slice(0,10); }
+// Oblicza efektywny budżet każdego tygodnia z przenoszeniem długu
+function budCalcWeeks(){
+  const {cStart, cEnd, freeBudget, weeks, cycleDays} = budGetWeekBounds();
+  const st = load();
+  const expenses = st.expenses||[];
+  const planned = st.planned||[];
+  console.log('[budCalcWeeks] weeks:', weeks.length, 'expenses:', expenses.length, 'freeBudget:', freeBudget);
+
+  let debt = 0;
+  return weeks.map(w => {
+    const wDays = Math.round((w.end - w.start)/86400000) + 1;
+    const baseBudget = Math.round(freeBudget * wDays / cycleDays);
+    const effectiveBudget = baseBudget - debt;
+    const available = Math.max(0, effectiveBudget);
+    const frozen = effectiveBudget <= 0;
+
+    const spent = expenses
+      .filter(e => e.date >= dKeyB(w.start) && e.date <= dKeyB(w.end))
+      .reduce((s,e) => s+e.amount, 0);
+    const plannedAmt = planned
+      .filter(p => p.date >= dKeyB(w.start) && p.date <= dKeyB(w.end))
+      .reduce((s,p) => s+p.amount, 0);
+
+    const leftAfterSpent = available - spent;
+    const leftAfterPlanned = leftAfterSpent - plannedAmt;
+
+    // Dług na następny tydzień
+    if(frozen){
+      debt = Math.max(0, debt - baseBudget); // spłacamy dług tym tygodniem
+    } else {
+      debt = Math.max(0, spent - available); // nowe przekroczenie
+    }
+
+    return {
+      start: w.start, end: w.end,
+      baseBudget, effectiveBudget: Math.round(effectiveBudget),
+      available: Math.round(available), frozen,
+      spent: Math.round(spent), plannedAmt: Math.round(plannedAmt),
+      leftAfterSpent: Math.round(leftAfterSpent),
+      leftAfterPlanned: Math.round(leftAfterPlanned),
+      planWarning: leftAfterPlanned < 0,
+    };
+  });
+}
+
+function dKeyB(d){ 
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 
 function renderBudget(){
+  console.log('[renderBudget] called');
   const st = load();
   const {cStart, cEnd, freeBudget, curWeek, weekBudget, weeks} = budGetWeekBounds();
+  console.log('[renderBudget] cykl:', cStart.toLocaleDateString('pl-PL'), '–', cEnd.toLocaleDateString('pl-PL'), 'freeBudget:', freeBudget);
   const fmt2 = d => d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'});
   const today = new Date();
 
-  // Expenses
+  // Oblicz tygodnie z długiem
+  const weekCalc = budCalcWeeks();
+  const curWC = weekCalc.find(w => today >= w.start && today <= w.end) || weekCalc[0];
+
+  const weekSpent = curWC.spent;
+  const weekPlanned = curWC.plannedAmt;
+  const weekLeft = curWC.leftAfterSpent;
+  const weekAfterPlans = curWC.leftAfterPlanned;
+  const weekAvailable = curWC.available;
+
+  // Cykl
   const cycleExp = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd));
-  const weekExp  = cycleExp.filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end));
   const cycleSpent = cycleExp.reduce((s,e)=>s+e.amount,0);
-  const weekSpent  = weekExp.reduce((s,e)=>s+e.amount,0);
-
-  // Plans in cycle / this week
   const cyclePlans = (st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd));
-  const weekPlans  = cyclePlans.filter(p=>p.date>=dKeyB(curWeek.start)&&p.date<=dKeyB(curWeek.end));
   const cyclePlanned = cyclePlans.reduce((s,p)=>s+p.amount,0);
-  const weekPlanned  = weekPlans.reduce((s,p)=>s+p.amount,0);
-
-  // Week calculations
-  const weekLeft = weekBudget - weekSpent;
-  const weekAfterPlans = weekLeft - weekPlanned;
-  const weekPct = weekBudget>0 ? Math.min(100,Math.round(((weekSpent+weekPlanned)/weekBudget)*100)) : 0;
-
-  // Cycle calculations
   const cycleLeft = freeBudget - cycleSpent;
   const cycleAfterPlans = cycleLeft - cyclePlanned;
 
@@ -3641,31 +3688,31 @@ function renderBudget(){
 
   if(labelEl) labelEl.textContent = `TEN TYDZIEŃ · ${fmt2(curWeek.start)}–${fmt2(curWeek.end)}`;
 
-  if(weekLeft >= 0){
-    // Normal — zostało
-    if(mainEl){ mainEl.textContent=fmt(Math.round(weekLeft))+' zł'; mainEl.style.color='#fff'; }
-    if(statusEl) statusEl.textContent = `zostało z ${fmt(weekBudget)} zł limitu`;
-    if(barEl){ barEl.style.width=Math.max(5,100-weekPct)+'%'; barEl.style.background=weekPct>85?'#ffe0a0':'#fff'; }
-  } else {
-    // Przekroczony — zamrożony do kiedy
-    const overBy = Math.abs(weekLeft);
-    // Znajdź tydzień kiedy się "uwolni"
-    let frozenUntil = null;
-    for(const w of weeks){
+  if(curWC.frozen){
+    // Zamrożony — znajdź kiedy się odmrozi
+    let unfreezeDate = null;
+    for(const w of weekCalc){
       if(w.start <= curWeek.start) continue;
-      const wBudget = Math.round(freeBudget * (Math.round((w.end-w.start)/86400000)+1) / Math.round((cEnd-cStart)/86400000+1));
-      if(wBudget >= overBy){ frozenUntil = w.start; break; }
+      if(!w.frozen){ unfreezeDate = w.start; break; }
     }
     if(mainEl){ mainEl.textContent='❄️ Zamrożony'; mainEl.style.color='#f4a8c0'; mainEl.style.fontSize='32px'; }
     if(statusEl){
-      statusEl.textContent = frozenUntil
-        ? `przekroczony o ${fmt(Math.round(overBy))} zł · odmrożenie ${fmt2(frozenUntil)}`
-        : `przekroczony o ${fmt(Math.round(overBy))} zł do końca cyklu`;
+      statusEl.textContent = unfreezeDate
+        ? `odmrożenie ${fmt2(unfreezeDate)}`
+        : `do końca cyklu`;
     }
     if(barEl){ barEl.style.width='100%'; barEl.style.background='#f4a8c0'; }
+  } else {
+    const weekPctUsed = weekAvailable>0 ? Math.min(100,Math.round((weekSpent/weekAvailable)*100)) : 0;
+    if(mainEl){ mainEl.textContent=fmt(Math.round(weekLeft))+' zł'; mainEl.style.color='#fff'; mainEl.style.fontSize='52px'; }
+    if(statusEl) statusEl.textContent=`zostało z ${fmt(weekAvailable)} zł limitu`;
+    if(barEl){
+      barEl.style.width=Math.max(5,100-weekPctUsed)+'%';
+      barEl.style.background=weekPctUsed>85?'#ffe0a0':'#fff';
+    }
   }
 
-  // Trzy kafelki tygodnia
+  // Trzy kafelki
   const spentEl = document.getElementById('bud-week-spent');
   if(spentEl) spentEl.textContent = fmt(Math.round(weekSpent))+' zł';
   const afterEl = document.getElementById('bud-week-after-plans');
@@ -3674,26 +3721,18 @@ function renderBudget(){
     afterEl.style.color = weekAfterPlans<0 ? '#f4a8c0' : '#a8e6c8';
   }
   const budEl = document.getElementById('bud-week-budget');
-  if(budEl) budEl.textContent = fmt(weekBudget)+' zł';
+  if(budEl) budEl.textContent = fmt(weekAvailable)+' zł';
 
-  // ── Kontekst cyklu ──
+  // Kontekst cyklu
   const cycLabel = document.getElementById('bud-cycle-label');
   if(cycLabel) cycLabel.textContent = `CAŁY CYKL · ${fmt2(cStart)}–${fmt2(cEnd)}`;
   const freeTotEl = document.getElementById('bud-free-total');
   if(freeTotEl) freeTotEl.textContent = fmt(freeBudget)+' zł';
   const cycLeftEl = document.getElementById('bud-cycle-left-val');
-  if(cycLeftEl){
-    cycLeftEl.textContent = fmt(Math.round(cycleLeft))+' zł';
-    cycLeftEl.style.color = cycleLeft<0 ? '#f4a8c0' : '#3d7a60';
-  }
+  if(cycLeftEl){ cycLeftEl.textContent=fmt(Math.round(cycleLeft))+' zł'; cycLeftEl.style.color=cycleLeft<0?'#f4a8c0':'#3d7a60';}
   const cycAfterEl = document.getElementById('bud-cycle-after-plans');
-  if(cycAfterEl){
-    cycAfterEl.textContent = fmt(Math.round(cycleAfterPlans))+' zł';
-    cycAfterEl.style.color = cycleAfterPlans<0 ? '#f4a8c0' : '#3d7a60';
-    cycAfterEl.style.fontWeight = '700';
-  }
+  if(cycAfterEl){ cycAfterEl.textContent=fmt(Math.round(cycleAfterPlans))+' zł'; cycAfterEl.style.color=cycleAfterPlans<0?'#f4a8c0':'#3d7a60';}
 
-  // Header sub
   const hSub = document.getElementById('h-cycle-week');
   if(hSub) hSub.textContent = `${fmt2(cStart)} — ${fmt2(cEnd)}`;
 
@@ -3731,19 +3770,29 @@ function budRenderList(){
   }
 
   if(budFilter === 'plans'){
-    listEl.innerHTML = items.map(p => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e4f0">
+    const weekCalc = budCalcWeeks();
+    listEl.innerHTML = items.map(p => {
+      // Sprawdź czy tydzień planu ma wystarczające środki
+      const wc = weekCalc.find(w => p.date >= dKeyB(w.start) && p.date <= dKeyB(w.end));
+      const noFunds = wc && (wc.frozen || (wc.available - wc.spent - p.amount < 0));
+      const warning = wc?.frozen
+        ? '⚠️ Brak środków — tydzień zamrożony'
+        : noFunds ? `⚠️ Brak środków (dostępne ${fmt(Math.max(0,wc.available-wc.spent))} zł)` : '';
+      return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e4f0;${noFunds?'background:#fff8f8':''}">
         <div style="font-size:20px">${p.emoji||'🗓️'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;color:#18102c">${p.name}</div>
           <div style="font-size:11px;color:#7a6e98">${p.date} · ${fmt(p.amount)} zł</div>
+          ${warning ? `<div style="font-size:10px;font-weight:700;color:#9a4060;margin-top:2px">${warning}</div>` : ''}
         </div>
         <button onclick="budConfirmPlan('${p.id}')"
           style="padding:5px 10px;background:#3d7a60;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
           ✓ Zapłacono
         </button>
         <button onclick="deletePlan('${p.id}')" style="background:none;border:none;font-size:16px;color:#b0a4cc;cursor:pointer;padding:0 4px">×</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } else {
     listEl.innerHTML = items.map(e => `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e4f0">
@@ -3808,29 +3857,53 @@ function budAffordCheck(){
   if(!resEl) return;
   if(isNaN(amt)||amt<=0){ resEl.style.display='none'; return; }
 
-  const {freeBudget, curWeek, weekBudget, weeks, cStart, cEnd} = budGetWeekBounds();
+  const weekCalc = budCalcWeeks();
+  const {cStart, cEnd, freeBudget} = budGetWeekBounds();
+  const today = new Date();
+  const curWC = weekCalc.find(w => today >= w.start && today <= w.end) || weekCalc[0];
   const st = load();
   const cycleSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
-  const weekSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end)).reduce((s,e)=>s+e.amount,0);
-  // Planned expenses reduce available budget
-  const plannedThisWeek = (st.planned||[]).filter(p=>p.date>=dKeyB(curWeek.start)&&p.date<=dKeyB(curWeek.end)).reduce((s,p)=>s+p.amount,0);
-  const plannedCycle = (st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd)).reduce((s,p)=>s+p.amount,0);
-  const cycleLeft = freeBudget - cycleSpent - plannedCycle;
-  const weekLeft = weekBudget - weekSpent - plannedThisWeek;
+  const cyclePlanned = (st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd)).reduce((s,p)=>s+p.amount,0);
+  const cycleLeft = freeBudget - cycleSpent - cyclePlanned;
+
+  // Dostępne w tym tygodniu po wydatkach i planach
+  const thisWeekFree = curWC.available - curWC.spent - curWC.plannedAmt;
+  const thisWeekFreeNoPlans = curWC.available - curWC.spent;
 
   resEl.style.display = 'block';
-  if(amt <= weekLeft){
-    resEl.style.background = '#d4f0e4'; resEl.style.color = '#2d6a50';
-    resEl.textContent = `✅ Tak! Zostało ${fmt(Math.round(weekLeft))} zł w tygodniu — stać Cię.`;
+  const fmt2 = d => d.toLocaleDateString('pl-PL',{day:'numeric',month:'long'});
+
+  if(curWC.frozen){
+    // Zamrożony — kiedy się odmrozi i wtedy czy stać
+    let unfreezeWC = null;
+    for(const w of weekCalc){
+      if(w.start <= curWC.start) continue;
+      if(!w.frozen && w.available - w.spent - w.plannedAmt >= amt){ unfreezeWC = w; break; }
+    }
+    resEl.style.background='#fdf0f4'; resEl.style.color='#7a4868';
+    resEl.textContent = unfreezeWC
+      ? `❄️ Budżet zamrożony. Poczekaj do ${fmt2(unfreezeWC.start)} — wtedy będzie ${fmt(unfreezeWC.available)} zł.`
+      : `❄️ Budżet zamrożony do końca cyklu. Brakuje środków.`;
+  } else if(amt <= thisWeekFree){
+    resEl.style.background='#d4f0e4'; resEl.style.color='#2d6a50';
+    resEl.textContent = `✅ Stać Cię! Zostanie ${fmt(Math.round(thisWeekFree-amt))} zł w tygodniu (po planach).`;
+  } else if(amt <= thisWeekFreeNoPlans){
+    resEl.style.background='#fff8e8'; resEl.style.color='#7a6020';
+    resEl.textContent = `⚠️ Stać Cię, ale masz zaplanowane ${fmt(curWC.plannedAmt)} zł — zostanie tylko ${fmt(Math.round(thisWeekFreeNoPlans-amt))} zł na plany.`;
   } else if(amt <= cycleLeft){
-    const dateStr = budGetAffordDate(amt, weekLeft, cycleLeft, weeks, curWeek, weekBudget);
-    resEl.style.background = '#fff8e8'; resEl.style.color = '#7a6020';
-    resEl.textContent = dateStr
-      ? `⏳ Poczekaj do ${dateStr} — wtedy będziesz mieć wystarczająco.`
-      : `⏳ Stać Cię w tym cyklu, ale dopiero za kilka tygodni.`;
+    // Znajdź tydzień kiedy będzie stać
+    let targetWC = null;
+    for(const w of weekCalc){
+      if(w.start <= curWC.start) continue;
+      if(!w.frozen && w.available - w.spent - w.plannedAmt >= amt){ targetWC = w; break; }
+    }
+    resEl.style.background='#fff8e8'; resEl.style.color='#7a6020';
+    resEl.textContent = targetWC
+      ? `⏳ Nie teraz — poczekaj do ${fmt2(targetWC.start)}. Wtedy limit to ${fmt(targetWC.available)} zł.`
+      : `⏳ Stać Cię w tym cyklu, ale nie w żadnym konkretnym tygodniu.`;
   } else {
-    resEl.style.background = '#fdf0f4'; resEl.style.color = '#7a4868';
-    resEl.textContent = `❌ Nie — brakuje ${fmt(Math.round(amt-cycleLeft))} zł do końca cyklu.`;
+    resEl.style.background='#fdf0f4'; resEl.style.color='#7a4868';
+    resEl.textContent = `❌ Nie — przekracza budżet cyklu o ${fmt(Math.round(amt-cycleLeft))} zł.`;
   }
 }
 
@@ -3841,26 +3914,25 @@ function budAffordInline(){
   if(!alertEl) return;
   if(isNaN(amt)||amt<=0){ alertEl.style.display='none'; return; }
 
-  const {freeBudget, curWeek, weekBudget, weeks, cStart, cEnd} = budGetWeekBounds();
-  const st = load();
-  const cycleSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
-  const weekSpent = (st.expenses||[]).filter(e=>e.date>=dKeyB(curWeek.start)&&e.date<=dKeyB(curWeek.end)).reduce((s,e)=>s+e.amount,0);
-  const plannedThisWeek = (st.planned||[]).filter(p=>p.date>=dKeyB(curWeek.start)&&p.date<=dKeyB(curWeek.end)).reduce((s,p)=>s+p.amount,0);
-  const plannedCycle = (st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd)).reduce((s,p)=>s+p.amount,0);
-  const weekLeft = weekBudget - weekSpent - plannedThisWeek;
-  const cycleLeft = freeBudget - cycleSpent - plannedCycle;
+  const weekCalc = budCalcWeeks();
+  const today = new Date();
+  const curWC = weekCalc.find(w => today >= w.start && today <= w.end) || weekCalc[0];
+  const freeNow = curWC.available - curWC.spent;
+  const freeAfterPlans = freeNow - curWC.plannedAmt;
 
   alertEl.style.display = 'block';
-  if(amt <= weekLeft){
+  if(curWC.frozen){
+    alertEl.style.background='#fdf0f4'; alertEl.style.color='#7a4868';
+    alertEl.textContent=`❄️ Budżet zamrożony w tym tygodniu`;
+  } else if(amt <= freeAfterPlans){
     alertEl.style.background='#d4f0e4'; alertEl.style.color='#2d6a50';
-    alertEl.textContent=`✅ Zostanie ${fmt(Math.round(weekLeft-amt))} zł w tygodniu`;
-  } else if(amt <= cycleLeft){
-    const dateStr = budGetAffordDate(amt, weekLeft, cycleLeft, weeks, curWeek, weekBudget);
+    alertEl.textContent=`✅ Zostanie ${fmt(Math.round(freeAfterPlans-amt))} zł (po planach)`;
+  } else if(amt <= freeNow){
     alertEl.style.background='#fff8e8'; alertEl.style.color='#7a6020';
-    alertEl.textContent=dateStr?`⏳ Poczekaj do ${dateStr}`:`⏳ Stać Cię w cyklu za kilka tygodni`;
+    alertEl.textContent=`⚠️ Stać Cię, ale wchodzisz w planowane ${fmt(curWC.plannedAmt)} zł`;
   } else {
     alertEl.style.background='#fdf0f4'; alertEl.style.color='#7a4868';
-    alertEl.textContent=`❌ Przekracza budżet o ${fmt(Math.round(amt-cycleLeft))} zł`;
+    alertEl.textContent=`❌ Przekracza limit tygodnia o ${fmt(Math.round(amt-freeNow))} zł`;
   }
 }
 
@@ -3922,7 +3994,7 @@ function deleteExpense(id){
 
 
 
-function renderWeek(){ renderBudget(); }
+function renderWeek(){ console.log('[renderWeek] called → renderBudget'); renderBudget(); }
 function renderMonth(){ renderBudget(); }
 function renderPlans(){ budSetFilter('plans'); }
 function showBudgetTab(tab){
@@ -4619,7 +4691,7 @@ function showPage(name){
   else renderWeek();
 }
 
-renderAll();
+try{ renderAll(); console.log("[JS] renderAll OK"); }catch(e){ console.error("[JS] renderAll ERROR:", e); }
 
 // Restore last page after refresh
 try{
