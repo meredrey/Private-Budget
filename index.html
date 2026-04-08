@@ -2012,17 +2012,19 @@ function domRenderRow(exp,ym){
 
   // Inline add form
   const formHtml=showForm?`
-    <div id="${safeId}_form" style="display:flex;gap:6px;margin-top:6px;align-items:center">
-      <input type="text" id="${safeId}_fname" placeholder="np. Biedronka"
-        style="flex:1;padding:6px 8px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;outline:none;min-width:0"
+    <div id="${safeId}_form" style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+      <input type="text" id="${safeId}_fname" placeholder="Opis (np. Biedronka)"
+        style="width:100%;padding:9px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;-webkit-appearance:none"
         onkeydown="if(event.key==='Enter')domSaveEntry('${safeId}','${ym}')">
-      <input type="number" id="${safeId}_famt" placeholder="zł" inputmode="decimal"
-        style="width:64px;padding:6px 8px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;outline:none;text-align:right;-webkit-appearance:none"
-        onkeydown="if(event.key==='Enter')domSaveEntry('${safeId}','${ym}')">
-      <button onclick="domSaveEntry('${safeId}','${ym}')"
-        style="padding:6px 10px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">OK</button>
-      <button onclick="domToggleForm('${safeId}','${ym}',false)"
-        style="padding:6px 8px;background:#e8e4f0;border:none;border-radius:8px;color:#7a6e98;font-size:12px;cursor:pointer">✕</button>
+      <div style="display:flex;gap:6px">
+        <input type="number" id="${safeId}_famt" placeholder="Kwota zł" inputmode="decimal"
+          style="flex:1;padding:9px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;outline:none;text-align:right;-webkit-appearance:none"
+          onkeydown="if(event.key==='Enter')domSaveEntry('${safeId}','${ym}')">
+        <button onclick="domSaveEntry('${safeId}','${ym}')"
+          style="padding:9px 16px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Zapisz</button>
+        <button onclick="domToggleForm('${safeId}','${ym}',false)"
+          style="padding:9px 10px;background:#e8e4f0;border:none;border-radius:8px;color:#7a6e98;font-size:13px;cursor:pointer">✕</button>
+      </div>
     </div>`:`
     <button onclick="domToggleForm('${safeId}','${ym}',true)"
       style="margin-top:3px;font-size:10px;color:#5e4d82;background:none;border:none;cursor:pointer;padding:0;text-align:left">+ dodaj wpłatę</button>`;
