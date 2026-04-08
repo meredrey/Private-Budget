@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pl-PL">
 <head>
 <meta charset="UTF-8">
@@ -207,12 +206,10 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 .yr-tot{font-family:Georgia,serif;font-size:13px;font-weight:600;color:#5e4d82;width:65px;text-align:right;flex-shrink:0}
 .yr-sk{font-size:11px;color:#3d7a60;width:58px;text-align:right;flex-shrink:0}
 </style>
-
 </head>
 <body>
 
 <!-- ══ DASHBOARD ══ -->
-
 <div class="page active" id="page-dash">
 <style>
   #page-dash {
@@ -221,268 +218,244 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     font-family: 'DM Sans', -apple-system, sans-serif;
   }
 
-/* ── Glassmorphism base ── */
-.gc {
-background: rgba(255,255,255,0.62);
-backdrop-filter: blur(32px) saturate(180%);
--webkit-backdrop-filter: blur(32px) saturate(180%);
-border: 1px solid rgba(255,255,255,0.85);
-border-radius: 24px;
-box-shadow:
-0 8px 32px rgba(94,77,130,0.10),
-0 2px 8px rgba(94,77,130,0.06),
-inset 0 1px 0 rgba(255,255,255,0.9);
-cursor: pointer;
-will-change: transform;
-transition: transform .15s cubic-bezier(.22,1,.36,1), box-shadow .15s ease;
-overflow: hidden;
-}
-.gc:active {
-transform: scale(.975);
-box-shadow: 0 4px 16px rgba(94,77,130,0.08), inset 0 1px 0 rgba(255,255,255,.9);
-}
+  /* ── Glassmorphism base ── */
+  .gc {
+    background: rgba(255,255,255,0.62);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.85);
+    border-radius: 24px;
+    box-shadow:
+      0 8px 32px rgba(94,77,130,0.10),
+      0 2px 8px rgba(94,77,130,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+    cursor: pointer;
+    transition: transform .15s cubic-bezier(.22,1,.36,1), box-shadow .15s ease;
+    overflow: hidden;
+  }
+  .gc:active {
+    transform: scale(.975);
+    box-shadow: 0 4px 16px rgba(94,77,130,0.08), inset 0 1px 0 rgba(255,255,255,.9);
+  }
 
-/* ── Animacje ── */
-@keyframes riseIn {
-from { opacity:0; transform: translateY(28px) scale(.98); }
-to   { opacity:1; transform: translateY(0) scale(1); }
-}
-.ri1 { animation: riseIn .55s cubic-bezier(.22,1,.36,1) both; }
-.ri2 { animation: riseIn .55s .08s cubic-bezier(.22,1,.36,1) both; }
-.ri3 { animation: riseIn .55s .16s cubic-bezier(.22,1,.36,1) both; }
-.ri4 { animation: riseIn .55s .24s cubic-bezier(.22,1,.36,1) both; }
+  /* ── Animacje ── */
+  @keyframes riseIn {
+    from { opacity:0; transform: translateY(28px) scale(.98); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+  .ri1 { animation: riseIn .55s cubic-bezier(.22,1,.36,1) both; }
+  .ri2 { animation: riseIn .55s .08s cubic-bezier(.22,1,.36,1) both; }
+  .ri3 { animation: riseIn .55s .16s cubic-bezier(.22,1,.36,1) both; }
+  .ri4 { animation: riseIn .55s .24s cubic-bezier(.22,1,.36,1) both; }
 
-/* ── Pasek postępu ── */
-.gbar {
-height: 7px;
-background: rgba(94,77,130,0.10);
-border-radius: 99px;
-overflow: hidden;
-box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
-}
-.gbar-fill {
-height: 100%;
-border-radius: 99px;
-transition: width .8s cubic-bezier(.4,0,.2,1);
-}
+  /* ── Pasek postępu ── */
+  .gbar {
+    height: 7px;
+    background: rgba(94,77,130,0.10);
+    border-radius: 99px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
+  }
+  .gbar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .8s cubic-bezier(.4,0,.2,1);
+  }
 
-/* ── Chip/badge ── */
-.gchip {
-display: inline-flex; align-items: center; gap: 5px;
-padding: 4px 11px; border-radius: 20px;
-font-size: 11px; font-weight: 600; letter-spacing: .3px;
-border: 1px solid rgba(255,255,255,.7);
-}
-.gchip-dot {
-width: 6px; height: 6px; border-radius: 50%;
-}
+  /* ── Chip/badge ── */
+  .gchip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: .3px;
+    border: 1px solid rgba(255,255,255,.7);
+  }
+  .gchip-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
 
-/* ── Kółka dekoracyjne ── */
-.blob {
-position: absolute; border-radius: 50%; pointer-events: none;
-}
-</style>
+  /* ── Kółka dekoracyjne ── */</style>
 
   <!-- ══ HEADER ══ -->
-
-  <div style="position:relative; padding:60px 22px 36px; overflow:hidden;">
+  <div style="position:relative; padding:60px 22px 36px;">
     <!-- blobs -->
-    <div class="blob" style="width:300px;height:300px;top:-120px;right:-80px;
-      background:radial-gradient(circle, rgba(185,165,230,.38) 0%, transparent 65%)"></div>
-    <div class="blob" style="width:200px;height:200px;bottom:-80px;left:-50px;
-      background:radial-gradient(circle, rgba(155,205,180,.30) 0%, transparent 65%)"></div>
-    <div class="blob" style="width:120px;height:120px;top:50px;left:45%;
-      background:radial-gradient(circle, rgba(230,185,220,.22) 0%, transparent 65%)"></div>
+    <div style="position:relative; z-index:1;">
+      <!-- Data -->
+      <div style="font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500;
+        letter-spacing:2.5px; color:#9a8fbe; text-transform:uppercase; margin-bottom:12px"
+        id="dash-date">—</div>
 
-```
-<div style="position:relative; z-index:1;">
-  <!-- Data -->
-  <div style="font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500;
-    letter-spacing:2.5px; color:#9a8fbe; text-transform:uppercase; margin-bottom:12px"
-    id="dash-date">—</div>
+      <!-- Powitanie -->
+      <div style="font-family:'DM Serif Display', Georgia, serif; font-size:34px;
+        color:#2a1e50; line-height:1.1; margin-bottom:14px;">
+        Cześć, <em style="color:#6e5c9e;">Mata</em> 👋
+      </div>
 
-  <!-- Powitanie -->
-  <div style="font-family:'DM Serif Display', Georgia, serif; font-size:34px;
-    color:#2a1e50; line-height:1.1; margin-bottom:14px;">
-    Cześć, <em style="color:#6e5c9e;">Mata</em> 👋
-  </div>
-
-  <!-- Status pill -->
-  <div style="display:inline-flex; align-items:center; gap:8px;
-    padding:8px 16px; border-radius:99px;
-    background:rgba(255,255,255,0.85);
-    border:1px solid rgba(255,255,255,0.95);
-    box-shadow:0 2px 12px rgba(94,77,130,.08)">
-    <div id="dash-greeting-dot" style="width:8px;height:8px;border-radius:50%;background:#3d7a60;flex-shrink:0;
-      box-shadow:0 0 0 3px rgba(61,122,96,.15)"></div>
-    <span style="font-size:13px;font-weight:500;color:#4a3870" id="dash-greeting-sub">—</span>
-  </div>
-</div>
-```
-
+      <!-- Status pill -->
+      <div style="display:inline-flex; align-items:center; gap:8px;
+        padding:8px 16px; border-radius:99px;
+        background:rgba(255,255,255,0.85);
+        border:1px solid rgba(255,255,255,0.95);
+        box-shadow:0 2px 12px rgba(94,77,130,.08)">
+        <div id="dash-greeting-dot" style="width:8px;height:8px;border-radius:50%;background:#3d7a60;flex-shrink:0;
+          box-shadow:0 0 0 3px rgba(61,122,96,.15)"></div>
+        <span style="font-size:13px;font-weight:500;color:#4a3870" id="dash-greeting-sub">—</span>
+      </div>
+    </div>
   </div>
 
   <!-- ══ KARTY ══ -->
-
   <div style="padding:0 16px 24px; display:flex; flex-direction:column; gap:14px;">
 
-```
-<!-- ① BUDŻET — hero card (styl jak w Mój Budżet) -->
-<div class="gc ri1" id="dash-bud-card" onclick="showPage('week')"
-  style="border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-  <div id="dash-bud-bg" style="background:#5e4d82;padding:16px;position:relative;overflow:hidden">
+    <!-- ① BUDŻET — hero card (styl jak w Mój Budżet) -->
+    <div class="gc ri1" id="dash-bud-card" onclick="showPage('week')"
+      style="border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+      <div id="dash-bud-bg" style="background:#5e4d82;padding:16px;position:relative;overflow:hidden">
+        <!-- Label + badge -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)" id="bud-week-label-dash">✨ MÓJ BUDŻET</div>
+          <div id="dash-bud-badge" style="padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.9)">—</div>
+        </div>
 
-    <div class="blob" style="width:160px;height:160px;top:-60px;right:-40px;
-      background:radial-gradient(circle,rgba(255,255,255,.10) 0%,transparent 60%)"></div>
+        <!-- Duża liczba -->
+        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:52px;font-weight:400;line-height:1;margin-bottom:4px;color:#fff" id="dash-bud-main-amt">—</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="dash-bud-status-sub">—</div>
 
-    <!-- Label + badge -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)" id="bud-week-label-dash">✨ MÓJ BUDŻET</div>
-      <div id="dash-bud-badge" style="padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.9)">—</div>
-    </div>
+        <!-- Pasek -->
+        <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
+          <div id="dash-bud-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%"></div>
+        </div>
 
-    <!-- Duża liczba -->
-    <div style="font-family:'DM Serif Display',Georgia,serif;font-size:52px;font-weight:400;line-height:1;margin-bottom:4px;color:#fff" id="dash-bud-main-amt">—</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="dash-bud-status-sub">—</div>
+        <!-- 3 kafelki: Wydano / Po planach / Limit -->
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:#fff" id="dash-bud-spent">—</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400" id="dash-bud-after-plans">—</div>
+          </div>
+          <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
+            <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:rgba(255,255,255,.8)" id="dash-bud-limit">—</div>
+          </div>
+        </div>
 
-    <!-- Pasek -->
-    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
-      <div id="dash-bud-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%"></div>
-    </div>
-
-    <!-- 3 kafelki: Wydano / Po planach / Limit -->
-    <div style="display:flex;gap:8px">
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
-        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:#fff" id="dash-bud-spent">—</div>
-      </div>
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
-        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400" id="dash-bud-after-plans">—</div>
-      </div>
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
-        <div style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;font-weight:400;color:rgba(255,255,255,.8)" id="dash-bud-limit">—</div>
-      </div>
-    </div>
-
-    <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:8px" id="dash-bud-status-text">—</div>
-  </div>
-</div>
-
-<!-- ② DOM + FINANSE — dwie kolumny -->
-<div style="display:flex; gap:14px;">
-
-  <!-- DOM -->
-  <div class="gc ri2" style="flex:1" onclick="showPage('dom')">
-    <div style="padding:18px 18px 16px; display:flex; flex-direction:column; min-height:168px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;
-        text-transform:uppercase;margin-bottom:14px">🏠 Dom</div>
-
-      <!-- Główna liczba -->
-      <div style="font-family:'DM Serif Display',Georgia,serif;
-        line-height:1;margin-bottom:3px;color:#4a3870"
-        id="dash-dom-pct" style="font-size:48px">—</div>
-      <div style="font-size:10px;color:#b0a4cc;font-weight:400;
-        margin-bottom:auto;padding-bottom:14px">planu wydano</div>
-
-      <!-- Pasek -->
-      <div class="gbar" style="margin-bottom:8px">
-        <div class="gbar-fill" id="dash-dom-bar"
-          style="width:0%;background:linear-gradient(90deg,#a090cc,#5e4d82)"></div>
-      </div>
-      <div style="font-size:10px;color:#c0b8d8" id="dash-dom-updated">—</div>
-      <div style="font-size:10px;font-weight:600;color:#9a6070;min-height:14px;margin-top:2px"
-        id="dash-dom-pending"></div>
-    </div>
-  </div>
-
-  <!-- FINANSE -->
-  <div class="gc ri2" style="flex:1" id="dash-transfers-card" onclick="showPage('mata')">
-    <div style="padding:18px 18px 16px; display:flex; flex-direction:column; min-height:168px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;
-        text-transform:uppercase;margin-bottom:14px">💸 Finanse</div>
-
-      <div id="dash-transfers-icon"
-        style="font-size:36px;line-height:1;margin-bottom:8px">⏳</div>
-      <div style="font-size:15px;font-weight:600;color:#2a1e50;margin-bottom:3px"
-        id="dash-transfers-title">Przelewy</div>
-      <div style="font-size:11px;color:#9a8fbe;margin-bottom:auto;padding-bottom:14px"
-        id="dash-transfers-sub">—</div>
-
-      <!-- 5 segmentów postępu -->
-      <div style="display:flex;gap:4px">
-        <div id="ds0" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s ease"></div>
-        <div id="ds1" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .05s ease"></div>
-        <div id="ds2" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .10s ease"></div>
-        <div id="ds3" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .15s ease"></div>
-        <div id="ds4" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .20s ease"></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:8px" id="dash-bud-status-text">—</div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ③ OSZCZĘDNOŚCI I KREDYTY -->
-<div class="gc ri3" onclick="showPage('mata')">
-  <div style="padding:20px 20px 18px">
+    <!-- ② DOM + FINANSE — dwie kolumny -->
+    <div style="display:flex; gap:14px;">
 
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;text-transform:uppercase">
-        🏦 Oszczędności i Kredyty
-      </div>
-      <div id="dash-stage-pill" style="
-        padding:5px 13px;border-radius:20px;font-size:10px;font-weight:700;
-        color:#fff;background:#5e4d82;letter-spacing:.3px;
-        box-shadow:0 2px 8px rgba(94,77,130,.25)">—</div>
-    </div>
+      <!-- DOM -->
+      <div class="gc ri2" style="flex:1" onclick="showPage('dom')">
+        <div style="padding:18px 18px 16px; display:flex; flex-direction:column; min-height:168px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;
+            text-transform:uppercase;margin-bottom:14px">🏠 Dom</div>
 
-    <!-- Poduszka -->
-    <div style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <div style="font-size:12px;color:#4a3870;font-weight:600">🛡️ Poduszka bezpieczeństwa</div>
-        <div style="display:flex;align-items:baseline;gap:2px">
-          <span style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;
-            font-weight:400;color:#5e4d82" id="dash-cushion-pct">—</span>
-          <span style="font-size:10px;color:#b0a4cc">%</span>
+          <!-- Główna liczba -->
+          <div style="font-family:'DM Serif Display',Georgia,serif;
+            line-height:1;margin-bottom:3px;color:#4a3870"
+            id="dash-dom-pct" style="font-size:48px">—</div>
+          <div style="font-size:10px;color:#b0a4cc;font-weight:400;
+            margin-bottom:auto;padding-bottom:14px">planu wydano</div>
+
+          <!-- Pasek -->
+          <div class="gbar" style="margin-bottom:8px">
+            <div class="gbar-fill" id="dash-dom-bar"
+              style="width:0%;background:linear-gradient(90deg,#a090cc,#5e4d82)"></div>
+          </div>
+          <div style="font-size:10px;color:#c0b8d8" id="dash-dom-updated">—</div>
+          <div style="font-size:10px;font-weight:600;color:#9a6070;min-height:14px;margin-top:2px"
+            id="dash-dom-pending"></div>
         </div>
       </div>
-      <div class="gbar">
-        <div class="gbar-fill" id="dash-cushion-bar2"
-          style="width:0%;background:linear-gradient(90deg,#a8c8b8,#3d7a60)"></div>
-      </div>
-      <div style="font-size:10px;color:#b0a4cc;margin-top:5px" id="dash-cushion-val">—</div>
-    </div>
 
-    <!-- Separator -->
-    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(94,77,130,.12),transparent);margin-bottom:16px"></div>
+      <!-- FINANSE -->
+      <div class="gc ri2" style="flex:1" id="dash-transfers-card" onclick="showPage('mata')">
+        <div style="padding:18px 18px 16px; display:flex; flex-direction:column; min-height:168px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;
+            text-transform:uppercase;margin-bottom:14px">💸 Finanse</div>
 
-    <!-- Kredyt -->
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-        <div style="font-size:12px;color:#4a3870;font-weight:600">🚗 Kredyt Andy'ego</div>
-        <div style="display:flex;align-items:baseline;gap:3px">
-          <span style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;
-            font-weight:400;color:#7a4868" id="dash-car-remaining">—</span>
-          <span style="font-size:10px;color:#b0a4cc">zł</span>
+          <div id="dash-transfers-icon"
+            style="font-size:36px;line-height:1;margin-bottom:8px">⏳</div>
+          <div style="font-size:15px;font-weight:600;color:#2a1e50;margin-bottom:3px"
+            id="dash-transfers-title">Przelewy</div>
+          <div style="font-size:11px;color:#9a8fbe;margin-bottom:auto;padding-bottom:14px"
+            id="dash-transfers-sub">—</div>
+
+          <!-- 5 segmentów postępu -->
+          <div style="display:flex;gap:4px">
+            <div id="ds0" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s ease"></div>
+            <div id="ds1" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .05s ease"></div>
+            <div id="ds2" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .10s ease"></div>
+            <div id="ds3" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .15s ease"></div>
+            <div id="ds4" style="flex:1;height:5px;border-radius:3px;background:#e8e4f0;transition:background .4s .20s ease"></div>
+          </div>
         </div>
       </div>
-      <div class="gbar">
-        <div class="gbar-fill" id="dash-car-bar2"
-          style="width:0%;background:linear-gradient(90deg,#d0a8c0,#7a4868)"></div>
-      </div>
-      <div style="font-size:10px;color:#b0a4cc;margin-top:5px" id="dash-car-sub">—</div>
     </div>
-  </div>
-</div>
-```
+
+    <!-- ③ OSZCZĘDNOŚCI I KREDYTY -->
+    <div class="gc ri3" onclick="showPage('mata')">
+      <div style="padding:20px 20px 18px">
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#9a8fbe;text-transform:uppercase">
+            🏦 Oszczędności i Kredyty
+          </div>
+          <div id="dash-stage-pill" style="
+            padding:5px 13px;border-radius:20px;font-size:10px;font-weight:700;
+            color:#fff;background:#5e4d82;letter-spacing:.3px;
+            box-shadow:0 2px 8px rgba(94,77,130,.25)">—</div>
+        </div>
+
+        <!-- Poduszka -->
+        <div style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+            <div style="font-size:12px;color:#4a3870;font-weight:600">🛡️ Poduszka bezpieczeństwa</div>
+            <div style="display:flex;align-items:baseline;gap:2px">
+              <span style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;
+                font-weight:400;color:#5e4d82" id="dash-cushion-pct">—</span>
+              <span style="font-size:10px;color:#b0a4cc">%</span>
+            </div>
+          </div>
+          <div class="gbar">
+            <div class="gbar-fill" id="dash-cushion-bar2"
+              style="width:0%;background:linear-gradient(90deg,#a8c8b8,#3d7a60)"></div>
+          </div>
+          <div style="font-size:10px;color:#b0a4cc;margin-top:5px" id="dash-cushion-val">—</div>
+        </div>
+
+        <!-- Separator -->
+        <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(94,77,130,.12),transparent);margin-bottom:16px"></div>
+
+        <!-- Kredyt -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+            <div style="font-size:12px;color:#4a3870;font-weight:600">🚗 Kredyt Andy'ego</div>
+            <div style="display:flex;align-items:baseline;gap:3px">
+              <span style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;
+                font-weight:400;color:#7a4868" id="dash-car-remaining">—</span>
+              <span style="font-size:10px;color:#b0a4cc">zł</span>
+            </div>
+          </div>
+          <div class="gbar">
+            <div class="gbar-fill" id="dash-car-bar2"
+              style="width:0%;background:linear-gradient(90deg,#d0a8c0,#7a4868)"></div>
+          </div>
+          <div style="font-size:10px;color:#b0a4cc;margin-top:5px" id="dash-car-sub">—</div>
+        </div>
+      </div>
+    </div>
 
   </div><!-- /karty -->
   <div class="sp"></div>
 </div>
 
 <!-- ══ TYDZIEŃ ══ -->
-
 <div class="page" id="page-week">
   <div class="header">
         <div class="h-eye">Mój Budżet</div>
@@ -493,41 +466,36 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div style="height:14px"></div>
 
   <!-- GŁÓWNA KARTA — ten tydzień -->
-
   <div id="bud-week-card" style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:4px" id="bud-week-label">TEN TYDZIEŃ</div>
 
-```
-<!-- Stan tygodnia -->
-<div style="font-family:Georgia,serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px" id="bud-week-main">—</div>
-<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="bud-week-status">—</div>
+    <!-- Stan tygodnia -->
+    <div style="font-family:Georgia,serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px" id="bud-week-main">—</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="bud-week-status">—</div>
 
-<!-- Pasek tygodnia -->
-<div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
-  <div id="bud-week-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
-</div>
+    <!-- Pasek tygodnia -->
+    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
+      <div id="bud-week-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
+    </div>
 
-<!-- Dwie liczby: po wydatkach / po planowanych -->
-<div style="display:flex;gap:8px">
-  <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
-    <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="bud-week-spent">—</div>
-  </div>
-  <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
-    <div style="font-family:Georgia,serif;font-size:18px;font-weight:600" id="bud-week-after-plans">—</div>
-  </div>
-  <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
-    <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.8)" id="bud-week-budget">—</div>
-  </div>
-</div>
-```
-
+    <!-- Dwie liczby: po wydatkach / po planowanych -->
+    <div style="display:flex;gap:8px">
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="bud-week-spent">—</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600" id="bud-week-after-plans">—</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.8)" id="bud-week-budget">—</div>
+      </div>
+    </div>
   </div>
 
   <!-- KONTEKST CYKLU — mniejszy, pod główną kartą -->
-
   <div style="margin:0 12px 12px;background:#fff;border:2px solid #e8e4f0;border-radius:14px;padding:12px 14px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7a6e98;margin-bottom:8px" id="bud-cycle-label">CAŁY CYKL</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -545,7 +513,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- CZY MNIE STAĆ — inline, ważna funkcja -->
-
   <div class="card" style="margin:0 12px 12px;padding:12px 14px">
     <div style="display:flex;align-items:center;gap:10px">
       <input type="number" id="bud-afford-inp" placeholder="🤔 Czy mnie stać? Wpisz kwotę…" inputmode="decimal"
@@ -557,7 +524,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- DODAJ -->
-
   <div class="card" style="margin:0 12px 12px;padding:12px 14px">
     <div style="display:flex;background:#f4f1fc;border-radius:9px;padding:3px;margin-bottom:10px">
       <button id="bud-type-expense" onclick="budSetType('expense')"
@@ -583,7 +549,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- LISTA -->
-
   <div style="display:flex;gap:6px;margin:0 12px 8px">
     <button id="bud-filter-week" onclick="budSetFilter('week')"
       style="flex:1;padding:6px;border-radius:8px;border:2px solid #5e4d82;background:#5e4d82;color:#fff;font-size:11px;font-weight:700;cursor:pointer">Tydzień</button>
@@ -597,7 +562,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- USTAWIENIA -->
-
   <div class="sec-lbl">⚙️ Ustawienia</div>
   <div id="cfg-summary" onclick="cfgToggle()" style="margin:0 12px 4px;background:#fff;border:2px solid #b0a4cc;border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <div style="display:flex;gap:16px">
@@ -637,8 +601,8 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div class="sp"></div>
 </div>
 
-<!-- ══ STRATEGIA ══ -->
 
+<!-- ══ STRATEGIA ══ -->
 <div class="page" id="page-settings">
   <div class="header">
         <div class="h-eye">Plan Finansowy</div>
@@ -649,136 +613,126 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div style="height:14px"></div>
 
   <!-- DYNAMICZNE RADY — doradca finansowy -->
-
   <div style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px">💡 Rada na ten moment</div>
     <div id="strategy-advice" style="font-size:14px;color:#fff;line-height:1.7">—</div>
   </div>
 
   <!-- TWÓJ PLAN — statyczny -->
-
   <div class="sec-lbl">📋 Twój plan finansowy</div>
   <div class="card" style="margin-bottom:12px">
     <div style="padding:14px 16px">
 
-```
-  <!-- Etap 1 -->
-  <div style="display:flex;gap:12px;margin-bottom:16px" id="strat-stage1">
-    <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0" id="strat-s1-icon">🎯</div>
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 1 — Poduszka bezpieczeństwa</div>
-      <div style="font-size:12px;color:#7a6e98;line-height:1.7">
-        <b>100% oszczędności</b> → konto oszczędnościowe Millennium.<br>
-        Cel: <b>50 000 zł</b>. Masz teraz <b id="strat-cushion-now">9 500 zł</b>.
+      <!-- Etap 1 -->
+      <div style="display:flex;gap:12px;margin-bottom:16px" id="strat-stage1">
+        <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0" id="strat-s1-icon">🎯</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 1 — Poduszka bezpieczeństwa</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.7">
+            <b>100% oszczędności</b> → konto oszczędnościowe Millennium.<br>
+            Cel: <b>50 000 zł</b>. Masz teraz <b id="strat-cushion-now">9 500 zł</b>.
+          </div>
+          <div style="margin-top:6px;height:6px;background:#e8e4f0;border-radius:99px;overflow:hidden">
+            <div id="strat-s1-bar" style="height:100%;border-radius:99px;background:#5e4d82;transition:width .5s"></div>
+          </div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:3px" id="strat-s1-eta">—</div>
+        </div>
       </div>
-      <div style="margin-top:6px;height:6px;background:#e8e4f0;border-radius:99px;overflow:hidden">
-        <div id="strat-s1-bar" style="height:100%;border-radius:99px;background:#5e4d82;transition:width .5s"></div>
+
+      <div style="border-left:2px dashed #b0a4cc;margin-left:15px;margin-bottom:16px;padding-left:28px">
+
+        <!-- Etap 2 -->
+        <div style="margin-bottom:16px" id="strat-stage2">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 2 — IKE (gdy poduszka gotowa)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Z miesięcznych oszczędności (30% nadwyżki):<br>
+            📘 <b>60% → IKE w XTB</b> (VWCE ETF)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~26 000 zł/rok</b>, reset co roku ✓<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Zero podatku Belki przy wypłacie po 60.<br>
+            📙 <b>30% → EDO obligacje</b> (obligacjeskarbowe.pl)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;10-letnie, indeksowane inflacją + 1,5%<br>
+            👧 <b>10% → córki</b> (po połowie na każdą)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;70% VWCE + 30% obligacje ROS 6-letnie<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Horyzont 16-17 lat — czas pracuje dla nich
+          </div>
+        </div>
+
+        <!-- Etap 3 -->
+        <div style="margin-bottom:16px" id="strat-stage3">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 3 — IKZE (gdy limit IKE w roku wypełniony)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Gdy 60% oszczędności przekroczy limit IKE (~2 167 zł/mies.):<br>
+            📗 Nadwyżka ponad IKE → <b>IKZE w XTB</b> (VWCE ETF)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~10 400 zł/rok</b>, dodatkowa ulga podatkowa<br>
+            📙 <b>30% → EDO</b> bez zmian<br>
+            👧 <b>10% → córki</b> bez zmian
+          </div>
+        </div>
+
+        <!-- Etap 4 -->
+        <div id="strat-stage4">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 4 — Agresywne inwestycje (IKE + IKZE pełne)</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.8">
+            Gdy oba limity wypełnione → rachunek maklerski XTB:<br>
+            🌍 <b>60% → VWCE</b> (globalny ETF, baza)<br>
+            📈 <b>25% → ZPDM</b> (małe spółki rynki rozwinięte — wyższy potencjał)<br>
+            💡 <b>15% → QQQ/QQQM</b> (tech/Nasdaq — koncentracja na innowacji)<br>
+            📙 <b>+ EDO i córki</b> bez zmian
+          </div>
+        </div>
       </div>
-      <div style="font-size:11px;color:#7a6e98;margin-top:3px" id="strat-s1-eta">—</div>
-    </div>
-  </div>
 
-  <div style="border-left:2px dashed #b0a4cc;margin-left:15px;margin-bottom:16px;padding-left:28px">
-
-    <!-- Etap 2 -->
-    <div style="margin-bottom:16px" id="strat-stage2">
-      <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 2 — IKE (gdy poduszka gotowa)</div>
-      <div style="font-size:12px;color:#7a6e98;line-height:1.8">
-        Z miesięcznych oszczędności (30% nadwyżki):<br>
-        📘 <b>60% → IKE w XTB</b> (VWCE ETF)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~26 000 zł/rok</b>, reset co roku ✓<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Zero podatku Belki przy wypłacie po 60.<br>
-        📙 <b>30% → EDO obligacje</b> (obligacjeskarbowe.pl)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;10-letnie, indeksowane inflacją + 1,5%<br>
-        👧 <b>10% → córki</b> (po połowie na każdą)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;70% VWCE + 30% obligacje ROS 6-letnie<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Horyzont 16-17 lat — czas pracuje dla nich
+      <!-- Etap 5 -->
+      <div style="display:flex;gap:12px">
+        <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0">🏁</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 5 — Wolność finansowa</div>
+          <div style="font-size:12px;color:#7a6e98;line-height:1.6">Aktualizujemy strategię razem gdy tu dojdziesz 🎉</div>
+        </div>
       </div>
+
     </div>
-
-    <!-- Etap 3 -->
-    <div style="margin-bottom:16px" id="strat-stage3">
-      <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 3 — IKZE (gdy limit IKE w roku wypełniony)</div>
-      <div style="font-size:12px;color:#7a6e98;line-height:1.8">
-        Gdy 60% oszczędności przekroczy limit IKE (~2 167 zł/mies.):<br>
-        📗 Nadwyżka ponad IKE → <b>IKZE w XTB</b> (VWCE ETF)<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;Limit <b>~10 400 zł/rok</b>, dodatkowa ulga podatkowa<br>
-        📙 <b>30% → EDO</b> bez zmian<br>
-        👧 <b>10% → córki</b> bez zmian
-      </div>
-    </div>
-
-    <!-- Etap 4 -->
-    <div id="strat-stage4">
-      <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:4px">⏳ Etap 4 — Agresywne inwestycje (IKE + IKZE pełne)</div>
-      <div style="font-size:12px;color:#7a6e98;line-height:1.8">
-        Gdy oba limity wypełnione → rachunek maklerski XTB:<br>
-        🌍 <b>60% → VWCE</b> (globalny ETF, baza)<br>
-        📈 <b>25% → ZPDM</b> (małe spółki rynki rozwinięte — wyższy potencjał)<br>
-        💡 <b>15% → QQQ/QQQM</b> (tech/Nasdaq — koncentracja na innowacji)<br>
-        📙 <b>+ EDO i córki</b> bez zmian
-      </div>
-    </div>
-  </div>
-
-  <!-- Etap 5 -->
-  <div style="display:flex;gap:12px">
-    <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#e8e4f0">🏁</div>
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:700;color:#18102c;margin-bottom:2px">Etap 5 — Wolność finansowa</div>
-      <div style="font-size:12px;color:#7a6e98;line-height:1.6">Aktualizujemy strategię razem gdy tu dojdziesz 🎉</div>
-    </div>
-  </div>
-
-</div>
-```
-
   </div>
 
   <!-- INWESTYCJE — przewodnik -->
-
   <div class="sec-lbl">📈 Jak inwestować — przewodnik</div>
   <div class="card" style="margin-bottom:12px">
     <div style="padding:14px 16px;font-size:12px;color:#4a4060;line-height:1.9">
 
-```
-  <div style="font-weight:700;color:#18102c;margin-bottom:6px">🏦 Kolejność otwierania kont</div>
-  <div style="margin-bottom:14px">
-    <div>1️⃣ <b>XTB</b> — otwórz już teraz, za darmo, online (xStation app). 15 min. Tu będzie IKE i IKZE.</div>
-    <div>2️⃣ <b>obligacjeskarbowe.pl</b> — rejestracja online. Tu kupujesz EDO dla siebie i ROS dla córek.</div>
-    <div>3️⃣ Konto dla córek — możesz kupować obligacje ROS już teraz na ich imię przez obligacjeskarbowe.pl.</div>
-  </div>
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">🏦 Kolejność otwierania kont</div>
+      <div style="margin-bottom:14px">
+        <div>1️⃣ <b>XTB</b> — otwórz już teraz, za darmo, online (xStation app). 15 min. Tu będzie IKE i IKZE.</div>
+        <div>2️⃣ <b>obligacjeskarbowe.pl</b> — rejestracja online. Tu kupujesz EDO dla siebie i ROS dla córek.</div>
+        <div>3️⃣ Konto dla córek — możesz kupować obligacje ROS już teraz na ich imię przez obligacjeskarbowe.pl.</div>
+      </div>
 
-  <div style="font-weight:700;color:#18102c;margin-bottom:6px">📊 Co kupować i gdzie</div>
-  <div style="margin-bottom:14px">
-    <div>🌍 <b>VWCE</b> — ETF na cały świat (9000+ spółek). W XTB. Historycznie ~8%/rok. Kupujesz co miesiąc.</div>
-    <div>📈 <b>ZPDM</b> — małe spółki rynki rozwinięte. Wyższe ryzyko, wyższy potencjał. Domieszka w Etapie 4.</div>
-    <div>💡 <b>QQQM</b> — tech/Nasdaq. Koncentracja na innowacji. Domieszka w Etapie 4.</div>
-    <div>📙 <b>EDO</b> — 10-letnie obligacje skarbowe, inflacja + 1,5%. Twoja bezpieczna kotwica.</div>
-    <div>📗 <b>ROS</b> — 6-letnie obligacje dla dzieci. Kupujesz na imię córki przez obligacjeskarbowe.pl.</div>
-  </div>
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">📊 Co kupować i gdzie</div>
+      <div style="margin-bottom:14px">
+        <div>🌍 <b>VWCE</b> — ETF na cały świat (9000+ spółek). W XTB. Historycznie ~8%/rok. Kupujesz co miesiąc.</div>
+        <div>📈 <b>ZPDM</b> — małe spółki rynki rozwinięte. Wyższe ryzyko, wyższy potencjał. Domieszka w Etapie 4.</div>
+        <div>💡 <b>QQQM</b> — tech/Nasdaq. Koncentracja na innowacji. Domieszka w Etapie 4.</div>
+        <div>📙 <b>EDO</b> — 10-letnie obligacje skarbowe, inflacja + 1,5%. Twoja bezpieczna kotwica.</div>
+        <div>📗 <b>ROS</b> — 6-letnie obligacje dla dzieci. Kupujesz na imię córki przez obligacjeskarbowe.pl.</div>
+      </div>
 
-  <div style="font-weight:700;color:#18102c;margin-bottom:6px">👧 Czy ETF jest bezpieczny dla córek?</div>
-  <div style="background:#f4f1fc;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.8">
-    Przy horyzoncie <b>16-17 lat</b> — tak. VWCE nigdy nie miał ujemnego zwrotu w żadnym 15-letnim oknie historycznym. Nawet ktoś kto kupił tuż przed kryzysem 2008 był solidnie na plusie po 15 latach.<br><br>
-    Dlatego przyjęłyśmy podział <b>70% VWCE + 30% ROS</b> — ETF daje wzrost, obligacje dają kotwicę bezpieczeństwa. Czas pracuje dla córek — nie ruszaj tych pieniędzy nawet gdy giełda spada.
-  </div>
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">👧 Czy ETF jest bezpieczny dla córek?</div>
+      <div style="background:#f4f1fc;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.8">
+        Przy horyzoncie <b>16-17 lat</b> — tak. VWCE nigdy nie miał ujemnego zwrotu w żadnym 15-letnim oknie historycznym. Nawet ktoś kto kupił tuż przed kryzysem 2008 był solidnie na plusie po 15 latach.<br><br>
+        Dlatego przyjęłyśmy podział <b>70% VWCE + 30% ROS</b> — ETF daje wzrost, obligacje dają kotwicę bezpieczeństwa. Czas pracuje dla córek — nie ruszaj tych pieniędzy nawet gdy giełda spada.
+      </div>
 
-  <div style="font-weight:700;color:#18102c;margin-bottom:6px">💡 Żelazne zasady</div>
-  <div>
-    <div>✅ IKE i IKZE najpierw — zero podatku Belki (19%) przy wypłacie po 60.</div>
-    <div>✅ Kupuj VWCE co miesiąc niezależnie od kursu — nie próbuj wyczuć dołka.</div>
-    <div>✅ Nie ruszaj IKE przed 60. rokiem życia — tracisz całą ulgę podatkową.</div>
-    <div>✅ Nie ruszaj pieniędzy córek nawet podczas krachu — horyzont to ich siła.</div>
-    <div>✅ Lokata 5% − Belka = 4,05% netto ≈ inflacja. Realnie zarabiasz 0%. ETF bije to długoterminowo.</div>
-  </div>
-</div>
-```
-
+      <div style="font-weight:700;color:#18102c;margin-bottom:6px">💡 Żelazne zasady</div>
+      <div>
+        <div>✅ IKE i IKZE najpierw — zero podatku Belki (19%) przy wypłacie po 60.</div>
+        <div>✅ Kupuj VWCE co miesiąc niezależnie od kursu — nie próbuj wyczuć dołka.</div>
+        <div>✅ Nie ruszaj IKE przed 60. rokiem życia — tracisz całą ulgę podatkową.</div>
+        <div>✅ Nie ruszaj pieniędzy córek nawet podczas krachu — horyzont to ich siła.</div>
+        <div>✅ Lokata 5% − Belka = 4,05% netto ≈ inflacja. Realnie zarabiasz 0%. ETF bije to długoterminowo.</div>
+      </div>
+    </div>
   </div>
 
   <!-- USTAWIENIA TECHNICZNE -->
-
   <div class="sec-lbl">⚙️ Ustawienia kredytów i oszczędności</div>
   <div class="card" style="margin-bottom:12px">
     <div style="padding:14px 16px">
@@ -802,7 +756,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- BACKUP -->
-
   <div class="sec-lbl">💾 Dane</div>
   <div class="card">
     <div class="card-head"><div class="card-label">Backup i przywracanie</div></div>
@@ -821,7 +774,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ TABS ══ -->
-
 <div class="tabs">
   <button class="tab active" id="tab-dash" onclick="showPage('dash')"><span class="tab-icon">📊</span><span class="tab-label">Start</span></button>
   <button class="tab" id="tab-dom" onclick="showPage('dom')"><span class="tab-icon">🏠</span><span class="tab-label">Dom</span></button>
@@ -832,7 +784,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ PAGE: STATYSTYKI ══ -->
-
 <div class="page" id="page-stats">
   <div class="header">
         <div class="h-eye">Przegląd</div>
@@ -843,7 +794,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div style="height:14px"></div>
 
   <!-- Wynagrodzenie -->
-
   <div class="sec-lbl">💰 Wynagrodzenie miesięczne</div>
   <div class="card" style="margin:0 12px 14px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -860,7 +810,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- Spłata kredytu -->
-
   <div class="sec-lbl">🚗 Spłata kredytu Andy'ego</div>
   <div class="card" style="margin:0 12px 14px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -882,7 +831,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- Oszczędności -->
-
   <div class="sec-lbl">🛡️ Poduszka bezpieczeństwa</div>
   <div class="card" style="margin:0 12px 14px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -899,7 +847,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- Wydatki domowe -->
-
   <div class="sec-lbl">🏠 Wydatki domowe miesięczne</div>
   <div class="card" style="margin:0 12px 14px;padding:16px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -919,7 +866,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ PAGE: DOM ══ -->
-
 <div class="page" id="page-dom">
   <div class="header">
         <div class="h-eye">Finanse Domowe</div>
@@ -931,259 +877,250 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div style="height:14px"></div>
 
   <!-- view toggle -->
-
   <div style="display:flex;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:12px;overflow:hidden">
     <button class="tab" id="domvtab-month" onclick="setDomView('month')" style="flex:1;padding:10px;font-size:12px;border:none;background:#5e4d82;color:#fff;font-weight:700;letter-spacing:.5px">📅 Miesiąc</button>
     <button class="tab" id="domvtab-year" onclick="setDomView('year')" style="flex:1;padding:10px;font-size:12px;border:none;background:none;color:#7a6e98;font-weight:700;letter-spacing:.5px">📊 Rok</button>
   </div>
 
   <!-- MONTH VIEW -->
-
   <div id="dom-view-month">
 
-```
-<!-- MONTH NAV — bigger, clearer -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:16px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
-  <button onclick="changeDomMonth(-1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
-  <div style="text-align:center">
-    <div style="font-size:17px;font-weight:700;color:#18102c" id="dom-month-label">—</div>
-    <div style="font-size:11px;color:#7a6e98;margin-top:2px" id="dom-month-ym">—</div>
-  </div>
-  <button onclick="changeDomMonth(1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
-</div>
-
-<!-- QUICK STATUS — co jeszcze czeka -->
-<div id="dom-status-bar" style="margin:0 12px 12px;border-radius:14px;padding:12px 16px;background:#fff;border:2px solid #b0a4cc;display:none">
-  <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:6px">📋 Czeka na uzupełnienie</div>
-  <div id="dom-pending-list" style="font-size:12px;color:#7a6e98;line-height:1.8"></div>
-</div>
-
-<!-- MINI DASHBOARD -->
-<div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-
-  <!-- Progress bar -->
-  <div style="margin-bottom:14px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Wydano vs plan</div>
-      <div style="font-size:11px;font-weight:700;color:#fff" id="dom-progress-pct">—</div>
-    </div>
-    <div style="height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden">
-      <div id="dom-progress-bar" style="height:100%;border-radius:99px;background:#a8e6c8;width:0%;transition:width .4s"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-top:4px">
-      <div style="font-size:10px;color:rgba(255,255,255,.5)" id="dom-real-total">0 zł wydano</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.5)" id="dom-plan-total">0 zł planu</div>
-    </div>
-  </div>
-
-  <!-- 3 kafelki -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-    <!-- Składka -->
-    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
-      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">SKŁADKA</div>
-      <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="dom-skladka-plan">—</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px" id="dom-skladka-real">każdy</div>
-    </div>
-    <!-- Dostępne -->
-    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
-      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">DOSTĘPNE</div>
-      <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#a8e6c8" id="dom-available">—</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px">zostało</div>
-    </div>
-    <!-- Ostatnia aktualizacja -->
-    <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
-      <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">AKTUALIZACJA</div>
-      <div style="font-size:11px;font-weight:600;color:#fff;line-height:1.4" id="dom-last-updated-card">—</div>
-    </div>
-  </div>
-
-  <!-- Weryfikacja inline -->
-  <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:8px">✅ SZYBKA WERYFIKACJA</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <div>
-        <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Saldo Millennium</div>
-        <input type="number" id="chk-millennium-inline" placeholder="0"
-          style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
-          oninput="domQuickCheck()">
+    <!-- MONTH NAV — bigger, clearer -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:16px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+      <button onclick="changeDomMonth(-1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+      <div style="text-align:center">
+        <div style="font-size:17px;font-weight:700;color:#18102c" id="dom-month-label">—</div>
+        <div style="font-size:11px;color:#7a6e98;margin-top:2px" id="dom-month-ym">—</div>
       </div>
-      <div>
-        <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Gotówka</div>
-        <input type="number" id="chk-cash-inline" placeholder="0"
-          style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
-          oninput="domQuickCheck()">
+      <button onclick="changeDomMonth(1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+    </div>
+
+    <!-- QUICK STATUS — co jeszcze czeka -->
+    <div id="dom-status-bar" style="margin:0 12px 12px;border-radius:14px;padding:12px 16px;background:#fff;border:2px solid #b0a4cc;display:none">
+      <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:6px">📋 Czeka na uzupełnienie</div>
+      <div id="dom-pending-list" style="font-size:12px;color:#7a6e98;line-height:1.8"></div>
+    </div>
+
+    <!-- MINI DASHBOARD -->
+    <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+
+      <!-- Progress bar -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7)">Wydano vs plan</div>
+          <div style="font-size:11px;font-weight:700;color:#fff" id="dom-progress-pct">—</div>
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden">
+          <div id="dom-progress-bar" style="height:100%;border-radius:99px;background:#a8e6c8;width:0%;transition:width .4s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <div style="font-size:10px;color:rgba(255,255,255,.5)" id="dom-real-total">0 zł wydano</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5)" id="dom-plan-total">0 zł planu</div>
+        </div>
+      </div>
+
+      <!-- 3 kafelki -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <!-- Składka -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">SKŁADKA</div>
+          <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="dom-skladka-plan">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px" id="dom-skladka-real">każdy</div>
+        </div>
+        <!-- Dostępne -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">DOSTĘPNE</div>
+          <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#a8e6c8" id="dom-available">—</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:2px">zostało</div>
+        </div>
+        <!-- Ostatnia aktualizacja -->
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:10px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:4px">AKTUALIZACJA</div>
+          <div style="font-size:11px;font-weight:600;color:#fff;line-height:1.4" id="dom-last-updated-card">—</div>
+        </div>
+      </div>
+
+      <!-- Weryfikacja inline -->
+      <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:8px">✅ SZYBKA WERYFIKACJA</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Saldo Millennium</div>
+            <input type="number" id="chk-millennium-inline" placeholder="0"
+              style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
+              oninput="domQuickCheck()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Gotówka</div>
+            <input type="number" id="chk-cash-inline" placeholder="0"
+              style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
+              oninput="domQuickCheck()">
+          </div>
+        </div>
+        <!-- Wpłynęło / Spłacono -->
+        <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:4px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:6px">CHECKLIST</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">💸 Składka Andy'ego</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-andy-expected-inline">— zł</span>
+                <input type="checkbox" id="chk-andy-inline" onchange="domQuickCheck()"
+                  style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">👶 800+ × 2</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)">1 600 zł</span>
+                <input type="checkbox" id="chk-800plus-inline" onchange="domQuickCheck()"
+                  style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">🏠 Wynajem (gotówka)</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-rent-expected-inline">— zł</span>
+                <input type="checkbox" id="chk-rent-inline" onchange="domQuickCheck()"
+                  style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+            <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">🏦 Kredyt hipoteczny ściągnięty</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="font-size:11px;color:rgba(255,255,255,.5)">3 350 zł</span>
+                <input type="checkbox" id="chk-hipoteka-inline" onchange="domQuickCheck()"
+                  style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
+              </div>
+            </label>
+          </div>
+        </div>
+        <div id="dom-quick-check-result" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);min-height:16px"></div>
       </div>
     </div>
-    <!-- Wpłynęło / Spłacono -->
-    <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:4px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:6px">CHECKLIST</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-          <span style="font-size:12px;color:rgba(255,255,255,.8)">💸 Składka Andy'ego</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-andy-expected-inline">— zł</span>
-            <input type="checkbox" id="chk-andy-inline" onchange="domQuickCheck()"
-              style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
-          </div>
-        </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-          <span style="font-size:12px;color:rgba(255,255,255,.8)">👶 800+ × 2</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:11px;color:rgba(255,255,255,.5)">1 600 zł</span>
-            <input type="checkbox" id="chk-800plus-inline" onchange="domQuickCheck()"
-              style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
-          </div>
-        </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-          <span style="font-size:12px;color:rgba(255,255,255,.8)">🏠 Wynajem (gotówka)</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-rent-expected-inline">— zł</span>
-            <input type="checkbox" id="chk-rent-inline" onchange="domQuickCheck()"
-              style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
-          </div>
-        </label>
-        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-          <span style="font-size:12px;color:rgba(255,255,255,.8)">🏦 Kredyt hipoteczny ściągnięty</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:11px;color:rgba(255,255,255,.5)">3 350 zł</span>
-            <input type="checkbox" id="chk-hipoteka-inline" onchange="domQuickCheck()"
-              style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
-          </div>
-        </label>
+
+    <div class="sec-lbl">🧾 Rachunki</div>
+    <div class="card">
+      <div class="card-head"><div class="card-label">Stałe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-rachunki">—</div></div>
+      <div id="dom-rachunki-list"></div>
+    </div>
+
+    <div class="sec-lbl">🌿 Życie</div>
+    <div class="card">
+      <div class="card-head"><div class="card-label">Codzienne wydatki</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-zycie">—</div></div>
+      <div id="dom-zycie-list"></div>
+    </div>
+
+    <div class="sec-lbl">👧 Dzieci</div>
+    <div class="card">
+      <div class="card-head"><div class="card-label">Wydatki na dzieci</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-dzieci">—</div></div>
+      <div id="dom-dzieci-list"></div>
+    </div>
+
+    <div class="sec-lbl">➕ Dodatkowe</div>
+    <div class="card">
+      <div class="card-head"><div class="card-label">Jednorazowe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-extra">—</div></div>
+      <div id="dom-extra-list"></div>
+    </div>
+
+    <div class="sec-lbl">💰 Przychody wspólne</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0">
+        <div style="font-size:13px;font-weight:600">800+ × 2</div>
+        <div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#3d7a60">1 600 zł</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0;gap:10px">
+        <div style="font-size:13px;font-weight:600">Wynajem</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input class="dom-inp" type="number" id="dom-wynajem-inp" value="1145" placeholder="1145"
+            style="width:90px;border-color:#3d7a60;background:#f0f8f4;color:#3d7a60"
+            onchange="domSetIncome(this.value)" oninput="domSetIncome(this.value)">
+          <span style="font-size:13px;color:#3d7a60;font-weight:600">zł</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;background:#f8f7ff">
+        <div style="font-size:13px;font-weight:700">Razem</div>
+        <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dom-income-total">2 745 zł</div>
       </div>
     </div>
-    <div id="dom-quick-check-result" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);min-height:16px"></div>
-  </div>
-</div>
-
-<div class="sec-lbl">🧾 Rachunki</div>
-<div class="card">
-  <div class="card-head"><div class="card-label">Stałe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-rachunki">—</div></div>
-  <div id="dom-rachunki-list"></div>
-</div>
-
-<div class="sec-lbl">🌿 Życie</div>
-<div class="card">
-  <div class="card-head"><div class="card-label">Codzienne wydatki</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-zycie">—</div></div>
-  <div id="dom-zycie-list"></div>
-</div>
-
-<div class="sec-lbl">👧 Dzieci</div>
-<div class="card">
-  <div class="card-head"><div class="card-label">Wydatki na dzieci</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-dzieci">—</div></div>
-  <div id="dom-dzieci-list"></div>
-</div>
-
-<div class="sec-lbl">➕ Dodatkowe</div>
-<div class="card">
-  <div class="card-head"><div class="card-label">Jednorazowe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-extra">—</div></div>
-  <div id="dom-extra-list"></div>
-</div>
-
-<div class="sec-lbl">💰 Przychody wspólne</div>
-<div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0">
-    <div style="font-size:13px;font-weight:600">800+ × 2</div>
-    <div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#3d7a60">1 600 zł</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0;gap:10px">
-    <div style="font-size:13px;font-weight:600">Wynajem</div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <input class="dom-inp" type="number" id="dom-wynajem-inp" value="1145" placeholder="1145"
-        style="width:90px;border-color:#3d7a60;background:#f0f8f4;color:#3d7a60"
-        onchange="domSetIncome(this.value)" oninput="domSetIncome(this.value)">
-      <span style="font-size:13px;color:#3d7a60;font-weight:600">zł</span>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;background:#f8f7ff">
-    <div style="font-size:13px;font-weight:700">Razem</div>
-    <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dom-income-total">2 745 zł</div>
-  </div>
-</div>
-```
-
   </div>
 
   <!-- CHECK VIEW -->
-
   <div id="dom-view-check" style="display:none">
 
-```
-<!-- RESULT CARD -->
-<div id="chk-result-card" style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-  <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px">Stan weryfikacji</div>
-  <div style="font-family:Georgia,serif;font-size:32px;font-weight:600;color:#fff;margin-bottom:4px" id="chk-diff-val">—</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.8)" id="chk-diff-label">Wpisz dane poniżej</div>
-  <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between">
-    <div>
-      <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600">MASZ REALNIE</div>
-      <div style="font-family:Georgia,serif;font-size:16px;color:#fff;margin-top:2px" id="chk-real-sum">—</div>
+    <!-- RESULT CARD -->
+    <div id="chk-result-card" style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px">Stan weryfikacji</div>
+      <div style="font-family:Georgia,serif;font-size:32px;font-weight:600;color:#fff;margin-bottom:4px" id="chk-diff-val">—</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.8)" id="chk-diff-label">Wpisz dane poniżej</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600">MASZ REALNIE</div>
+          <div style="font-family:Georgia,serif;font-size:16px;color:#fff;margin-top:2px" id="chk-real-sum">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600">BUDŻET MÓWI</div>
+          <div style="font-family:Georgia,serif;font-size:16px;color:#fff;margin-top:2px" id="chk-budget-sum">—</div>
+        </div>
+      </div>
     </div>
-    <div style="text-align:right">
-      <div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:600">BUDŻET MÓWI</div>
-      <div style="font-family:Georgia,serif;font-size:16px;color:#fff;margin-top:2px" id="chk-budget-sum">—</div>
-    </div>
-  </div>
-</div>
 
-<!-- CO MASZ -->
-<div class="sec-lbl">💰 Co masz teraz</div>
-<div class="card">
-  <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-    <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:8px">🏦 Konto Millennium</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <input class="dom-inp" type="number" id="chk-millennium" placeholder="0" style="flex:1;width:auto"
-        oninput="chkUpdate()">
-      <span style="font-size:13px;font-weight:600;color:#7a6e98">zł</span>
+    <!-- CO MASZ -->
+    <div class="sec-lbl">💰 Co masz teraz</div>
+    <div class="card">
+      <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
+        <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:8px">🏦 Konto Millennium</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="dom-inp" type="number" id="chk-millennium" placeholder="0" style="flex:1;width:auto"
+            oninput="chkUpdate()">
+          <span style="font-size:13px;font-weight:600;color:#7a6e98">zł</span>
+        </div>
+      </div>
+      <div style="padding:12px 16px">
+        <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:8px">💵 Gotówka</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="dom-inp" type="number" id="chk-cash" placeholder="0" style="flex:1;width:auto"
+            oninput="chkUpdate()">
+          <span style="font-size:13px;font-weight:600;color:#7a6e98">zł</span>
+        </div>
+      </div>
     </div>
-  </div>
-  <div style="padding:12px 16px">
-    <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:8px">💵 Gotówka</div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <input class="dom-inp" type="number" id="chk-cash" placeholder="0" style="flex:1;width:auto"
-        oninput="chkUpdate()">
-      <span style="font-size:13px;font-weight:600;color:#7a6e98">zł</span>
-    </div>
-  </div>
-</div>
 
-<!-- CO WPŁYNĘŁO -->
-<div class="sec-lbl">📥 Co wpłynęło w tym cyklu</div>
-<div class="card">
-  <div style="padding:10px 16px;border-bottom:1.5px solid #e8e4f0;display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-size:13px;font-weight:600;color:#18102c">💸 Składka Andy'ego</div>
-      <div style="font-size:11px;color:#7a6e98;margin-top:1px" id="chk-andy-expected">oczekiwana: — zł</div>
+    <!-- CO WPŁYNĘŁO -->
+    <div class="sec-lbl">📥 Co wpłynęło w tym cyklu</div>
+    <div class="card">
+      <div style="padding:10px 16px;border-bottom:1.5px solid #e8e4f0;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#18102c">💸 Składka Andy'ego</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:1px" id="chk-andy-expected">oczekiwana: — zł</div>
+        </div>
+        <button onclick="chkToggle('andy')" id="chk-andy-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1.5px solid #e8e4f0;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#18102c">👶 800+ × 2</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:1px">1 600 zł</div>
+        </div>
+        <button onclick="chkToggle('800plus')" id="chk-800plus-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
+      </div>
+      <div style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#18102c">🏠 Wynajem (gotówka)</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:1px" id="chk-rent-expected">oczekiwana: — zł</div>
+        </div>
+        <button onclick="chkToggle('rent')" id="chk-rent-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
+      </div>
     </div>
-    <button onclick="chkToggle('andy')" id="chk-andy-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
-  </div>
-  <div style="padding:10px 16px;border-bottom:1.5px solid #e8e4f0;display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-size:13px;font-weight:600;color:#18102c">👶 800+ × 2</div>
-      <div style="font-size:11px;color:#7a6e98;margin-top:1px">1 600 zł</div>
-    </div>
-    <button onclick="chkToggle('800plus')" id="chk-800plus-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
-  </div>
-  <div style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-size:13px;font-weight:600;color:#18102c">🏠 Wynajem (gotówka)</div>
-      <div style="font-size:11px;color:#7a6e98;margin-top:1px" id="chk-rent-expected">oczekiwana: — zł</div>
-    </div>
-    <button onclick="chkToggle('rent')" id="chk-rent-btn" style="padding:8px 14px;border-radius:10px;border:2px solid #b0a4cc;background:#eeebf5;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">Nie ✗</button>
-  </div>
-</div>
 
-<!-- CO POWINNAŚ MIEĆ -->
-<div class="sec-lbl">📊 Jak to liczymy</div>
-<div class="card" style="padding:14px 16px">
-  <div style="font-size:12px;color:#7a6e98;line-height:1.8" id="chk-breakdown">—</div>
-</div>
-```
+    <!-- CO POWINNAŚ MIEĆ -->
+    <div class="sec-lbl">📊 Jak to liczymy</div>
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:12px;color:#7a6e98;line-height:1.8" id="chk-breakdown">—</div>
+    </div>
 
   </div>
 
   <!-- YEAR VIEW -->
-
   <div id="dom-view-year" style="display:none">
     <div class="sec-lbl">📊 Przegląd roczny — kliknij miesiąc</div>
     <div class="card">
@@ -1193,7 +1130,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- USTAWIENIA WYDATKÓW DOMOWYCH -->
-
   <div class="sec-lbl" onclick="domExpMgrToggle()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <span>⚙️ Zarządzaj wydatkami domowymi</span>
     <span id="dom-exp-mgr-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">›</span>
@@ -1243,7 +1179,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div style="height:14px"></div>
 
   <!-- MONTH NAV -->
-
   <div style="display:flex;align-items:center;justify-content:space-between;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:16px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
     <button onclick="changeMataMonth(-1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
     <div style="text-align:center">
@@ -1254,7 +1189,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- 1. DOCHÓD MIESIĄCA -->
-
   <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px">Dochód miesiąca</div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
@@ -1263,49 +1197,45 @@ position: absolute; border-radius: 50%; pointer-events: none;
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px" id="mata-salary-breakdown">—</div>
 
-```
-<!-- GODZINY — wpisz tu -->
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px">
-  <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);flex:1">⏱️ Godziny w poprzednim miesiącu</div>
-  <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
-    style="width:70px;padding:7px 8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
-    oninput="mataCalc()" onchange="mataCalc()">
-  <div style="text-align:right">
-    <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600">WYNIK</div>
-    <div style="font-family:Georgia,serif;font-size:13px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
-  </div>
-</div>
-<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px" id="mata-calc-detail"></div>
+    <!-- GODZINY — wpisz tu -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);flex:1">⏱️ Godziny w poprzednim miesiącu</div>
+      <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
+        style="width:70px;padding:7px 8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+        oninput="mataCalc()" onchange="mataCalc()">
+      <div style="text-align:right">
+        <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600">WYNIK</div>
+        <div style="font-family:Georgia,serif;font-size:13px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px" id="mata-calc-detail"></div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
-  <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-    <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">14 880</div>
-  </div>
-  <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-    <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BONUS H</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-bonus-val">0</div>
-  </div>
-  <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-    <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">NADGODZ</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#ffe0a0" id="mata-overtime-val">0</div>
-  </div>
-</div>
-<div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px;margin-bottom:12px">
-  <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Dodatkowe wpływy</div>
-  <div id="mata-extra-income-list-top"></div>
-  <button onclick="mataAddExtraIncome()" style="padding:7px 14px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.4);background:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;width:100%;margin-top:4px">+ Dodaj wpływ</button>
-</div>
-<div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-  <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">ŁĄCZNY DOCHÓD</div>
-  <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-total-income">—</div>
-</div>
-```
-
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">14 880</div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BONUS H</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-bonus-val">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">NADGODZ</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#ffe0a0" id="mata-overtime-val">0</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Dodatkowe wpływy</div>
+      <div id="mata-extra-income-list-top"></div>
+      <button onclick="mataAddExtraIncome()" style="padding:7px 14px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.4);background:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;width:100%;margin-top:4px">+ Dodaj wpływ</button>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">ŁĄCZNY DOCHÓD</div>
+      <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-total-income">—</div>
+    </div>
   </div>
 
   <!-- 2. INSTRUKCJA PRZELEWÓW — najważniejsze, na górze -->
-
   <div class="sec-lbl">📋 Instrukcja przelewów</div>
   <div class="card" style="margin-bottom:12px">
     <div id="mata-transfers-list" style="padding:14px 16px">
@@ -1320,7 +1250,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- 4. PARAMETRY — zwinięte domyślnie -->
-
   <div class="sec-lbl" onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <span>⚙️ Parametry wynagrodzenia</span>
     <span id="mata-params-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
@@ -1353,8 +1282,9 @@ position: absolute; border-radius: 50%; pointer-events: none;
     </div>
   </div>
 
-  <!-- CO ZOSTAJE -->
+  
 
+  <!-- CO ZOSTAJE -->
   <div class="sec-lbl" onclick="mataToggleSection('mata-zostaje-card','mata-zostaje-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
     <span>💸 Co zostaje</span>
     <span id="mata-zostaje-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
@@ -1362,142 +1292,133 @@ position: absolute; border-radius: 50%; pointer-events: none;
   <div id="mata-zostaje-card" style="display:none">
     <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
 
-```
-  <!-- Stałe odliczenia -->
-<div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-  <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">STAŁE ODLICZENIA</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c">🏦 Kredyt hipoteczny</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868">− 2 500 zł</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c">🏠 Składka na Dom</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868" id="mata-skladka-dom">− — zł</div>
-  </div>
-</div>
-
-<!-- Przelew mBank -->
-<div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-  <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PRZELEW NA MBANK (FUNDUSZ SWOBODNY)</div>
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c;flex:1">📱 Standard</div>
-    <input class="dom-inp" type="number" id="mata-mbank-std" value="2000"
-      style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
-    <span style="font-size:12px;color:#7a6e98">zł</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-    <div style="min-width:0;flex:1">
-      <div style="font-size:13px;color:#18102c">➕ Dodatkowe w tym miesiącu</div>
-      <div style="font-size:10px;color:#7a6e98;margin-top:1px">np. wakacje, zakupy, wyjście</div>
+      <!-- Stałe odliczenia -->
+    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">STAŁE ODLICZENIA</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c">🏦 Kredyt hipoteczny</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868">− 2 500 zł</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c">🏠 Składka na Dom</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868" id="mata-skladka-dom">− — zł</div>
+      </div>
     </div>
-    <input class="dom-inp" type="number" id="mata-mbank-extra" value="" placeholder="0"
-      style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
-    <span style="font-size:12px;color:#7a6e98">zł</span>
-  </div>
-  <div style="margin-top:10px;background:#f4f1fc;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-    <div style="font-size:12px;font-weight:700;color:#4a4060">Przelew na mBank łącznie</div>
-    <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#5e4d82" id="mata-mbank-total">2 000 zł</div>
-  </div>
-</div>
 
-<!-- Zostaje -->
-<div style="padding:14px 16px">
-  <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PODSUMOWANIE</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c">💰 Wynagrodzenie</div>
-    <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#3d7a60" id="mata-sum-salary">— zł</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c">− Kredyt hipoteczny</div>
-    <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98">2 500 zł</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;color:#18102c">− Składka na Dom</div>
-    <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-skladka">— zł</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <div style="font-size:13px;color:#18102c">− Przelew mBank</div>
-    <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-mbank">— zł</div>
-  </div>
-  <div style="background:#5e4d82;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAJE NA MILLENNIUM</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">na oszczędności i spłatę pożyczki</div>
+    <!-- Przelew mBank -->
+    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PRZELEW NA MBANK (FUNDUSZ SWOBODNY)</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c;flex:1">📱 Standard</div>
+        <input class="dom-inp" type="number" id="mata-mbank-std" value="2000"
+          style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
+        <span style="font-size:12px;color:#7a6e98">zł</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;color:#18102c">➕ Dodatkowe w tym miesiącu</div>
+          <div style="font-size:10px;color:#7a6e98;margin-top:1px">np. wakacje, zakupy, wyjście</div>
+        </div>
+        <input class="dom-inp" type="number" id="mata-mbank-extra" value="" placeholder="0"
+          style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
+        <span style="font-size:12px;color:#7a6e98">zł</span>
+      </div>
+      <div style="margin-top:10px;background:#f4f1fc;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;font-weight:700;color:#4a4060">Przelew na mBank łącznie</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#5e4d82" id="mata-mbank-total">2 000 zł</div>
+      </div>
     </div>
-    <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-pozostaje">— zł</div>
-  </div>
-</div>
-```
 
+    <!-- Zostaje -->
+    <div style="padding:14px 16px">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PODSUMOWANIE</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c">💰 Wynagrodzenie</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#3d7a60" id="mata-sum-salary">— zł</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c">− Kredyt hipoteczny</div>
+        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98">2 500 zł</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;color:#18102c">− Składka na Dom</div>
+        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-skladka">— zł</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:13px;color:#18102c">− Przelew mBank</div>
+        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-mbank">— zł</div>
+      </div>
+      <div style="background:#5e4d82;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAJE NA MILLENNIUM</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">na oszczędności i spłatę pożyczki</div>
+        </div>
+        <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-pozostaje">— zł</div>
+      </div>
+    </div>
   </div>
 
   <!-- POŻYCZKA OD ANDY'EGO -->
-
   <div class="sec-lbl">🚗 Pożyczka od Andy'ego</div>
   <div class="card" style="margin-bottom:12px">
 
-```
-<!-- Progress -->
-<div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:13px;font-weight:700;color:#18102c">Pozostały kapitał</div>
-    <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#7a4868" id="mata-loan-remaining">54 490 zł</div>
-  </div>
-  <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
-    <div id="mata-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s"></div>
-  </div>
-  <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
-    <div id="mata-loan-paid-lbl">spłacono 0 zł</div>
-    <div id="mata-loan-original-lbl">z 84 135 zł</div>
-  </div>
-</div>
+    <!-- Progress -->
+    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:#18102c">Pozostały kapitał</div>
+        <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#7a4868" id="mata-loan-remaining">54 490 zł</div>
+      </div>
+      <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
+        <div id="mata-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
+        <div id="mata-loan-paid-lbl">spłacono 0 zł</div>
+        <div id="mata-loan-original-lbl">z 84 135 zł</div>
+      </div>
+    </div>
 
-<!-- Rata w tym miesiącu -->
-<div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-  <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">RATA W TYM MIESIĄCU</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-    <div style="font-size:13px;color:#18102c">💸 Rata pożyczki (70% nadwyżki)</div>
-    <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-loan-payment">— zł</div>
-  </div>
-  <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9">
-    <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">— zł</span></div>
-    <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">— zł</span></div>
-    <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">— zł</span></div>
-  </div>
-  <!-- Przycisk oznacz jako zapłacone → auto-update kapitału -->
-  <button id="mata-loan-paid-btn" onclick="mataLoanMarkPaid()"
-    style="width:100%;margin-top:10px;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">
-    ☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał
-  </button>
-</div>
+    <!-- Rata w tym miesiącu -->
+    <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">RATA W TYM MIESIĄCU</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:13px;color:#18102c">💸 Rata pożyczki (70% nadwyżki)</div>
+        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-loan-payment">— zł</div>
+      </div>
+      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9">
+        <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">— zł</span></div>
+        <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">— zł</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">— zł</span></div>
+      </div>
+      <!-- Przycisk oznacz jako zapłacone → auto-update kapitału -->
+      <button id="mata-loan-paid-btn" onclick="mataLoanMarkPaid()"
+        style="width:100%;margin-top:10px;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">
+        ☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał
+      </button>
+    </div>
 
-<!-- Wiadomość do Andy'ego -->
-<div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-  <div onclick="mataToggleSection('mata-andy-card','mata-andy-arrow')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0">
-    <div style="font-size:11px;font-weight:700;color:#4a4060;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
-    <span id="mata-andy-arrow" style="font-size:11px;color:#7a6e98">▼ rozwiń</span>
-  </div>
-  <div id="mata-andy-card" style="display:none;margin-top:8px">
-    <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
-    <button onclick="mataCopyAndyMsg()"
-      style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
-      📋 Kopiuj wiadomość
-    </button>
-  </div>
-</div>
+    <!-- Wiadomość do Andy'ego -->
+    <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
+      <div onclick="mataToggleSection('mata-andy-card','mata-andy-arrow')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0">
+        <div style="font-size:11px;font-weight:700;color:#4a4060;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
+        <span id="mata-andy-arrow" style="font-size:11px;color:#7a6e98">▼ rozwiń</span>
+      </div>
+      <div id="mata-andy-card" style="display:none;margin-top:8px">
+        <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
+        <button onclick="mataCopyAndyMsg()"
+          style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
+          📋 Kopiuj wiadomość
+        </button>
+      </div>
+    </div>
 
-<!-- Prognoza -->
-<div style="padding:12px 16px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-loan-forecast">—</div>
-```
-
+    <!-- Prognoza -->
+    <div style="padding:12px 16px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-loan-forecast">—</div>
   </div>
 
   <!-- OSZCZĘDNOŚCI -->
-
   <div class="sec-lbl">🏦 Oszczędności i inwestycje</div>
 
   <!-- ETAP BADGE -->
-
   <div style="margin:0 12px 12px;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px" id="mata-stage-badge">
     <div style="font-size:28px" id="mata-stage-icon">🎯</div>
     <div>
@@ -1508,7 +1429,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
   </div>
 
   <!-- PODUSZKA -->
-
   <div class="card" style="margin-bottom:12px">
     <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -1535,15 +1455,17 @@ position: absolute; border-radius: 50%; pointer-events: none;
     <div style="padding:0 16px 12px;font-size:12px;color:#7a6e98;background:#f8f7ff;padding:10px 16px;border-top:1.5px solid #e8e4f0" id="mata-cushion-eta">—</div>
   </div>
 
-  <!-- PROGNOZY -->
 
+
+
+
+  <!-- PROGNOZY -->
   <div class="card" style="margin-bottom:12px">
     <div class="card-head"><div class="card-label">🔭 Kiedy osiągniesz cele</div></div>
     <div id="mata-goals-list" style="padding:14px 16px;font-size:13px;line-height:2"></div>
   </div>
 
   <!-- IKE / IKZE / INWESTYCJE — widoczne w etapie 2+ -->
-
   <div id="mata-invest-section" style="display:none">
     <div class="sec-lbl">📈 Inwestycje</div>
     <div class="card">
@@ -1574,7 +1496,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ MODAL: WYDATEK ══ -->
-
 <div class="overlay" id="modal-expense" onclick="handleOC(event,'modal-expense')">
   <div class="modal">
     <div class="modal-handle"></div><h3>Nowy wydatek</h3>
@@ -1588,7 +1509,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ MODAL: PLAN ══ -->
-
 <div class="overlay" id="modal-planned" onclick="handleOC(event,'modal-planned')">
   <div class="modal">
     <div class="modal-handle"></div><h3 id="plan-modal-title">Zaplanuj wydatek</h3>
@@ -1603,7 +1523,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ MODAL: STAŁY ══ -->
-
 <div class="overlay" id="modal-fixed" onclick="handleOC(event,'modal-fixed')">
   <div class="modal">
     <div class="modal-handle"></div><h3 id="fixed-modal-title">Stały wydatek</h3>
@@ -1617,7 +1536,6 @@ position: absolute; border-radius: 50%; pointer-events: none;
 </div>
 
 <!-- ══ CONFIRM ══ -->
-
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
     <div class="confirm-title" id="c-title">Usunąć?</div>
@@ -4819,6 +4737,5 @@ document.addEventListener('visibilitychange',()=>{
   if(!document.hidden) syncFromSheets();
 });
 </script>
-
 </body>
 </html>
