@@ -2035,7 +2035,7 @@ function domRenderRow(exp,ym){
       ${entriesHtml}
       ${formHtml}
     </div>
-    <div class="dom-inputs">
+    <div class="dom-inputs" style="${showForm?'display:none':''}">
       <div class="dom-plan-val">
         <div class="dom-plan-lbl">Plan</div>
         <div class="dom-plan-num" onclick="domEditPlan(this,'${safeId}')" title="Kliknij aby edytować">${fmt(plan)} zł</div>
@@ -2550,8 +2550,6 @@ function renderDom(){
   document.getElementById('dom-month-ym').textContent=domYM;
   document.getElementById('h-dom-sub').textContent=domYM;
   domUpdateLastUpdated();
-  // Populate verification labels immediately
-  setTimeout(()=>domQuickCheck(), 50);
   const inp=document.getElementById('dom-wynajem-inp');
   if(inp&&domData[domYM]?.wynajem!=null)inp.value=domData[domYM].wynajem;
   domRenderRows();
@@ -2559,7 +2557,26 @@ function renderDom(){
   document.getElementById('dom-zycie-list').innerHTML=DOM_EXPENSES.zycie.map(e=>domRenderRow(e,domYM)).join('');
   document.getElementById('dom-dzieci-list').innerHTML=DOM_EXPENSES.dzieci.map(e=>domRenderRow(e,domYM)).join('');
   document.getElementById('dom-extra-list').innerHTML=DOM_EXPENSES.extra.map(e=>domRenderRow(e,domYM)).join('');
+  // Przywróć stan checkboxów
+  const saved=domData[domYM]?._chk;
+  if(saved){
+    ['andy','800plus','rent','hipoteka'].forEach(k=>{
+      const el=document.getElementById('chk-'+k+'-inline');
+      if(el) el.checked=!!saved[k];
+    });
+    const mil=document.getElementById('chk-millennium-inline');
+    if(mil&&saved.millennium!=null) mil.value=saved.millennium;
+    const cash=document.getElementById('chk-cash-inline');
+    if(cash&&saved.cash!=null) cash.value=saved.cash;
+  } else {
+    // Reset wszystkich do false jeśli brak danych
+    ['andy','800plus','rent','hipoteka'].forEach(k=>{
+      const el=document.getElementById('chk-'+k+'-inline');
+      if(el) el.checked=false;
+    });
+  }
   domUpdateSummary();
+  setTimeout(()=>domQuickCheck(), 50);
 }
 
 function renderDomYear(){
