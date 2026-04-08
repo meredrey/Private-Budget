@@ -879,7 +879,83 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <!-- view toggle -->
   <div style="display:flex;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:12px;overflow:hidden">
     <button class="tab" id="domvtab-month" onclick="setDomView('month')" style="flex:1;padding:10px;font-size:12px;border:none;background:#5e4d82;color:#fff;font-weight:700;letter-spacing:.5px">📅 Miesiąc</button>
+    <button class="tab" id="domvtab-import" onclick="setDomView('import')" style="flex:1;padding:10px;font-size:12px;border:none;background:none;color:#7a6e98;font-weight:700;letter-spacing:.5px">📥 Import</button>
     <button class="tab" id="domvtab-year" onclick="setDomView('year')" style="flex:1;padding:10px;font-size:12px;border:none;background:none;color:#7a6e98;font-weight:700;letter-spacing:.5px">📊 Rok</button>
+  </div>
+
+
+  <!-- IMPORT VIEW -->
+  <div id="dom-view-import" style="display:none;padding:0 12px 24px">
+
+    <!-- Drop zone -->
+    <div id="dom-import-dropzone"
+      onclick="document.getElementById('dom-import-file').click()"
+      ondragover="event.preventDefault();this.style.borderColor='#5e4d82'"
+      ondragleave="this.style.borderColor='#b0a4cc'"
+      ondrop="domImportDrop(event)"
+      style="border:2px dashed #b0a4cc;border-radius:16px;padding:32px 20px;text-align:center;cursor:pointer;background:#faf9ff;margin-bottom:16px;transition:border-color .2s">
+      <div style="font-size:32px;margin-bottom:8px">📂</div>
+      <div style="font-size:14px;font-weight:700;color:#4a4060;margin-bottom:4px">Wrzuć plik CSV z Millennium</div>
+      <div style="font-size:12px;color:#7a6e98">lub kliknij żeby wybrać</div>
+      <input type="file" id="dom-import-file" accept=".csv" style="display:none" onchange="domImportFile(this)">
+    </div>
+
+    <!-- Instrukcja -->
+    <div style="background:#f4f1fc;border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;color:#4a4060;line-height:1.7">
+      <b>Jak pobrać CSV z Millennium:</b><br>
+      Historia → Wybierz zakres → Eksportuj → CSV
+    </div>
+
+    <!-- Wyniki importu -->
+    <div id="dom-import-results" style="display:none">
+
+      <!-- Statystyki -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div style="background:#d4f0e4;border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#3d7a60" id="dom-import-count-auto">0</div>
+          <div style="font-size:10px;color:#3d7a60;font-weight:600">auto</div>
+        </div>
+        <div style="background:#fff8e8;border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#7a6020" id="dom-import-count-todo">0</div>
+          <div style="font-size:10px;color:#7a6020;font-weight:600">do przypisania</div>
+        </div>
+        <div style="background:#eeebf5;border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:#7a6e98" id="dom-import-count-skip">0</div>
+          <div style="font-size:10px;color:#7a6e98;font-weight:600">pominięte</div>
+        </div>
+      </div>
+
+      <!-- Lista transakcji -->
+      <div id="dom-import-list"></div>
+
+      <!-- Przycisk importu -->
+      <button onclick="domImportConfirm()"
+        style="width:100%;padding:14px;background:#5e4d82;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px">
+        ✅ Importuj zaznaczone
+      </button>
+    </div>
+
+    <!-- Reguły -->
+    <div style="margin-top:16px">
+      <div class="sec-lbl" onclick="domImportRulesToggle()" style="cursor:pointer;display:flex;justify-content:space-between">
+        <span>⚡ Reguły automatyczne</span>
+        <span id="dom-rules-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">›</span>
+      </div>
+      <div id="dom-rules-panel" style="display:none">
+        <div id="dom-rules-list" style="margin-bottom:10px"></div>
+        <div style="background:#f4f1fc;border-radius:12px;padding:12px">
+          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px">+ Nowa reguła</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input type="text" id="dom-rule-keyword" placeholder="Słowo kluczowe (np. biedronka)"
+              style="flex:1;padding:9px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;outline:none">
+          </div>
+          <select id="dom-rule-category" style="width:100%;padding:9px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none;margin-bottom:8px">
+            <option value="">— wybierz kategorię —</option>
+          </select>
+          <button onclick="domRuleAdd()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj regułę</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MONTH VIEW -->
@@ -2608,12 +2684,339 @@ function renderDomYear(){
   }).join('');
 }
 
+// ══ IMPORT WYCIĄGU BANKOWEGO ══
+
+let _importTxns = [];
+
+// ── Parser CSV Millennium ──
+function domImportParseCSV(text){
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const txns = [];
+  // Millennium CSV: data;typ;opis;kwota;waluta;saldo
+  // lub: data;opis nadawcy;tytul;kwota;saldo
+  // Szukamy linii z datą w formacie YYYY-MM-DD lub DD-MM-YYYY
+  for(const line of lines){
+    const cols = line.split(';').map(c=>c.replace(/^"|"$/g,'').trim());
+    if(cols.length < 4) continue;
+    // Szukaj daty
+    let date='', desc='', amount=0;
+    for(let i=0;i<cols.length;i++){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(cols[i])){ date=cols[i]; }
+      else if(/^\d{2}-\d{2}-\d{4}$/.test(cols[i])){
+        const [d,m,y]=cols[i].split('-'); date=`${y}-${m}-${d}`;
+      }
+    }
+    if(!date) continue;
+    // Kwota — szukaj kolumny z liczbą ze znakiem
+    for(let i=0;i<cols.length;i++){
+      const n=parseFloat(cols[i].replace(/\s/g,'').replace(',','.'));
+      if(!isNaN(n) && cols[i].includes(',') && Math.abs(n)>0){
+        // Tylko wydatki (ujemne) lub wszystkie?
+        amount=n; break;
+      }
+    }
+    if(amount===0) continue;
+    // Opis — najdłuższy string który nie jest datą ani liczbą
+    desc = cols.filter(c=>c.length>3 && !/^\d[\d\s,.-]+$/.test(c) && !/^\d{4}-\d{2}-\d{2}$/.test(c) && !/^\d{2}-\d{2}-\d{4}$/.test(c)).sort((a,b)=>b.length-a.length)[0]||'';
+    txns.push({date, desc, amount, raw:line});
+  }
+  return txns;
+}
+
+// ── Dopasuj regułę ──
+function domImportMatchRule(desc){
+  const rules = domData._importRules||{};
+  const lower = desc.toLowerCase();
+  for(const [keyword, category] of Object.entries(rules)){
+    if(lower.includes(keyword.toLowerCase())) return category;
+  }
+  return null;
+}
+
+// ── Czy to wpływ/przelew wewnętrzny ──
+function domImportIsSkip(txn){
+  if(txn.amount > 0) return true; // wpływ
+  const lower = txn.desc.toLowerCase();
+  const skipWords = ['przelew własny','własny przelew','przelew wewnętrzny','oprocentowanie','odsetki','opłata za prowadzenie'];
+  if(skipWords.some(w=>lower.includes(w))) return true;
+  // Sprawdź listę ignorowanych słów kluczowych
+  const ignored = domData._importIgnore||[];
+  return ignored.some(k=>lower.includes(k.toLowerCase()));
+}
+
+// ── Sprawdź duplikat ──
+function domImportIsDuplicate(category, amount){
+  // Sprawdź czy w domData[domYM][category] jest już taka kwota
+  const entries = domData[domYM]?.[category]?.entries||[];
+  return entries.some(e=>Math.abs(e.amount - Math.abs(amount))<0.01);
+}
+
+// ── Render listy transakcji ──
+function domImportRender(){
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const cats = allExp.map(e=>e.name);
+  const customCats = (domData._customExpenses||[]).map(e=>e.name);
+  const allCats = [...cats,...customCats];
+
+  // Kategorie select options
+  const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+  let autoCount=0, todoCount=0, skipCount=0;
+  const rows = _importTxns.map((t,i)=>{
+    if(t._skip){ skipCount++; return ''; }
+    const auto = t._category;
+    const isDup = auto ? domImportIsDuplicate(auto, t.amount) : false;
+
+    if(auto){ autoCount++; }
+    else { todoCount++; }
+
+    const dupWarning = isDup ? `<div style="font-size:11px;color:#9a4060;margin-top:4px">⚠️ Możliwy duplikat — taka kwota już istnieje w tej kategorii</div>` : '';
+    const amtColor = t.amount<0 ? '#9a4060' : '#3d7a60';
+
+    if(auto){
+      return `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #d4f0e4">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:#18102c;margin-bottom:2px">${t.desc.slice(0,50)}</div>
+            <div style="font-size:11px;color:#7a6e98">${t.date}</div>
+            <div style="font-size:11px;color:#3d7a60;margin-top:2px">✅ ${auto}</div>
+            ${dupWarning}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <div style="font-size:14px;font-weight:700;color:${amtColor}">${fmt(Math.abs(t.amount))} zł</div>
+            <input type="checkbox" data-idx="${i}" class="dom-import-chk" ${isDup?'':'checked'}
+              style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
+          </div>
+        </div>
+        <button onclick="domImportIgnore(${i})"
+          style="margin-top:8px;padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
+          🚫 Ignoruj
+        </button>
+      </div>`;
+    } else {
+      return `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #ffe0a0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:#18102c;margin-bottom:2px">${t.desc.slice(0,50)}</div>
+            <div style="font-size:11px;color:#7a6e98">${t.date}</div>
+            <select data-idx="${i}" class="dom-import-cat"
+              style="margin-top:6px;width:100%;padding:7px 9px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;background:#fff;outline:none">
+              <option value="">— wybierz kategorię —</option>
+              ${catOptions}
+            </select>
+            <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#7a6e98;cursor:pointer">
+              <input type="checkbox" data-idx="${i}" class="dom-import-remember" style="accent-color:#5e4d82">
+              Zapamiętaj regułę dla tej nazwy
+            </label>
+            ${dupWarning}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <div style="font-size:14px;font-weight:700;color:${amtColor}">${fmt(Math.abs(t.amount))} zł</div>
+            <input type="checkbox" data-idx="${i}" class="dom-import-chk"
+              style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button onclick="domImportIgnore(${i})"
+            style="padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
+            🚫 Ignoruj
+          </button>
+          <button onclick="domImportIgnoreAlways(${i})"
+            style="padding:4px 10px;background:none;border:1.5px solid #f4a8c0;border-radius:8px;font-size:11px;color:#9a4060;cursor:pointer">
+            🚫 Zawsze ignoruj tę nazwę
+          </button>
+        </div>
+      </div>`;
+    }
+  });
+
+  document.getElementById('dom-import-count-auto').textContent=autoCount;
+  document.getElementById('dom-import-count-todo').textContent=todoCount;
+  document.getElementById('dom-import-count-skip').textContent=skipCount;
+  document.getElementById('dom-import-list').innerHTML=rows.join('');
+  document.getElementById('dom-import-results').style.display='block';
+
+  // Populate rule category select
+  const ruleSelect = document.getElementById('dom-rule-category');
+  if(ruleSelect) ruleSelect.innerHTML='<option value="">— wybierz kategorię —</option>'+catOptions;
+}
+
+// ── Obsługa pliku ──
+function domImportFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const text = e.target.result;
+    // Try UTF-8, fallback to Latin-2
+    domImportProcess(text);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function domImportDrop(event){
+  event.preventDefault();
+  document.getElementById('dom-import-dropzone').style.borderColor='#b0a4cc';
+  const file = event.dataTransfer.files[0];
+  if(!file||!file.name.endsWith('.csv')) return;
+  const reader = new FileReader();
+  reader.onload = e=>domImportProcess(e.target.result);
+  reader.readAsText(file,'UTF-8');
+}
+
+function domImportProcess(text){
+  const txns = domImportParseCSV(text);
+  if(!txns.length){
+    alert('Nie udało się sparsować pliku. Upewnij się że to CSV z Millennium.');
+    return;
+  }
+  // Dodaj kategorie i flagi
+  _importTxns = txns.map(t=>({
+    ...t,
+    _skip: domImportIsSkip(t),
+    _category: domImportIsSkip(t) ? null : domImportMatchRule(t.desc),
+  }));
+  domImportRender();
+}
+
+// ── Potwierdź import ──
+function domImportConfirm(){
+  const chks = document.querySelectorAll('.dom-import-chk:checked');
+  if(!chks.length){ alert('Zaznacz przynajmniej jedną transakcję'); return; }
+
+  let imported=0, skippedDup=0;
+
+  chks.forEach(chk=>{
+    const i = parseInt(chk.dataset.idx);
+    const t = _importTxns[i];
+    if(!t) return;
+
+    // Pobierz kategorię
+    let category = t._category;
+    if(!category){
+      const catSel = document.querySelector(`.dom-import-cat[data-idx="${i}"]`);
+      category = catSel?.value;
+    }
+    if(!category) return;
+
+    const amount = Math.abs(t.amount);
+
+    // Sprawdź duplikat jeszcze raz
+    if(domImportIsDuplicate(category, amount)){
+      if(!confirm(`"${t.desc.slice(0,30)}" (${fmt(amount)} zł → ${category}) wygląda jak duplikat. Importować mimo to?`)){
+        skippedDup++;
+        return;
+      }
+    }
+
+    // Zapamiętaj regułę jeśli checkbox zaznaczony
+    const remChk = document.querySelector(`.dom-import-remember[data-idx="${i}"]`);
+    if(remChk?.checked && t.desc){
+      // Użyj pierwszego słowa jako keyword
+      const keyword = t.desc.split(/\s+/)[0].toLowerCase().slice(0,20);
+      if(!domData._importRules) domData._importRules={};
+      domData._importRules[keyword] = category;
+    }
+
+    // Dodaj do domData jako entry
+    if(!domData[domYM]) domData[domYM]={};
+    if(!domData[domYM][category]) domData[domYM][category]={};
+    if(!domData[domYM][category].entries) domData[domYM][category].entries=[];
+    domData[domYM][category].entries.push({
+      name: t.desc.slice(0,40),
+      amount: amount,
+      _imported: true,
+    });
+    // Zaktualizuj real jako sumę entries
+    const entries = domData[domYM][category].entries;
+    domData[domYM][category].real = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
+    domData[domYM][category]._updated = domYM;
+
+    imported++;
+  });
+
+  domScheduleSave();
+
+  alert(`✅ Zaimportowano ${imported} transakcji${skippedDup?`, pominięto ${skippedDup} duplikatów`:''}.`);
+
+  // Reset
+  _importTxns=[];
+  document.getElementById('dom-import-results').style.display='none';
+  document.getElementById('dom-import-file').value='';
+  setDomView('month');
+}
+
+// ── Reguły ──
+function domImportRulesToggle(){
+  const panel=document.getElementById('dom-rules-panel');
+  const arrow=document.getElementById('dom-rules-arrow');
+  const open=panel.style.display==='none';
+  panel.style.display=open?'block':'none';
+  if(arrow) arrow.textContent=open?'▼':'›';
+  if(open) domImportRenderRules();
+}
+
+function domImportRenderRules(){
+  // Populate category selects
+  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const catOptions = allExp.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+  const ruleSelect=document.getElementById('dom-rule-category');
+  if(ruleSelect) ruleSelect.innerHTML='<option value="">— wybierz kategorię —</option>'+catOptions;
+
+  // Render existing rules
+  const rules=domData._importRules||{};
+  const list=document.getElementById('dom-rules-list');
+  if(!list) return;
+  const keys=Object.keys(rules);
+  if(!keys.length){ list.innerHTML='<div style="font-size:12px;color:#7a6e98;padding:8px 0">Brak reguł — dodaj pierwszą poniżej</div>'; return; }
+  list.innerHTML=keys.map(k=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-radius:10px;margin-bottom:6px;font-size:12px">
+      <div><b style="color:#4a4060">${k}</b> → <span style="color:#5e4d82">${rules[k]}</span></div>
+      <button onclick="domRuleDelete('${k}')" style="background:none;border:none;color:#b0a4cc;font-size:16px;cursor:pointer;padding:0">×</button>
+    </div>`).join('');
+}
+
+function domRuleAdd(){
+  const keyword=document.getElementById('dom-rule-keyword')?.value.trim().toLowerCase();
+  const category=document.getElementById('dom-rule-category')?.value;
+  if(!keyword||!category){ alert('Wpisz słowo kluczowe i wybierz kategorię'); return; }
+  if(!domData._importRules) domData._importRules={};
+  domData._importRules[keyword]=category;
+  domScheduleSave();
+  document.getElementById('dom-rule-keyword').value='';
+  domImportRenderRules();
+}
+
+function domImportIgnore(i){
+  _importTxns[i]._skip = true;
+  domImportRender();
+}
+
+function domImportIgnoreAlways(i){
+  const t = _importTxns[i];
+  if(!t) return;
+  const keyword = t.desc.split(/\s+/)[0].toLowerCase().slice(0,20);
+  if(!domData._importIgnore) domData._importIgnore = [];
+  if(!domData._importIgnore.includes(keyword)) domData._importIgnore.push(keyword);
+  domScheduleSave();
+  _importTxns[i]._skip = true;
+  domImportRender();
+}
+
+function domRuleDelete(keyword){
+  if(!domData._importRules) return;
+  delete domData._importRules[keyword];
+  domScheduleSave();
+  domImportRenderRules();
+}
+
 function setDomView(v){
   domView=v;
   document.getElementById('dom-view-month').style.display=v==='month'?'block':'none';
+  document.getElementById('dom-view-import').style.display=v==='import'?'block':'none';
   document.getElementById('dom-view-check').style.display=v==='check'?'block':'none';
   document.getElementById('dom-view-year').style.display=v==='year'?'block':'none';
-  ['month','check','year'].forEach(t=>{
+  ['month','import','check','year'].forEach(t=>{
     const btn=document.getElementById('domvtab-'+t);
     if(!btn)return;
     btn.style.background=v===t?'#5e4d82':'none';
@@ -2621,6 +3024,7 @@ function setDomView(v){
   });
   if(v==='year')renderDomYear();
   else if(v==='check')chkRender();
+  else if(v==='import')domImportRenderRules();
   else renderDom();
 }
 
