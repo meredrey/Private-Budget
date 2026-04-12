@@ -2062,12 +2062,56 @@ function domGetSuggested(exp,ym){
 }
 
 function domGetPlan(exp,ym){const s=domData[ym]?.[exp.name];return s?.plan??domGetSuggested(exp,ym);}
-function domGetReal(exp,ym){return domData[ym]?.[exp.name]?.real??null;}
+function domGetReal(exp,ym){
+  const d = domData[ym]?.[exp.name];
+  if(!d) return null;
+  // Unified: wszystkie entries (ręczne + importowane) + stare _entries (compat)
+  const allEntries = [...(d.entries||[]), ...(d._entries||[])];
+  const entriesSum = allEntries.reduce((s,e)=>s+e.amount,0);
+  if(entriesSum>0) return Math.round(entriesSum*100)/100;
+  // Fallback: stary realManual lub real
+  return d.realManual ?? d.real ?? null;
+}
+
+function domGetAllEntries(expName, ym){
+  const d = domData[ym]?.[expName];
+  if(!d) return [];
+  return [...(d.entries||[]), ...(d._entries||[])];
+}
+
+function domAddEntry(expName, ym, name, amount, source){
+  if(!domData[ym]) domData[ym]={};
+  if(!domData[ym][expName]) domData[ym][expName]={};
+  if(!domData[ym][expName].entries) domData[ym][expName].entries=[];
+  domData[ym][expName].entries.push({name:name||'wpłata', amount, _src:source||'manual'});
+  domData[ym][expName]._updated = new Date().toISOString().slice(0,10);
+  // Przelicz real
+  const all = domGetAllEntries(expName, ym);
+  domData[ym][expName].real = all.length ? Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100 : null;
+}
+
+function domRemoveEntryUnified(expName, ym, src, idx){
+  const d = domData[ym]?.[expName];
+  if(!d) return;
+  if(src==='_entries') d._entries?.splice(idx,1);
+  else d.entries?.splice(idx,1);
+  const all = domGetAllEntries(expName, ym);
+  d.real = all.length ? Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100 : null;
+  d._updated = new Date().toISOString().slice(0,10);
+}
 
 function domSetVal(expName,field,val,ym,rerender){
   if(!domData[ym])domData[ym]={};
   if(!domData[ym][expName])domData[ym][expName]={};
-  domData[ym][expName][field]=val===''||isNaN(parseFloat(val))?null:parseFloat(val);
+  const parsedVal = val===''||isNaN(parseFloat(val))?null:parseFloat(val);
+  if(field==='real'){
+    domData[ym][expName].realManual = parsedVal;
+    // Przelicz real = realManual + entries
+    const entriesSum = (domData[ym][expName].entries||[]).reduce((s,e)=>s+e.amount,0);
+    domData[ym][expName].real = parsedVal==null ? (entriesSum||null) : Math.round(((parsedVal)+entriesSum)*100)/100;
+  } else {
+    domData[ym][expName][field] = parsedVal;
+  }
   domData[ym][expName]._updated = new Date().toISOString().slice(0,10);
   domScheduleSave();
   domUpdateSummary();
@@ -2085,80 +2129,71 @@ function domSetVal(expName,field,val,ym,rerender){
 }
 
 function domRenderRow(exp,ym){
-  const plan=domGetPlan(exp,ym);
-  const real=domGetReal(exp,ym);
-  const diff=real!=null?real-plan:null;
-  const diffStr=diff!=null?(diff>0?'+':'')+fmt(diff):'';
-  const diffCls=diff==null?'neutral':diff>0?'over':'ok';
-  const isOver=diff!=null&&diff>0;
-  const rowCls='dom-row'+(real!=null?' has-real':'')+(isOver?' is-over':'');
-  const safeId='domrow_'+ym+'_'+(exp.name.replace(/[^a-zA-Z0-9]/g,'_'));
-  const updDate=domData[ym]?.[exp.name]?._updated;
-  const entries=domData[ym]?.[exp.name]?._entries||[];
-  const showForm=domData[ym]?.[exp.name]?._showForm||false;
-  const updStr=updDate?`<span style="font-size:9px;color:#b0a4cc;margin-left:4px">· ${updDate}</span>`:'';
+  const plan = domGetPlan(exp,ym);
+  const allEntries = domGetAllEntries(exp.name, ym);
+  const real = allEntries.length ? Math.round(allEntries.reduce((s,e)=>s+e.amount,0)*100)/100 : null;
+  const diff = real!=null && plan!=null ? real-plan : null;
+  const diffStr = diff!=null ? (diff>0?'+':'')+fmt(diff)+' zł' : '';
+  const diffCls = diff==null?'neutral':diff>0?'over':'ok';
+  const isOver = diff!=null && diff>0;
+  const safeId = 'domrow_'+ym+'_'+(exp.name.replace(/[^a-zA-Z0-9]/g,'_'));
+  const showForm = domData[ym]?.[exp.name]?._showForm||false;
 
-  const entriesHtml=entries.length>0?`
-    <div style="margin-top:4px;padding-left:8px;border-left:2px solid #e8e4f0">
-      ${entries.map((e,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a6e98;padding:2px 0">
-        <span>${e.name||'wpłata'}</span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <b style="color:#18102c">${fmt(e.amount)} zł</b>
-          <button onclick="domRemoveEntry('${safeId}',${i},'${ym}')" style="background:none;border:none;color:#b0a4cc;cursor:pointer;font-size:14px;padding:0;line-height:1">×</button>
-        </span>
-      </div>`).join('')}
-    </div>`:'';
+  // Entries list
+  const entriesHtml = allEntries.length ? allEntries.map((e,i)=>{
+    const src = i < (domData[ym]?.[exp.name]?.entries||[]).length ? 'entries' : '_entries';
+    const realIdx = src==='entries' ? i : i-(domData[ym]?.[exp.name]?.entries||[]).length;
+    const icon = e._src==='import'||e._imported ? '📥' : '✏️';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;color:#4a4060;border-bottom:1px solid #f0edf8">
+      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#7a6e98">${icon} ${e.name||'wpłata'}</span>
+      <span style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <b style="color:#18102c">${fmt(e.amount)} zł</b>
+        <button onclick="domRemoveEntry('${safeId}','${src}',${realIdx},'${ym}')"
+          style="background:none;border:none;color:#d0c4e0;cursor:pointer;font-size:16px;padding:0;line-height:1;flex-shrink:0">×</button>
+      </span>
+    </div>`;
+  }).join('') : '';
 
-  // Inline add form
-  const formHtml=showForm?`
-    <div id="${safeId}_form" style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
-      <input type="text" id="${safeId}_fname" placeholder="Opis (np. Biedronka)"
-        style="width:100%;padding:9px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;-webkit-appearance:none"
+  // Add form
+  const formHtml = showForm ? `
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input type="text" id="${safeId}_fname" placeholder="Opis (opcjonalnie)"
+        style="flex:2;padding:8px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:13px;outline:none;-webkit-appearance:none"
+        onkeydown="if(event.key==='Enter')document.getElementById('${safeId}_famt').focus()">
+      <input type="number" id="${safeId}_famt" placeholder="kwota" inputmode="decimal"
+        style="flex:1;padding:8px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:13px;outline:none;text-align:right;-webkit-appearance:none"
         onkeydown="if(event.key==='Enter')domSaveEntry('${safeId}','${ym}')">
-      <div style="display:flex;gap:6px">
-        <input type="number" id="${safeId}_famt" placeholder="Kwota zł" inputmode="decimal"
-          style="flex:1;padding:9px 10px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;outline:none;text-align:right;-webkit-appearance:none"
-          onkeydown="if(event.key==='Enter')domSaveEntry('${safeId}','${ym}')">
-        <button onclick="domSaveEntry('${safeId}','${ym}')"
-          style="padding:9px 16px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Zapisz</button>
-        <button onclick="domToggleForm('${safeId}','${ym}',false)"
-          style="padding:9px 10px;background:#e8e4f0;border:none;border-radius:8px;color:#7a6e98;font-size:13px;cursor:pointer">✕</button>
-      </div>
-    </div>`:`
-    <button onclick="domToggleForm('${safeId}','${ym}',true)"
-      style="margin-top:3px;font-size:10px;color:#5e4d82;background:none;border:none;cursor:pointer;padding:0;text-align:left">+ dodaj wpłatę</button>`;
+      <button onclick="domSaveEntry('${safeId}','${ym}')"
+        style="padding:8px 12px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">✓</button>
+      <button onclick="domToggleForm('${safeId}','${ym}',false)"
+        style="padding:8px 10px;background:#e8e4f0;border:none;border-radius:8px;color:#7a6e98;font-size:13px;cursor:pointer">✕</button>
+    </div>` : '';
 
-  return`<div class="${rowCls}" id="${safeId}">
-    <div class="dom-name">
-      <div class="dom-label">${exp.icon||''} ${exp.name}${updStr}</div>
-      ${entriesHtml}
-      ${formHtml}
-    </div>
-    <div class="dom-inputs" style="${showForm?'display:none':''}">
-      <div class="dom-plan-val">
-        <div class="dom-plan-lbl">Plan</div>
-        <div class="dom-plan-num" onclick="domEditPlan(this,'${safeId}')" title="Kliknij aby edytować">${fmt(plan)} zł</div>
+  const rowBg = isOver ? '#fff8f8' : real!=null ? '#f8fff8' : '#fff';
+  const planStr = plan!=null ? fmt(plan)+' zł' : '—';
+
+  return `<div class="dom-row${isOver?' is-over':''}" id="${safeId}"
+    style="background:${rowBg};border-radius:12px;margin-bottom:6px;padding:10px 14px;border:1.5px solid ${isOver?'#f4c0c8':real!=null?'#c8e8d0':'#e8e4f0'}">
+    <!-- Nagłówek wiersza -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${allEntries.length||showForm?'8px':'0'}">
+      <div style="font-size:13px;font-weight:600;color:#18102c;flex:1">${exp.icon||''} ${exp.name}</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        ${diff!=null?`<span style="font-size:12px;font-weight:700;color:${isOver?'#9a4060':'#3d7a60'}">${diffStr}</span>`:''}
+        <span style="font-size:12px;color:#b0a4cc">plan ${planStr}</span>
+        ${real!=null?`<span style="font-size:14px;font-weight:700;color:${isOver?'#9a4060':'#18102c'}">${fmt(real)} zł</span>`:'<span style="font-size:12px;color:#d0c4e0">brak</span>'}
+        <button onclick="domToggleForm('${safeId}','${ym}',${!showForm})"
+          style="padding:4px 10px;background:${showForm?'#e8e4f0':'#5e4d82'};border:none;border-radius:8px;color:${showForm?'#7a6e98':'#fff'};font-size:12px;font-weight:700;cursor:pointer">
+          ${showForm?'✕':'+ Dodaj'}
+        </button>
       </div>
-      <div class="dom-inp-wrap">
-        <div class="dom-inp-lbl">Real</div>
-        <input class="dom-inp${isOver?' over':''}" type="number" value="${real??''}" placeholder="wpisz"
-          onchange="domSetValById('${safeId}','real',this.value,'${ym}',true)"
-          oninput="domSetValById('${safeId}','real',this.value,'${ym}',false)">
-      </div>
-      <div class="dom-diff ${diffCls}">${diffStr}</div>
     </div>
-    ${(()=>{
-      const entries = domData[ym]?.[exp.name]?.entries;
-      if(!entries||!entries.length) return '';
-      return '<div style="padding:4px 12px 8px;border-top:1px solid #eee8f8">'
-        + entries.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:#7a6e98">
-            <span>📥 ${e.name.slice(0,35)}</span>
-            <span style="font-weight:600;color:#5e4d82">${fmt(e.amount)} zł</span>
-          </div>`).join('')
-        + '</div>';
-    })()}
+    <!-- Lista transakcji -->
+    ${entriesHtml}
+    <!-- Formularz dodawania -->
+    ${formHtml}
   </div>`;
 }
+
 
 function domToggleForm(safeId, ym, show){
   const meta=_domRowMeta[safeId];
@@ -2182,23 +2217,9 @@ function domSaveEntry(safeId, ym){
   const name=(nameEl?.value||'').trim();
   const amt=parseFloat(amtEl?.value);
   if(isNaN(amt)||amt<=0){amtEl?.focus();return;}
-  if(!domData[ym])domData[ym]={};
-  if(!domData[ym][exp.name])domData[ym][exp.name]={};
-  if(!domData[ym][exp.name]._entries)domData[ym][exp.name]._entries=[];
-  domData[ym][exp.name]._entries.push({name:name||'wpłata',amount:amt});
-  domData[ym][exp.name]._updated=new Date().toISOString().slice(0,10);
+  domAddEntry(exp.name, ym, name||'wpłata', amt, 'manual');
+  if(!domData[ym][exp.name]._showForm!==false) domData[ym][exp.name]._showForm=false;
   domData[ym][exp.name]._showForm=false;
-  // Suma real = suma wszystkich entries
-  const total=domData[ym][exp.name]._entries.reduce((s,e)=>s+e.amount,0);
-  domData[ym][exp.name].real=total;
-  // Ale też wczytaj co jest aktualnie w polu real (mogło być wpisane ręcznie)
-  const realInp=document.getElementById(safeId+'_real');
-  if(realInp && realInp.value && parseFloat(realInp.value)!==domData[ym][exp.name].real){
-    domData[ym][exp.name].real=parseFloat(realInp.value);
-  }
-  // Update global last-updated
-  if(!domData[ym]._lastUpdated)domData[ym]._lastUpdated={};
-  domData[ym]._lastUpdated.date=new Date().toISOString().slice(0,10);
   domScheduleSave();
   domUpdateSummary();
   domFlushRealInputs();
@@ -2207,25 +2228,20 @@ function domSaveEntry(safeId, ym){
   domUpdateLastUpdated();
 }
 
+
 function domAddEntry(safeId, ym){ domToggleForm(safeId, ym, true); }
 
-function domRemoveEntry(safeId, idx, ym){
+function domRemoveEntry(safeId, src, idx, ym){
   const meta=_domRowMeta[safeId];
   if(!meta)return;
   const {exp}=meta;
-  if(!domData[ym]?.[exp.name]?._entries)return;
-  domData[ym][exp.name]._entries.splice(idx,1);
-  const total=domData[ym][exp.name]._entries.reduce((s,e)=>s+e.amount,0);
-  domData[ym][exp.name].real=total>0?total:null;
-  domData[ym][exp.name]._updated=new Date().toISOString().slice(0,10);
+  domRemoveEntryUnified(exp.name, ym, src, idx);
   domScheduleSave();
   domUpdateSummary();
   const rowEl=document.getElementById(safeId);
   if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
 }
 
-// Store row metadata for editing
-const _domRowMeta={};
 
 function domRenderRows(){
   const allGroups=[
@@ -2863,7 +2879,7 @@ function domImportRender(){
   const cats = allExp.map(e=>e.name);
   const customCats = (domData._customExpenses||[]).map(e=>e.name);
   const allCats = [...cats,...customCats];
-  const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const catOptions = [...allCats].sort((a,b)=>a.localeCompare(b,'pl')).map(c=>`<option value="${c}">${c}</option>`).join('');
 
   let autoCount=0, todoCount=0, skipCount=0;
   const autoRows=[], todoRows=[], skipRows=[];
@@ -2882,13 +2898,17 @@ function domImportRender(){
               <div style="font-size:12px;font-weight:600;color:#7a6e98">${t.desc.slice(0,50)}</div>
               <div style="font-size:11px;color:#b0a4cc">${t.date} · ${reason}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-              <div style="font-size:13px;font-weight:700;color:${amtColor}">${amtLabel}</div>
-              <button onclick="domImportIgnore(${i})"
-                style="padding:3px 9px;background:#eeebf5;border:1.5px solid #b0a4cc;border-radius:7px;font-size:11px;color:#5e4d82;cursor:pointer">
-                ↩ Cofnij
-              </button>
-            </div>
+            <div style="font-size:13px;font-weight:700;color:${amtColor};flex-shrink:0">${amtLabel}</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:7px">
+            <button onclick="domImportIgnore(${i})"
+              style="flex:1;padding:5px 8px;background:#eeebf5;border:1.5px solid #b0a4cc;border-radius:8px;font-size:11px;color:#5e4d82;cursor:pointer;font-weight:600">
+              ↩ Cofnij ignorowanie
+            </button>
+            <button onclick="domImportRecheck(${i})"
+              style="flex:1;padding:5px 8px;background:#f0f8f4;border:1.5px solid #3d7a60;border-radius:8px;font-size:11px;color:#3d7a60;cursor:pointer;font-weight:600">
+              🔍 Sprawdź reguły
+            </button>
           </div>
         </div>`);
       return;
@@ -3087,9 +3107,11 @@ function domImportConfirm(){
       _imported: true,
       _importedAt: importedAt,
     });
-    // Zaktualizuj real = suma entries
+    // Przelicz real = realManual + suma entries
     const entries = domData[ym][category].entries;
-    domData[ym][category].real = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
+    const entriesSum = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
+    const manualVal = domData[ym][category].realManual ?? null;
+    domData[ym][category].real = manualVal!=null ? Math.round((manualVal+entriesSum)*100)/100 : entriesSum||null;
     domData[ym][category]._updated = new Date().toISOString().slice(0,10);
 
     imported++;
@@ -3146,6 +3168,27 @@ function domRuleAdd(){
   domImportRenderRules();
 }
 
+
+function domImportRecheck(i){
+  const t = _importTxns[i];
+  if(!t) return;
+  const cat = domImportMatchRule(t.desc);
+  if(cat){
+    _importTxns[i]._skip = false;
+    _importTxns[i]._skipReason = null;
+    _importTxns[i]._category = cat;
+    domImportSave();
+    domImportRender();
+  } else {
+    // Cofnij ignorowanie ale bez kategorii
+    _importTxns[i]._skip = false;
+    _importTxns[i]._skipReason = null;
+    domImportSave();
+    domImportRender();
+    // Przełącz na zakładkę "Do przypisania"
+    domImportSetFilter(2);
+  }
+}
 function domImportIgnore(i){
   _importTxns[i]._skip = !_importTxns[i]._skip;
   if(!_importTxns[i]._skip) _importTxns[i]._skipReason = null;
