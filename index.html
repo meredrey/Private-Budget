@@ -3015,7 +3015,11 @@ function domImportProcess(text){
       _category: skip ? null : domImportMatchRule(t.desc),
     };
   });
-  domImportRender();
+  try {
+    domImportRender();
+  } catch(e) {
+    alert('Błąd renderowania: ' + e.message + ' @ ' + e.stack?.split('\n')[1]);
+  }
 }
 
 // ── Potwierdź import ──
