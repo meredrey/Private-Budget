@@ -925,7 +925,10 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         </div>
       </div>
 
-      <!-- Lista transakcji -->
+    <!-- Filtry -->
+    <div id="dom-import-filter-bar" style="display:flex;gap:6px;margin-bottom:12px"></div>
+
+    <!-- Lista transakcji -->
       <div id="dom-import-list"></div>
 
       <!-- Przycisk importu -->
@@ -2828,89 +2831,140 @@ function domImportRender(){
   const cats = allExp.map(e=>e.name);
   const customCats = (domData._customExpenses||[]).map(e=>e.name);
   const allCats = [...cats,...customCats];
-
-  // Kategorie select options
   const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
 
   let autoCount=0, todoCount=0, skipCount=0;
-  const rows = _importTxns.map((t,i)=>{
-    if(t._skip){ skipCount++; return ''; }
+  const activeRows=[], skipRows=[];
+
+  _importTxns.forEach((t,i)=>{
+    const amtColor = t.amount<0 ? '#9a4060' : '#3d7a60';
+    const amtLabel = fmt(Math.abs(t.amount))+' zł';
+
+    if(t._skip){
+      skipCount++;
+      const reason = t._skipReason==='before_period' ? '📅 Przed bieżącym okresem'
+        : t._skipReason==='rule' ? '🚫 Reguła' : '🚫 Zignorowano';
+      skipRows.push(`
+        <div style="background:#f8f7ff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1.5px solid #e0dcea">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:#7a6e98">${t.desc.slice(0,50)}</div>
+              <div style="font-size:11px;color:#b0a4cc">${t.date} · ${reason}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <div style="font-size:13px;font-weight:700;color:${amtColor}">${amtLabel}</div>
+              <button onclick="domImportIgnore(${i})"
+                style="padding:3px 9px;background:#eeebf5;border:1.5px solid #b0a4cc;border-radius:7px;font-size:11px;color:#5e4d82;cursor:pointer">
+                ↩ Cofnij
+              </button>
+            </div>
+          </div>
+        </div>`);
+      return;
+    }
+
     const auto = t._category;
     const isDup = auto ? domImportIsDuplicate(auto, t.amount) : false;
-
-    if(auto){ autoCount++; }
-    else { todoCount++; }
-
-    const dupWarning = isDup ? `<div style="font-size:11px;color:#9a4060;margin-top:4px">⚠️ Możliwy duplikat — taka kwota już istnieje w tej kategorii</div>` : '';
-    const amtColor = t.amount<0 ? '#9a4060' : '#3d7a60';
+    if(auto) autoCount++; else todoCount++;
+    const dupWarning = isDup ? `<div style="font-size:11px;color:#9a4060;margin-top:4px">⚠️ Możliwy duplikat</div>` : '';
 
     if(auto){
-      return `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #d4f0e4">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:#18102c;margin-bottom:2px">${t.desc.slice(0,50)}</div>
-            <div style="font-size:11px;color:#7a6e98">${t.date}</div>
-            <div style="font-size:11px;color:#3d7a60;margin-top:2px">✅ ${auto}</div>
-            ${dupWarning}
+      activeRows.push(`
+        <div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #d4f0e4">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:#18102c">${t.desc.slice(0,50)}</div>
+              <div style="font-size:11px;color:#7a6e98">${t.date} · <span style="color:#3d7a60;font-weight:600">✅ ${auto}</span></div>
+              ${dupWarning}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:${amtColor}">${amtLabel}</div>
+              <input type="checkbox" data-idx="${i}" class="dom-import-chk" ${isDup?'':'checked'}
+                style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
+            </div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <div style="font-size:14px;font-weight:700;color:${amtColor}">${fmt(Math.abs(t.amount))} zł</div>
-            <input type="checkbox" data-idx="${i}" class="dom-import-chk" ${isDup?'':'checked'}
-              style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
-          </div>
-        </div>
-        <button onclick="domImportIgnore(${i})"
-          style="margin-top:8px;padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
-          🚫 Ignoruj
-        </button>
-      </div>`;
-    } else {
-      return `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #ffe0a0">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:#18102c;margin-bottom:2px">${t.desc.slice(0,50)}</div>
-            <div style="font-size:11px;color:#7a6e98">${t.date}</div>
-            <select data-idx="${i}" class="dom-import-cat"
-              style="margin-top:6px;width:100%;padding:7px 9px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;background:#fff;outline:none">
-              <option value="">— wybierz kategorię —</option>
-              ${catOptions}
-            </select>
-            <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#7a6e98;cursor:pointer">
-              <input type="checkbox" data-idx="${i}" class="dom-import-remember" style="accent-color:#5e4d82">
-              Zapamiętaj regułę dla tej nazwy
-            </label>
-            ${dupWarning}
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <div style="font-size:14px;font-weight:700;color:${amtColor}">${fmt(Math.abs(t.amount))} zł</div>
-            <input type="checkbox" data-idx="${i}" class="dom-import-chk"
-              style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
           <button onclick="domImportIgnore(${i})"
-            style="padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
+            style="margin-top:8px;padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
             🚫 Ignoruj
           </button>
-          <button onclick="domImportIgnoreAlways(${i})"
-            style="padding:4px 10px;background:none;border:1.5px solid #f4a8c0;border-radius:8px;font-size:11px;color:#9a4060;cursor:pointer">
-            🚫 Zawsze ignoruj tę nazwę
-          </button>
-        </div>
-      </div>`;
+        </div>`);
+    } else {
+      activeRows.push(`
+        <div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #ffe0a0">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:#18102c">${t.desc.slice(0,50)}</div>
+              <div style="font-size:11px;color:#7a6e98">${t.date}</div>
+              <select data-idx="${i}" class="dom-import-cat"
+                style="margin-top:6px;width:100%;padding:7px 9px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;background:#fff;outline:none">
+                <option value="">— wybierz kategorię —</option>
+                ${catOptions}
+              </select>
+              <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#7a6e98;cursor:pointer">
+                <input type="checkbox" data-idx="${i}" class="dom-import-remember" style="accent-color:#5e4d82">
+                Zapamiętaj regułę
+              </label>
+              ${dupWarning}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+              <div style="font-size:14px;font-weight:700;color:${amtColor}">${amtLabel}</div>
+              <input type="checkbox" data-idx="${i}" class="dom-import-chk"
+                style="width:18px;height:18px;accent-color:#5e4d82;cursor:pointer">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button onclick="domImportIgnore(${i})"
+              style="padding:4px 10px;background:none;border:1.5px solid #e0dcea;border-radius:8px;font-size:11px;color:#b0a4cc;cursor:pointer">
+              🚫 Ignoruj
+            </button>
+            <button onclick="domImportIgnoreAlways(${i})"
+              style="padding:4px 10px;background:none;border:1.5px solid #f4a8c0;border-radius:8px;font-size:11px;color:#9a4060;cursor:pointer">
+              🚫 Zawsze ignoruj
+            </button>
+          </div>
+        </div>`);
     }
   });
 
   document.getElementById('dom-import-count-auto').textContent=autoCount;
   document.getElementById('dom-import-count-todo').textContent=todoCount;
   document.getElementById('dom-import-count-skip').textContent=skipCount;
-  document.getElementById('dom-import-list').innerHTML=rows.join('');
+
+  // Filtr kategorii — zakładki na górze
+  const filterBar = document.getElementById('dom-import-filter-bar');
+  if(filterBar){
+    const cats2 = ['Wszystkie','✅ Auto','⚠️ Do przypisania','🚫 Pominięte'];
+    filterBar.innerHTML = cats2.map((c,i)=>`
+      <button onclick="domImportSetFilter(${i})"
+        id="dom-import-flt-${i}"
+        style="flex:1;padding:8px 4px;border:none;background:${_importFilter===i?'#5e4d82':'#eeebf5'};
+          color:${_importFilter===i?'#fff':'#7a6e98'};border-radius:10px;font-size:11px;font-weight:700;cursor:pointer">
+        ${c}
+      </button>`).join('');
+  }
+
+  // Render listy wg filtra
+  let html = '';
+  if(_importFilter===0) html = activeRows.join('') + (skipRows.length ? `
+    <div style="font-size:11px;font-weight:700;color:#b0a4cc;letter-spacing:1px;padding:12px 0 6px">POMINIĘTE</div>
+    ${skipRows.join('')}` : '');
+  else if(_importFilter===1) html = activeRows.filter((_,i)=>_importTxns.filter(t=>!t._skip)[i]?._category).join('');
+  else if(_importFilter===2) html = activeRows.filter((_,i)=>!_importTxns.filter(t=>!t._skip)[i]?._category).join('');
+  else if(_importFilter===3) html = skipRows.join('');
+
+  document.getElementById('dom-import-list').innerHTML = html || '<div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak transakcji w tej kategorii</div>';
   document.getElementById('dom-import-results').style.display='block';
 
-  // Populate rule category select
   const ruleSelect = document.getElementById('dom-rule-category');
   if(ruleSelect) ruleSelect.innerHTML='<option value="">— wybierz kategorię —</option>'+catOptions;
 }
+
+let _importFilter = 0;
+function domImportSetFilter(f){
+  _importFilter = f;
+  domImportRender();
+}
+
 
 // ── Obsługa pliku ──
 function domImportFile(input){
@@ -2941,12 +2995,22 @@ function domImportProcess(text){
     alert('Nie udało się sparsować pliku. Upewnij się że to CSV z Millennium.');
     return;
   }
+  // Oblicz granicę bieżącego okresu
+  const {cStart} = budGetCycle((load().payday)||1);
+  const periodStart = dKeyB(cStart);
+
   // Dodaj kategorie i flagi
-  _importTxns = txns.map(t=>({
-    ...t,
-    _skip: domImportIsSkip(t),
-    _category: domImportIsSkip(t) ? null : domImportMatchRule(t.desc),
-  }));
+  _importTxns = txns.map(t=>{
+    const beforePeriod = t.date < periodStart;
+    const baseSkip = domImportIsSkip(t);
+    const skip = baseSkip || beforePeriod;
+    return {
+      ...t,
+      _skip: skip,
+      _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
+      _category: skip ? null : domImportMatchRule(t.desc),
+    };
+  });
   domImportRender();
 }
 
@@ -3059,7 +3123,7 @@ function domRuleAdd(){
 }
 
 function domImportIgnore(i){
-  _importTxns[i]._skip = true;
+  _importTxns[i]._skip = !_importTxns[i]._skip;
   domImportRender();
 }
 
