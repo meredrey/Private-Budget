@@ -2994,32 +2994,38 @@ function domImportDrop(event){
 
 function domImportProcess(text){
   const txns = domImportParseCSV(text);
-  alert('Parser zwrócił: ' + txns.length + ' transakcji. Pierwsza linia: ' + text.split('\n')[0].slice(0,80));
+  alert('Parser zwrócił: ' + txns.length + ' transakcji.');
   if(!txns.length){
-    alert('Nie udało się sparsować pliku. Upewnij się że to CSV z Millennium.');
+    alert('Nie udało się sparsować pliku.');
     return;
   }
-  // Oblicz granicę bieżącego okresu
-  const {cStart} = budGetCycle((load().payday)||1);
-  const periodStart = dKeyB(cStart);
-
-  // Dodaj kategorie i flagi
-  _importTxns = txns.map(t=>{
-    const beforePeriod = t.date < periodStart;
-    const baseSkip = domImportIsSkip(t);
-    const skip = baseSkip || beforePeriod;
-    return {
-      ...t,
-      _skip: skip,
-      _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
-      _category: skip ? null : domImportMatchRule(t.desc),
-    };
-  });
   try {
+    const {cStart} = budGetCycle((load().payday)||1);
+    alert('cStart: ' + cStart);
+    const periodStart = dKeyB(cStart);
+    alert('periodStart: ' + periodStart);
+    _importTxns = txns.map(t=>{
+      const beforePeriod = t.date < periodStart;
+      const baseSkip = domImportIsSkip(t);
+      const skip = baseSkip || beforePeriod;
+      return {
+        ...t,
+        _skip: skip,
+        _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
+        _category: skip ? null : domImportMatchRule(t.desc),
+      };
+    });
+    alert('_importTxns mapped: ' + _importTxns.length);
+  } catch(e2) {
+    alert('BŁĄD W PROCESS: ' + e2.message);
+    return;
+  }
+  try {
+    alert('Przed mapem, txns: ' + _importTxns.length);
     domImportRender();
-    alert('Render OK. filter-bar: ' + !!document.getElementById('dom-import-filter-bar') + ', results: ' + document.getElementById('dom-import-results')?.style.display);
+    alert('Po renderze OK');
   } catch(e) {
-    alert('Błąd renderowania: ' + e.message + ' linia: ' + e.stack?.split('\n')[1]);
+    alert('BŁĄD: ' + e.message + ' | ' + e.stack?.split('\n')[0]);
   }
 }
 
