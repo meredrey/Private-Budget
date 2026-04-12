@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Private Budget</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojN2M1Y2JmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzRhMzI4MiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPCEtLSBUxYJvIC0tPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE1IiBmaWxsPSJ1cmwoI2JnKSIvPgogIDwhLS0gTW9uZXRhL2vDs8WCa28gLS0+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMTk1IiByPSI5NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMjUpIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIFpuYWsgesWCb3TDs3draSAtLT4KICA8dGV4dCB4PSIyNTYiIHk9IjIyOCIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMTMwIiBmb250LXdlaWdodD0iYm9sZCIgCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSI+esWCPC90ZXh0PgogIDwhLS0gUGFzZWsgd3lrcmVzdSByb3NuxIVjeSAtLT4KICA8cmVjdCB4PSIxMDgiIHk9IjM2MCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjgwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC40KSIvPgogIDxyZWN0IHg9IjE4NCIgeT0iMzIwIiB3aWR0aD0iNDgiIGhlaWdodD0iMTIwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC42KSIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMjgwIiB3aWR0aD0iNDgiIGhlaWdodD0iMTYwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIvPgogIDxyZWN0IHg9IjMzNiIgeT0iMjQwIiB3aWR0aD0iNDgiIGhlaWdodD0iMjAwIiByeD0iMTAiIGZpbGw9IndoaXRlIi8+CiAgPCEtLSBMaW5pYSB0cmVuZHUgLS0+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTMyLDM1NSAyMDgsMzE1IDI4NCwyNzUgMzYwLDIzNSIgCiAgICBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDIyMCwxMDAsMC45KSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIEd3aWF6ZGtpIGRla29yYWN5am5lIC0tPgogIDxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0MCIgcj0iOCIgZmlsbD0icmdiYSgyNTUsMjIwLDEwMCwwLjgpIi8+CiAgPGNpcmNsZSBjeD0iNDIwIiBjeT0iMTcwIiByPSI1IiBmaWxsPSJyZ2JhKDI1NSwyMjAsMTAwLDAuNSkiLz4KICA8Y2lyY2xlIGN4PSIzNzAiIGN5PSIxNzUiIHI9IjQiIGZpbGw9InJnYmEoMjU1LDIyMCwxMDAsMC41KSIvPgo8L3N2Zz4=">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojN2M1Y2JmIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzRhMzI4MiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPCEtLSBUxYJvIC0tPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE1IiBmaWxsPSJ1cmwoI2JnKSIvPgogIDwhLS0gTW9uZXRhL2vDs8WCa28gLS0+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMTk1IiByPSI5NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMjUpIiBzdHJva2Utd2lkdGg9IjgiLz4KICA8IS0tIFpuYWsgesWCb3TDs3draSAtLT4KICA8dGV4dCB4PSIyNTYiIHk9IjIyOCIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMTMwIiBmb250LXdlaWdodD0iYm9sZCIgCiAgICB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSI+esWCPC90ZXh0PgogIDwhLS0gUGFzZWsgd3lrcmVzdSByb3NuxIVjeSAtLT4KICA8cmVjdCB4PSIxMDgiIHk9IjM2MCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjgwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC40KSIvPgogIDxyZWN0IHg9IjE4NCIgeT0iMzIwIiB3aWR0aD0iNDgiIGhlaWdodD0iMTIwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC42KSIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMjgwIiB3aWR0aD0iNDgiIGhlaWdodD0iMTYwIiByeD0iMTAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44KSIvPgogIDxyZWN0IHg9IjMzNiIgeT0iMjQwIiB3aWR0aD0iNDgiIGhlaWdodD0iMjAwIiByeD0iMTAiIGZpbGw9IndoaXRlIi8+CiAgPCEtLSBMaW5pYSB0cmVuZHUgLS0+CiAgPHBvbHlsaW5lIHBvaW50cz0iMTMyLDM1NSAyMDgsMzE1IDI4NCwyNzUgMzYwLDIzNSIgCiAgICBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDIyMCwxMDAsMC45KSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8IS0tIEd3aWF6ZGtpIGRla29yYWN5am5lIC0tPgogIDxjaXJjbGUgY3g9IjM5MCIgY3k9IjE0MCIgcj0iOCIgZmlsbD0icmdiYSgyNTUsMjIwLDEwMCwwLjgpIi8+CiAgPGNpcmNsZSBjeD0iNDIwIiBjeT0iMTcwIiByPSI1IiBmaWxsPSJyZ2JhKDI1NSwyMjAsMTAwLDAuNSkiLz4KICA8Y2lyY2xlIGN4PSIzNzAiIGN5PSIxNzUiIHI9IjQiIGZpbGw9InJnYmEoMjU1LDIyMCwxMDAsMC41KSIvPgo8L3N2Zz4=">
+<meta name="theme-color" content="#5e4d82">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Budżet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -2141,6 +2147,16 @@ function domRenderRow(exp,ym){
       </div>
       <div class="dom-diff ${diffCls}">${diffStr}</div>
     </div>
+    ${(()=>{
+      const entries = domData[ym]?.[exp.name]?.entries;
+      if(!entries||!entries.length) return '';
+      return '<div style="padding:4px 12px 8px;border-top:1px solid #eee8f8">'
+        + entries.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:#7a6e98">
+            <span>📥 ${e.name.slice(0,35)}</span>
+            <span style="font-weight:600;color:#5e4d82">${fmt(e.amount)} zł</span>
+          </div>`).join('')
+        + '</div>';
+    })()}
   </div>`;
 }
 
@@ -3041,7 +3057,8 @@ function domImportConfirm(){
   const chks = document.querySelectorAll('.dom-import-chk:checked');
   if(!chks.length){ alert('Zaznacz przynajmniej jedną transakcję'); return; }
 
-  let imported=0, skippedDup=0;
+  let imported=0;
+  const importedAt = new Date().toISOString().slice(0,16).replace('T',' ');
 
   chks.forEach(chk=>{
     const i = parseInt(chk.dataset.idx);
@@ -3050,61 +3067,41 @@ function domImportConfirm(){
 
     // Pobierz kategorię
     let category = t._category;
-    if(!category){
-      const catSel = document.querySelector(`.dom-import-cat[data-idx="${i}"]`);
-      category = catSel?.value;
-    }
-    if(!category) return;
+    if(!category) return; // bez kategorii nie importuj
 
     const amount = Math.abs(t.amount);
+    const ym = t.date.slice(0,7); // użyj miesiąca transakcji
 
-    // Sprawdź duplikat jeszcze raz
-    if(domImportIsDuplicate(category, amount)){
-      if(!confirm(`"${t.desc.slice(0,30)}" (${fmt(amount)} zł → ${category}) wygląda jak duplikat. Importować mimo to?`)){
-        skippedDup++;
-        return;
-      }
-    }
-
-    // Zapamiętaj regułę jeśli checkbox zaznaczony
-    const remChk = document.querySelector(`.dom-import-remember[data-idx="${i}"]`);
-    if(remChk?.checked && t.desc){
-      // Użyj pierwszego słowa jako keyword
-      const keyword = t.desc.split(/\s+/)[0].toLowerCase().slice(0,20);
-      if(!domData._importRules) domData._importRules={};
-      domData._importRules[keyword] = category;
-    }
-
-    // Zapisz fingerprint żeby kolejny import wiedział co już jest
+    // Zapisz fingerprint
     if(!domData._importedFps) domData._importedFps=[];
     const fp = domImportFingerprint(t);
     if(!domData._importedFps.includes(fp)) domData._importedFps.push(fp);
 
-    // Dodaj do domData jako entry
-    if(!domData[domYM]) domData[domYM]={};
-    if(!domData[domYM][category]) domData[domYM][category]={};
-    if(!domData[domYM][category].entries) domData[domYM][category].entries=[];
-    domData[domYM][category].entries.push({
+    // Dodaj do domData[ym][category].entries
+    if(!domData[ym]) domData[ym]={};
+    if(!domData[ym][category]) domData[ym][category]={};
+    if(!domData[ym][category].entries) domData[ym][category].entries=[];
+    domData[ym][category].entries.push({
       name: t.desc.slice(0,40),
-      amount: amount,
+      amount,
       _imported: true,
+      _importedAt: importedAt,
     });
-    // Zaktualizuj real jako sumę entries
-    const entries = domData[domYM][category].entries;
-    domData[domYM][category].real = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
-    domData[domYM][category]._updated = domYM;
+    // Zaktualizuj real = suma entries
+    const entries = domData[ym][category].entries;
+    domData[ym][category].real = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
+    domData[ym][category]._updated = new Date().toISOString().slice(0,10);
 
     imported++;
   });
 
   domScheduleSave();
+  alert(`✅ Zaimportowano ${imported} transakcji.`);
 
-  alert(`✅ Zaimportowano ${imported} transakcji${skippedDup?`, pominięto ${skippedDup} duplikatów`:''}.`);
-
-  // Reset
   domImportClear();
   document.getElementById('dom-import-results').style.display='none';
   document.getElementById('dom-import-file').value='';
+  renderDom();
   setDomView('month');
 }
 
