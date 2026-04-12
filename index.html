@@ -2994,6 +2994,7 @@ function domImportDrop(event){
 
 function domImportProcess(text){
   const txns = domImportParseCSV(text);
+  alert('Parser zwrócił: ' + txns.length + ' transakcji. Pierwsza linia: ' + text.split('\n')[0].slice(0,80));
   if(!txns.length){
     alert('Nie udało się sparsować pliku. Upewnij się że to CSV z Millennium.');
     return;
