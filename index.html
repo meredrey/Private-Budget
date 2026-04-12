@@ -2826,6 +2826,9 @@ function domImportIsDuplicate(category, amount){
 }
 
 // ── Render listy transakcji ──
+let _importFilter = 0;
+function domImportSetFilter(f){ _importFilter=f; domImportRender(); }
+
 function domImportRender(){
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const cats = allExp.map(e=>e.name);
@@ -2834,7 +2837,7 @@ function domImportRender(){
   const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
 
   let autoCount=0, todoCount=0, skipCount=0;
-  const activeRows=[], skipRows=[];
+  const autoRows=[], todoRows=[], skipRows=[];
 
   _importTxns.forEach((t,i)=>{
     const amtColor = t.amount<0 ? '#9a4060' : '#3d7a60';
@@ -2865,11 +2868,11 @@ function domImportRender(){
 
     const auto = t._category;
     const isDup = auto ? domImportIsDuplicate(auto, t.amount) : false;
-    if(auto) autoCount++; else todoCount++;
+    if(auto){ autoCount++; } else { todoCount++; }
     const dupWarning = isDup ? `<div style="font-size:11px;color:#9a4060;margin-top:4px">⚠️ Możliwy duplikat</div>` : '';
 
     if(auto){
-      activeRows.push(`
+      autoRows.push(`
         <div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #d4f0e4">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="flex:1;min-width:0">
@@ -2889,7 +2892,7 @@ function domImportRender(){
           </button>
         </div>`);
     } else {
-      activeRows.push(`
+      todoRows.push(`
         <div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:8px;border:2px solid #ffe0a0">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="flex:1;min-width:0">
@@ -2933,7 +2936,7 @@ function domImportRender(){
   // Filtr kategorii — zakładki na górze
   const filterBar = document.getElementById('dom-import-filter-bar');
   if(filterBar){
-    const cats2 = ['Wszystkie','✅ Auto','⚠️ Do przypisania','🚫 Pominięte'];
+    const cats2 = [`Wszystkie (${autoCount+todoCount})`,`✅ Auto (${autoCount})`,`⚠️ Do przyp. (${todoCount})`,`🚫 Pominięte (${skipCount})`];
     filterBar.innerHTML = cats2.map((c,i)=>`
       <button onclick="domImportSetFilter(${i})"
         id="dom-import-flt-${i}"
@@ -2944,26 +2947,26 @@ function domImportRender(){
   }
 
   // Render listy wg filtra
-  let html = '';
-  if(_importFilter===0) html = activeRows.join('') + (skipRows.length ? `
-    <div style="font-size:11px;font-weight:700;color:#b0a4cc;letter-spacing:1px;padding:12px 0 6px">POMINIĘTE</div>
-    ${skipRows.join('')}` : '');
-  else if(_importFilter===1) html = activeRows.filter((_,i)=>_importTxns.filter(t=>!t._skip)[i]?._category).join('');
-  else if(_importFilter===2) html = activeRows.filter((_,i)=>!_importTxns.filter(t=>!t._skip)[i]?._category).join('');
-  else if(_importFilter===3) html = skipRows.join('');
+  let listHtml = '';
+  const activeRows = [...autoRows, ...todoRows];
+  if(_importFilter===0){
+    listHtml = activeRows.join('');
+    if(skipRows.length) listHtml += '<div style="font-size:11px;font-weight:700;color:#b0a4cc;letter-spacing:1px;padding:12px 0 6px;margin-left:2px">POMINIĘTE</div>' + skipRows.join('');
+  } else if(_importFilter===1){
+    listHtml = autoRows.join('');
+  } else if(_importFilter===2){
+    listHtml = todoRows.join('');
+  } else if(_importFilter===3){
+    listHtml = skipRows.join('');
+  }
 
-  document.getElementById('dom-import-list').innerHTML = html || '<div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak transakcji w tej kategorii</div>';
+  document.getElementById('dom-import-list').innerHTML = listHtml || '<div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak transakcji w tej kategorii</div>';
   document.getElementById('dom-import-results').style.display='block';
 
   const ruleSelect = document.getElementById('dom-rule-category');
   if(ruleSelect) ruleSelect.innerHTML='<option value="">— wybierz kategorię —</option>'+catOptions;
 }
 
-let _importFilter = 0;
-function domImportSetFilter(f){
-  _importFilter = f;
-  domImportRender();
-}
 
 
 // ── Obsługa pliku ──
