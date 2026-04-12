@@ -2719,6 +2719,15 @@ function renderDomYear(){
 // ══ IMPORT WYCIĄGU BANKOWEGO ══
 
 let _importTxns = [];
+try { const _saved = localStorage.getItem('import_v1'); if(_saved) _importTxns = JSON.parse(_saved); } catch{}
+function domImportSave(){
+  try { localStorage.setItem('import_v1', JSON.stringify(_importTxns)); } catch{}
+}
+function domImportClear(){
+  _importTxns = [];
+  try { localStorage.removeItem('import_v1'); } catch{}
+}
+
 
 // ── Parser CSV Millennium ──
 function domImportParseCSV(text){
@@ -2898,16 +2907,21 @@ function domImportRender(){
             <div style="flex:1;min-width:0">
               <div style="font-size:12px;font-weight:600;color:#18102c">${t.desc.slice(0,50)}</div>
               <div style="font-size:11px;color:#7a6e98">${t.date}</div>
-              <select data-idx="${i}" class="dom-import-cat"
-                onchange="domImportSetCat(${i}, this.value)"
+              <select data-idx="${i}" class="dom-import-cat" id="dom-cat-sel-${i}"
                 style="margin-top:6px;width:100%;padding:7px 9px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:12px;background:#fff;outline:none">
                 <option value="">— wybierz kategorię —</option>
                 ${catOptions}
               </select>
-              <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#7a6e98;cursor:pointer">
-                <input type="checkbox" data-idx="${i}" class="dom-import-remember" style="accent-color:#5e4d82">
-                Zapamiętaj regułę
-              </label>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#7a6e98;cursor:pointer">
+                  <input type="checkbox" data-idx="${i}" class="dom-import-remember" id="dom-rem-${i}" style="accent-color:#5e4d82">
+                  Zapamiętaj regułę
+                </label>
+                <button onclick="domImportSetCat(${i}, document.getElementById('dom-cat-sel-${i}').value, document.getElementById('dom-rem-${i}').checked)"
+                  style="padding:5px 14px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">
+                  Zapisz →
+                </button>
+              </div>
               ${dupWarning}
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
@@ -3014,6 +3028,7 @@ function domImportProcess(text){
       _category: skip ? null : domImportMatchRule(t.desc),
     };
   });
+  domImportSave();
   domImportRender();
 }
 
@@ -3078,7 +3093,7 @@ function domImportConfirm(){
   alert(`✅ Zaimportowano ${imported} transakcji${skippedDup?`, pominięto ${skippedDup} duplikatów`:''}.`);
 
   // Reset
-  _importTxns=[];
+  domImportClear();
   document.getElementById('dom-import-results').style.display='none';
   document.getElementById('dom-import-file').value='';
   setDomView('month');
@@ -3129,22 +3144,22 @@ function domImportIgnore(i){
   _importTxns[i]._skip = !_importTxns[i]._skip;
   if(!_importTxns[i]._skip) _importTxns[i]._skipReason = null;
   else if(!_importTxns[i]._skipReason) _importTxns[i]._skipReason = 'manual';
+  domImportSave();
   domImportRender();
 }
 
-function domImportSetCat(i, cat){
+function domImportSetCat(i, cat, remember){
   if(!cat) return;
-  // Zapamiętaj wybór — transakcja przeskakuje do Auto
   _importTxns[i]._category = cat;
   _importTxns[i]._skip = false;
   _importTxns[i]._skipReason = null;
-  // Zapamiętaj regułę jeśli checkbox zaznaczony
-  const remChk = document.querySelector(`.dom-import-remember[data-idx="${i}"]`);
-  if(remChk?.checked && _importTxns[i].desc){
+  if(remember && _importTxns[i].desc){
     const keyword = _importTxns[i].desc.split(/\s+/)[0].toLowerCase().slice(0,20);
     if(!domData._importRules) domData._importRules={};
     domData._importRules[keyword] = cat;
+    domScheduleSave();
   }
+  domImportSave();
   domImportRender();
 }
 
@@ -3167,6 +3182,13 @@ function domRuleDelete(keyword){
 }
 
 function setDomView(v){
+  if(v==='import' && _importTxns.length > 0){
+    // Przywróć stan importu z localStorage
+    setTimeout(()=>{
+      domImportRender();
+      document.getElementById('dom-import-results').style.display='block';
+    }, 50);
+  }
   domView=v;
   document.getElementById('dom-view-month').style.display=v==='month'?'block':'none';
   document.getElementById('dom-view-import').style.display=v==='import'?'block':'none';
