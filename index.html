@@ -2828,10 +2828,14 @@ function domImportIsSkip(txn){
 }
 
 // ── Sprawdź duplikat ──
-function domImportIsDuplicate(category, amount){
-  // Sprawdź czy w domData[domYM][category] jest już taka kwota
-  const entries = domData[domYM]?.[category]?.entries||[];
-  return entries.some(e=>Math.abs(e.amount - Math.abs(amount))<0.01);
+function domImportFingerprint(t){
+  return t.date + '|' + Math.abs(t.amount).toFixed(2) + '|' + t.desc.slice(0,20).toLowerCase();
+}
+
+function domImportIsDuplicate(t){
+  const fp = domImportFingerprint(t);
+  const imported = domData._importedFps || [];
+  return imported.includes(fp);
 }
 
 // ── Render listy transakcji ──
@@ -2854,8 +2858,7 @@ function domImportRender(){
 
     if(t._skip){
       skipCount++;
-      const reason = t._skipReason==='before_period' ? '📅 Przed bieżącym okresem'
-        : t._skipReason==='rule' ? '🚫 Reguła' : '🚫 Zignorowano';
+      const reason = t._skipReason==='duplicate' ? '✅ Już zaimportowano' : t._skipReason==='before_period' ? '📅 Przed bieżącym okresem' : t._skipReason==='rule' ? '🚫 Reguła' : '🚫 Zignorowano';
       skipRows.push(`
         <div style="background:#f8f7ff;border-radius:10px;padding:10px 12px;margin-bottom:6px;border:1.5px solid #e0dcea">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
@@ -2876,7 +2879,7 @@ function domImportRender(){
     }
 
     const auto = t._category;
-    const isDup = auto ? domImportIsDuplicate(auto, t.amount) : false;
+    const isDup = domImportIsDuplicate(t);
     if(auto){ autoCount++; } else { todoCount++; }
     const dupWarning = isDup ? `<div style="font-size:11px;color:#9a4060;margin-top:4px">⚠️ Możliwy duplikat</div>` : '';
 
@@ -3020,11 +3023,12 @@ function domImportProcess(text){
   _importTxns = txns.map(t=>{
     const beforePeriod = t.date < periodStart;
     const baseSkip = domImportIsSkip(t);
-    const skip = baseSkip || beforePeriod;
+    const isDup = domImportIsDuplicate(t);
+    const skip = baseSkip || beforePeriod || isDup;
     return {
       ...t,
       _skip: skip,
-      _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
+      _skipReason: isDup ? 'duplicate' : beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
       _category: skip ? null : domImportMatchRule(t.desc),
     };
   });
@@ -3070,6 +3074,11 @@ function domImportConfirm(){
       if(!domData._importRules) domData._importRules={};
       domData._importRules[keyword] = category;
     }
+
+    // Zapisz fingerprint żeby kolejny import wiedział co już jest
+    if(!domData._importedFps) domData._importedFps=[];
+    const fp = domImportFingerprint(t);
+    if(!domData._importedFps.includes(fp)) domData._importedFps.push(fp);
 
     // Dodaj do domData jako entry
     if(!domData[domYM]) domData[domYM]={};
