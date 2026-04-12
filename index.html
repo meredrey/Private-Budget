@@ -3017,8 +3017,9 @@ function domImportProcess(text){
   });
   try {
     domImportRender();
+    alert('Render OK. filter-bar: ' + !!document.getElementById('dom-import-filter-bar') + ', results: ' + document.getElementById('dom-import-results')?.style.display);
   } catch(e) {
-    alert('Błąd renderowania: ' + e.message + ' @ ' + e.stack?.split('\n')[1]);
+    alert('Błąd renderowania: ' + e.message + ' linia: ' + e.stack?.split('\n')[1]);
   }
 }
 
