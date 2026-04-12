@@ -2994,39 +2994,26 @@ function domImportDrop(event){
 
 function domImportProcess(text){
   const txns = domImportParseCSV(text);
-  alert('Parser zwrócił: ' + txns.length + ' transakcji.');
+
   if(!txns.length){
     alert('Nie udało się sparsować pliku.');
     return;
   }
-  try {
-    const {cStart} = budGetCycle((load().payday)||1);
-    alert('cStart: ' + cStart);
-    const periodStart = dKeyB(cStart);
-    alert('periodStart: ' + periodStart);
-    _importTxns = txns.map(t=>{
-      const beforePeriod = t.date < periodStart;
-      const baseSkip = domImportIsSkip(t);
-      const skip = baseSkip || beforePeriod;
-      return {
-        ...t,
-        _skip: skip,
-        _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
-        _category: skip ? null : domImportMatchRule(t.desc),
-      };
-    });
-    alert('_importTxns mapped: ' + _importTxns.length);
-  } catch(e2) {
-    alert('BŁĄD W PROCESS: ' + e2.message);
-    return;
-  }
-  try {
-    alert('Przed mapem, txns: ' + _importTxns.length);
-    domImportRender();
-    alert('Po renderze OK');
-  } catch(e) {
-    alert('BŁĄD: ' + e.message + ' | ' + e.stack?.split('\n')[0]);
-  }
+  // Bieżący okres rozliczeniowy
+  const periodStart = domGetThisYM() + '-01';
+
+  _importTxns = txns.map(t=>{
+    const beforePeriod = t.date < periodStart;
+    const baseSkip = domImportIsSkip(t);
+    const skip = baseSkip || beforePeriod;
+    return {
+      ...t,
+      _skip: skip,
+      _skipReason: beforePeriod && !baseSkip ? 'before_period' : (baseSkip ? 'rule' : null),
+      _category: skip ? null : domImportMatchRule(t.desc),
+    };
+  });
+  domImportRender();
 }
 
 // ── Potwierdź import ──
