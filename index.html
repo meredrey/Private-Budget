@@ -950,6 +950,14 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
           <button onclick="domRuleAdd()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj regułę</button>
         </div>
       </div>
+    <!-- Historia importów -->
+    <div style="margin-top:24px;padding-bottom:8px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060;margin-bottom:10px">📋 Historia importów</div>
+      <div id="dom-import-history-list">
+        <div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak historii importów</div>
+      </div>
+    </div>
+
     </div>
   </div>
 
@@ -1364,6 +1372,18 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
       <div style="margin-top:10px;font-size:11px;color:#7a6e98">Zmiany parametrów są zapisywane automatycznie.</div>
     </div>
+
+    <!-- Historia importów -->
+    <div style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">📋 Historia importów</div>
+        <button onclick="domImportRenderHistory()" 
+          style="font-size:11px;color:#7a6e98;background:none;border:none;cursor:pointer;padding:4px 8px">Odśwież</button>
+      </div>
+      <div id="dom-import-history-list" style="padding:0 0 24px">
+        <div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Ładowanie...</div>
+      </div>
+    </div>
   </div>
 
   
@@ -1639,6 +1659,7 @@ const CATS=['🛍️ Zakupy','🍽️ Jedzenie','🚗 Transport','💆 Uroda','�
 const API='https://script.google.com/macros/s/AKfycbwjb8-sUkUymiZVFjkYuDIeIQlTu9IfVwVmWVPeLNeHxWUZYvdtle6eJxqqMU_bjIouyw/exec';
 let curPage='week',weekOff=0,selEE='💸',selFE='🌸',selPE='🗓️',selCat='📦 Inne';
 let _state=null,_syncing=false,_syncTimer=null;
+let _domRowMeta={};
 
 function def(){return{budget:0,payday:1,fixedExpenses:[],expenses:[],planned:[]};}
 
@@ -2145,21 +2166,35 @@ function domRenderRow(exp,ym){
         oninput="domSetValById('${safeId}','real',this.value,'${ym}',false)">`;
 
   // Entries list
+  // Wykryj możliwe duplikaty: kwoty ręczne vs importowane
+  const manualAmounts = allEntries.filter(e=>!e._imported&&e._src!=='import').map(e=>e.amount);
+  const importedAmounts = allEntries.filter(e=>e._imported||e._src==='import').map(e=>e.amount);
+  const amtCount = {};
+  allEntries.forEach(e=>{ const a=e.amount.toFixed(2); amtCount[a]=(amtCount[a]||0)+1; });
+
   const entriesHtml=allEntries.length?`
     <div style="margin-top:6px;border-top:1px solid #f0ecf8;padding-top:5px">
       ${allEntries.map((e,i)=>{
         const isImported=e._src==='import'||e._imported;
         const src=i<(d?.entries||[]).length?'entries':'_entries';
         const realIdx=src==='entries'?i:i-(d?.entries||[]).length;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:#7a6e98">
-          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-            ${isImported?'📥':'✏️'} ${(e.name||'wpłata').slice(0,32)}
-          </span>
-          <span style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:6px">
-            <span style="font-weight:600;color:#18102c">${fmt(e.amount)} zł</span>
-            <button onclick="domRemoveEntry('${safeId}','${src}',${realIdx},'${ym}')"
-              style="background:none;border:none;color:#ccc4dc;cursor:pointer;font-size:15px;padding:0;line-height:1">×</button>
-          </span>
+        // Duplikat: importowana kwota pokrywa się z ręczną LUB ta sama kwota pojawia się 2+ razy
+        const amtKey=e.amount.toFixed(2);
+        const isDupWithManual = isImported && manualAmounts.some(a=>a.toFixed(2)===amtKey);
+        const isDupImport = amtCount[amtKey] > 1;
+        const dupWarn = isDupWithManual ? '⚠️ ta kwota jest też wpisana ręcznie' : isDupImport ? '⚠️ ta kwota pojawia się kilka razy' : '';
+        return `<div style="background:${dupWarn?'#fff8e8':'transparent'};border-radius:6px;padding:${dupWarn?'3px 5px':'3px 0'};margin-bottom:${dupWarn?'2px':'0'}">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a6e98">
+            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              ${isImported?'📥':'✏️'} ${(e.name||'wpłata').slice(0,32)}
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:6px">
+              <span style="font-weight:600;color:#18102c">${fmt(e.amount)} zł</span>
+              <button onclick="domRemoveEntry('${safeId}','${src}',${realIdx},'${ym}')"
+                style="background:none;border:none;color:#ccc4dc;cursor:pointer;font-size:15px;padding:0;line-height:1">×</button>
+            </span>
+          </div>
+          ${dupWarn?`<div style="font-size:10px;color:#9a6020;margin-top:1px">⚠️ ${dupWarn}</div>`:''}
         </div>`;
       }).join('')}
       ${manualVal!=null&&manualVal>0?`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:#7a6e98;border-top:1px dashed #f0ecf8;margin-top:2px">
@@ -2259,7 +2294,6 @@ function domSaveEntry(safeId, ym){
 }
 
 
-function domAddEntry(safeId, ym){ domToggleForm(safeId, ym, true); }
 
 function domRemoveEntry(safeId, src, idx, ym){
   const meta=_domRowMeta[safeId];
@@ -2983,10 +3017,9 @@ function domImportRender(){
             </div>
           </div>
           <div style="display:flex;gap:5px;margin-top:7px">
-            <select onchange="domImportSetCat(${i},this.value,false)"
+            <select onchange="domImportSetCat(${i},this.value,true)"
               style="flex:1;padding:5px 8px;border:1px solid #c8e8d0;border-radius:7px;font-size:11px;color:#4a4060;background:#fff;outline:none;min-width:0">
-              <option value="${auto}" selected>${auto}</option>
-              ${catOptions}
+              ${allCats.map(c=>`<option value="${c}"${c===auto?' selected':''}>${c}</option>`).join('')}
             </select>
             <button onclick="domImportIgnore(${i})"
               style="padding:5px 10px;background:none;border:1px solid #e0dcea;border-radius:7px;font-size:11px;color:#b0a4cc;cursor:pointer;flex-shrink:0">Pomiń</button>
@@ -3008,7 +3041,7 @@ function domImportRender(){
               <option value="">— kategoria —</option>
               ${catOptions}
             </select>
-            <button onclick="domImportSetCat(${i}, document.getElementById('dom-cat-sel-${i}').value, true)"
+            <button onclick="domImportSetCat(${i}, document.getElementById('dom-cat-sel-${i}').value, document.getElementById('dom-rem-${i}').checked)"
               style="padding:8px 14px;background:#5e4d82;border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap">
               Zapisz →
             </button>
@@ -3017,6 +3050,11 @@ function domImportRender(){
               🚫
             </button>
           </div>
+          <label style="display:flex;align-items:center;gap:6px;margin-top:7px;cursor:pointer">
+            <input type="checkbox" id="dom-rem-${i}" checked
+              style="width:14px;height:14px;accent-color:#5e4d82;cursor:pointer;flex-shrink:0">
+            <span style="font-size:11px;color:#7a6e98">zapamiętaj jako regułę</span>
+          </label>
         </div>`);
     }
   });
@@ -3071,27 +3109,31 @@ function domImportRender(){
 }
 
 function domImportConfirm(){
-  // Importuj wszystkie transakcje które mają kategorię i nie są pominięte
   const toImport = _importTxns.filter(t => !t._skip && t._category);
   if(!toImport.length){
     alert('Brak transakcji do importu. Najpierw przypisz kategorie.');
     return;
   }
 
-  let imported = 0;
+  // Unikalny ID dla tej partii importu
+  const importId = 'imp_' + Date.now();
   const importedAt = new Date().toISOString().slice(0,16).replace('T',' ');
   if(!domData._importedFps) domData._importedFps=[];
+  if(!domData._importHistory) domData._importHistory=[];
+
+  let imported = 0;
+  let totalAmt = 0;
+  // Zapisz które kategorie/miesiące zostały zmienione (do cofnięcia)
+  const batchTxns = [];
 
   toImport.forEach(t=>{
     const category = t._category;
     const amount = Math.abs(t.amount);
     const ym = t.date.slice(0,7);
 
-    // Fingerprint
     const fp = domImportFingerprint(t);
     if(!domData._importedFps.includes(fp)) domData._importedFps.push(fp);
 
-    // Zapisz
     if(!domData[ym]) domData[ym]={};
     if(!domData[ym][category]) domData[ym][category]={};
     if(!domData[ym][category].entries) domData[ym][category].entries=[];
@@ -3100,19 +3142,32 @@ function domImportConfirm(){
       amount,
       _imported: true,
       _importedAt: importedAt,
+      _importId: importId,
     });
-    // Przelicz real
     const entries = domData[ym][category].entries;
     const entriesSum = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
     const manualVal = domData[ym][category].realManual ?? null;
     domData[ym][category].real = Math.round(((manualVal||0)+entriesSum)*100)/100 || null;
     domData[ym][category]._updated = new Date().toISOString().slice(0,10);
+
+    batchTxns.push({date:t.date, desc:t.desc.slice(0,40), amount, category, ym, fp});
+    totalAmt += amount;
     imported++;
   });
 
+  // Zapisz import do historii
+  domData._importHistory.unshift({
+    id: importId,
+    date: importedAt,
+    count: imported,
+    total: Math.round(totalAmt*100)/100,
+    txns: batchTxns,
+  });
+  // Ogranicz historię do 20 ostatnich importów
+  if(domData._importHistory.length > 20) domData._importHistory.length = 20;
+
   domScheduleSave();
 
-  // Feedback
   const remaining = _importTxns.filter(t=>!t._skip&&!t._category).length;
   const msg = remaining > 0
     ? `✅ Zaimportowano ${imported} transakcji.\n${remaining} bez kategorii — wróć do importu żeby je przypisać.`
@@ -3123,15 +3178,15 @@ function domImportConfirm(){
   document.getElementById('dom-import-results').style.display='none';
   document.getElementById('dom-import-file').value='';
   renderDom();
-  setDomView('month');
-  // Podświetl zaktualizowane wiersze
+  setDomView('import');
+  // Podświetl zaktualizowane wiersze po powrocie do miesiąca
   setTimeout(()=>{
     document.querySelectorAll('.dom-row.has-real').forEach(el=>{
       el.style.transition='box-shadow .3s';
       el.style.boxShadow='0 0 0 2px #3d7a60';
       setTimeout(()=>{ el.style.boxShadow=''; },2000);
     });
-  }, 100);
+  }, 200);
 }
 
 
@@ -3158,7 +3213,10 @@ function domImportDrop(event){
 function domImportProcess(text){
   const txns=domImportParseCSV(text);
   if(!txns.length){alert('Nie udało się sparsować pliku.');return;}
-  const periodStart=domGetThisYM()+'-01';
+  // Używaj daty STARTU cyklu (nie pierwszego dnia miesiąca)
+  const st=load();const pd=st.payday||1;
+  const {start:cycleStart}=budGetCycle(pd);
+  const periodStart=dKeyB(cycleStart);
   _importTxns=txns.map(t=>{
     const beforePeriod=t.date<periodStart;
     const baseSkip=domImportIsSkip(t);const isDup=domImportIsDuplicate(t);
@@ -3169,6 +3227,104 @@ function domImportProcess(text){
 }
 
 // ── Reguły ──
+
+// ══ HISTORIA IMPORTÓW ══
+
+function domImportRenderHistory(){
+  const history = domData._importHistory || [];
+  const el = document.getElementById('dom-import-history-list');
+  if(!el) return;
+
+  if(!history.length){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak historii importów</div>';
+    return;
+  }
+
+  el.innerHTML = history.map((imp,i) => {
+    const d = new Date(imp.date.replace(' ','T'));
+    const dateStr = d.toLocaleDateString('pl-PL',{day:'numeric',month:'short',year:'numeric'});
+    const timeStr = imp.date.slice(11,16);
+    // Group by category for summary
+    const byCat = {};
+    (imp.txns||[]).forEach(t=>{
+      if(!byCat[t.category]) byCat[t.category]=0;
+      byCat[t.category]+=t.amount;
+    });
+    const catSummary = Object.entries(byCat)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,4)
+      .map(([cat,amt])=>`<span style="background:#eeebf5;border-radius:6px;padding:2px 7px;font-size:10px;color:#5e4d82;white-space:nowrap">${cat} ${fmt(Math.round(amt))} zł</span>`)
+      .join('');
+    const moreCats = Object.keys(byCat).length > 4 ? `<span style="font-size:10px;color:#b0a4cc">+${Object.keys(byCat).length-4} więcej</span>` : '';
+
+    return `<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid #e8e4f0">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:#18102c">${dateStr} · ${timeStr}</div>
+          <div style="font-size:12px;color:#7a6e98;margin-top:2px">${imp.count} transakcji · łącznie ${fmt(imp.total)} zł</div>
+        </div>
+        <button onclick="domImportDeleteBatch('${imp.id}')"
+          style="padding:7px 12px;background:#fdf0f4;border:1.5px solid #e8c0cc;border-radius:9px;font-size:12px;font-weight:700;color:#9a4060;cursor:pointer;flex-shrink:0;white-space:nowrap">
+          🗑 Cofnij import
+        </button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${catSummary}${moreCats}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function domImportDeleteBatch(importId){
+  const history = domData._importHistory || [];
+  const batch = history.find(h => h.id === importId);
+  if(!batch) return;
+
+  const confirmMsg = `Cofnąć import z ${batch.date}?\n${batch.count} transakcji (${fmt(batch.total)} zł) zostanie usuniętych.`;
+  if(!confirm(confirmMsg)) return;
+
+  let removed = 0;
+
+  // Usuń wszystkie entries z tym importId ze wszystkich kategorii i miesięcy
+  const allYMs = Object.keys(domData).filter(k => /^\d{4}-\d{2}$/.test(k));
+  allYMs.forEach(ym => {
+    const monthData = domData[ym];
+    Object.keys(monthData).forEach(cat => {
+      const catData = monthData[cat];
+      if(!catData || typeof catData !== 'object') return;
+      if(!Array.isArray(catData.entries)) return;
+
+      const before = catData.entries.length;
+      catData.entries = catData.entries.filter(e => e._importId !== importId);
+      removed += before - catData.entries.length;
+
+      // Usuń też fingerprint z _importedFps
+      if(domData._importedFps && batch.txns){
+        batch.txns.forEach(t => {
+          const fp = t.fp || (t.date+'|'+t.amount.toFixed(2)+'|'+t.desc.slice(0,20).toLowerCase());
+          domData._importedFps = (domData._importedFps||[]).filter(f => f !== fp);
+        });
+      }
+
+      // Przelicz real
+      const allE = [...(catData.entries||[]),...(catData._entries||[])];
+      const entriesSum = Math.round(allE.reduce((s,e)=>s+e.amount,0)*100)/100;
+      const manualVal = catData.realManual ?? null;
+      catData.real = Math.round(((manualVal||0)+entriesSum)*100)/100 || null;
+      if(catData.real === 0) catData.real = null;
+      catData._updated = new Date().toISOString().slice(0,10);
+    });
+  });
+
+  // Usuń z historii
+  domData._importHistory = history.filter(h => h.id !== importId);
+
+  domScheduleSave();
+  domImportRenderHistory();
+  renderDom();
+  alert(`✅ Usunięto ${removed} transakcji z importu ${batch.date}.`);
+}
+
 function domImportRulesToggle(){
   const panel=document.getElementById('dom-rules-panel');
   const arrow=document.getElementById('dom-rules-arrow');
@@ -3260,8 +3416,11 @@ function domRuleDelete(keyword){
 }
 
 function setDomView(v){
-  if(v==='import'&&_importTxns.length>0){
-    setTimeout(()=>{ domImportRender(); document.getElementById('dom-import-results').style.display='block'; },50);
+  if(v==='import'){
+    if(_importTxns.length>0){
+      setTimeout(()=>{ domImportRender(); document.getElementById('dom-import-results').style.display='block'; },50);
+    }
+    setTimeout(()=>domImportRenderHistory(), 60);
   }
   domView=v;
   document.getElementById('dom-view-month').style.display=v==='month'?'block':'none';
@@ -4222,8 +4381,6 @@ function openAddFixed(){selFE='🌸';document.getElementById('fixed-name').value
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function handleOC(e,id){if(e.target.id===id)closeModal(id);}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(document.activeElement.id==='qa-name'||document.activeElement.id==='qa-amt'))quickSave();});
-
-let _domRowMeta={};
 
 function showPage(name){
   curPage=name;try{sessionStorage.setItem('curPage',name);}catch{}
