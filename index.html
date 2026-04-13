@@ -930,15 +930,23 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
     </div>
 
-    <!-- Reguły -->
-    <div style="margin-top:16px">
-      <div class="sec-lbl" onclick="domImportRulesToggle()" style="cursor:pointer;display:flex;justify-content:space-between">
-        <span>⚡ Reguły automatyczne</span>
-        <span id="dom-rules-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">›</span>
+    <!-- Historia importów -->
+    <div style="margin-top:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060;margin-bottom:10px;padding:0 2px">📋 Historia importów</div>
+      <div id="dom-import-history-list">
+        <div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak historii importów</div>
+      </div>
+    </div>
+
+    <!-- Reguły automatyczne -->
+    <div style="margin-top:20px">
+      <div onclick="domImportRulesToggle()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">⚡ Reguły automatyczne</div>
+        <span id="dom-rules-arrow" style="font-size:12px;color:#7a6e98">›</span>
       </div>
       <div id="dom-rules-panel" style="display:none">
         <div id="dom-rules-list" style="margin-bottom:10px"></div>
-        <div style="background:#f4f1fc;border-radius:12px;padding:12px">
+        <div style="background:#f4f1fc;border-radius:12px;padding:12px;margin-bottom:10px">
           <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:8px">+ Nowa reguła</div>
           <div style="display:flex;gap:8px;margin-bottom:8px">
             <input type="text" id="dom-rule-keyword" placeholder="Słowo kluczowe (np. biedronka)"
@@ -950,15 +958,8 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
           <button onclick="domRuleAdd()" style="width:100%;padding:10px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj regułę</button>
         </div>
       </div>
-    <!-- Historia importów -->
-    <div style="margin-top:24px;padding-bottom:8px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060;margin-bottom:10px">📋 Historia importów</div>
-      <div id="dom-import-history-list">
-        <div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Brak historii importów</div>
-      </div>
     </div>
 
-    </div>
   </div>
 
   <!-- MONTH VIEW -->
@@ -1135,6 +1136,46 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dom-income-total">2 745 zł</div>
       </div>
     </div>
+
+  <!-- USTAWIENIA WYDATKÓW DOMOWYCH -->
+  <div class="sec-lbl" onclick="domExpMgrToggle()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+    <span>⚙️ Zarządzaj wydatkami domowymi</span>
+    <span id="dom-exp-mgr-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">›</span>
+  </div>
+  <div id="dom-exp-mgr-panel" style="display:none;margin:0 12px 12px">
+    <div id="dom-exp-mgr-list"></div>
+    <!-- Dodaj nowy -->
+    <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="text" id="dom-new-name" placeholder="Nazwa"
+          style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;outline:none">
+        <input type="text" id="dom-new-icon" placeholder="🏠" maxlength="2"
+          style="width:52px;padding:9px 8px;border:2px solid #b0a4cc;border-radius:9px;font-size:18px;text-align:center;outline:none">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <select id="dom-new-category" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
+          <option value="rachunki">🧾 Rachunki</option>
+          <option value="zycie">🌿 Życie</option>
+          <option value="dzieci">👧 Dzieci</option>
+          <option value="extra">✨ Dodatkowe</option>
+        </select>
+        <select id="dom-new-type" onchange="domNewTypeChange()" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
+          <option value="fixed">Stała kwota</option>
+          <option value="avg3">Średnia 3 mies.</option>
+          <option value="lastYear">Zeszły rok</option>
+          <option value="manual">Ręczna (brak planu)</option>
+        </select>
+      </div>
+      <div id="dom-new-amount-row" style="margin-bottom:8px">
+        <input type="number" id="dom-new-amount" placeholder="Kwota zł" inputmode="decimal"
+          style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;outline:none;box-sizing:border-box">
+      </div>
+      <button onclick="domExpAdd()" style="width:100%;padding:11px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj</button>
+    </div>
+  </div>
+
+
   </div>
 
   <!-- CHECK VIEW -->
@@ -1221,43 +1262,6 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     </div>
   </div>
 
-  <!-- USTAWIENIA WYDATKÓW DOMOWYCH -->
-  <div class="sec-lbl" onclick="domExpMgrToggle()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-    <span>⚙️ Zarządzaj wydatkami domowymi</span>
-    <span id="dom-exp-mgr-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">›</span>
-  </div>
-  <div id="dom-exp-mgr-panel" style="display:none;margin:0 12px 12px">
-    <div id="dom-exp-mgr-list"></div>
-    <!-- Dodaj nowy -->
-    <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input type="text" id="dom-new-name" placeholder="Nazwa"
-          style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;outline:none">
-        <input type="text" id="dom-new-icon" placeholder="🏠" maxlength="2"
-          style="width:52px;padding:9px 8px;border:2px solid #b0a4cc;border-radius:9px;font-size:18px;text-align:center;outline:none">
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <select id="dom-new-category" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
-          <option value="rachunki">🧾 Rachunki</option>
-          <option value="zycie">🌿 Życie</option>
-          <option value="dzieci">👧 Dzieci</option>
-          <option value="extra">✨ Dodatkowe</option>
-        </select>
-        <select id="dom-new-type" onchange="domNewTypeChange()" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
-          <option value="fixed">Stała kwota</option>
-          <option value="avg3">Średnia 3 mies.</option>
-          <option value="lastYear">Zeszły rok</option>
-          <option value="manual">Ręczna (brak planu)</option>
-        </select>
-      </div>
-      <div id="dom-new-amount-row" style="margin-bottom:8px">
-        <input type="number" id="dom-new-amount" placeholder="Kwota zł" inputmode="decimal"
-          style="width:100%;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;outline:none;box-sizing:border-box">
-      </div>
-      <button onclick="domExpAdd()" style="width:100%;padding:11px;background:#5e4d82;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Dodaj</button>
-    </div>
-  </div>
 
   <div class="sp"></div>
 </div>
@@ -3166,7 +3170,14 @@ function domImportConfirm(){
   // Ogranicz historię do 20 ostatnich importów
   if(domData._importHistory.length > 20) domData._importHistory.length = 20;
 
-  domScheduleSave();
+  // Zapisz natychmiast do localStorage
+  try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
+  // Zapisz do Sheets synchronicznie (nie czekaj na debounce)
+  if(domSyncTimer) clearTimeout(domSyncTimer);
+  const saveData = encodeURIComponent(JSON.stringify(domData));
+  fetch(`${API}?action=write&sheet=DomData&data=${saveData}`)
+    .then(r=>r.json())
+    .catch(()=>{});
 
   const remaining = _importTxns.filter(t=>!t._skip&&!t._category).length;
   const msg = remaining > 0
@@ -3179,7 +3190,6 @@ function domImportConfirm(){
   document.getElementById('dom-import-file').value='';
   renderDom();
   setDomView('import');
-  // Podświetl zaktualizowane wiersze po powrocie do miesiąca
   setTimeout(()=>{
     document.querySelectorAll('.dom-row.has-real').forEach(el=>{
       el.style.transition='box-shadow .3s';
@@ -3486,11 +3496,64 @@ function chkUpdate(){
 function changeDomMonth(dir){domYM=domAddMonths(domYM,dir);renderDom();}
 function domScheduleSave(){
   if(domSyncTimer)clearTimeout(domSyncTimer);
+  // Zapisz lokalnie natychmiast
   try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
-  domSyncTimer=setTimeout(()=>{const data=encodeURIComponent(JSON.stringify(domData));fetch(`${API}?action=write&sheet=DomData&data=${data}`).then(r=>r.json()).catch(()=>{});},1500);
+  // Synchronizuj z Sheets po 800ms (debounce)
+  domSyncTimer=setTimeout(()=>{
+    const data=encodeURIComponent(JSON.stringify(domData));
+    fetch(`${API}?action=write&sheet=DomData&data=${data}`)
+    .then(r=>r.json())
+    .then(r=>{ if(r.success){ try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{} } })
+    .catch(()=>{ /* bez internetu — zostaje w localStorage */ });
+  },800);
 }
 function domSyncFromSheets(){
-  fetch(`${API}?action=read&sheet=DomData`).then(r=>r.json()).then(r=>{if(r.success&&r.data){domData=r.data;domApplyOverrides();try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}if(curPage==='dom')renderDom();if(curPage==='dash')renderDash();}}).catch(()=>{});
+  fetch(`${API}?action=read&sheet=DomData`).then(r=>r.json()).then(r=>{
+    if(!r.success||!r.data) return;
+    const remote = r.data;
+    // Merge: lokalne dane mają pierwszeństwo nad Sheets
+    // Dla każdego YM: jeśli lokalnie jest nowszy _updated, zachowaj lokalne
+    Object.keys(remote).forEach(key=>{
+      if(key.startsWith('_')) return; // pola specjalne obsługujemy osobno
+      if(!domData[key]){
+        domData[key] = remote[key]; // lokalne nie ma → weź z Sheets
+      } else if(typeof remote[key]==='object'&&!Array.isArray(remote[key])){
+        // Merge per kategoria
+        Object.keys(remote[key]).forEach(cat=>{
+          if(!domData[key][cat]){
+            domData[key][cat] = remote[key][cat];
+          } else {
+            const localUpd = domData[key][cat]?._updated||'';
+            const remoteUpd = remote[key][cat]?._updated||'';
+            if(remoteUpd > localUpd){
+              domData[key][cat] = remote[key][cat];
+            }
+            // jeśli lokalny nowszy lub równy → zostaw lokalny
+          }
+        });
+      }
+    });
+    // _importedFps: union obu list
+    const remoteFps = remote._importedFps||[];
+    const localFps = domData._importedFps||[];
+    domData._importedFps = [...new Set([...localFps,...remoteFps])];
+    // _importHistory: merge po id, zachowaj wszystkie unikalne
+    const remoteHist = remote._importHistory||[];
+    const localHist = domData._importHistory||[];
+    const allIds = new Set(localHist.map(h=>h.id));
+    remoteHist.forEach(h=>{ if(!allIds.has(h.id)) localHist.push(h); });
+    domData._importHistory = localHist.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20);
+    // _importRules: merge, lokalne mają pierwszeństwo
+    const remoteRules = remote._importRules||{};
+    domData._importRules = {...remoteRules,...(domData._importRules||{})};
+    // _customExpenses, _expOverrides: lokalne mają pierwszeństwo
+    if(!domData._customExpenses&&remote._customExpenses) domData._customExpenses=remote._customExpenses;
+    if(!domData._expOverrides&&remote._expOverrides) domData._expOverrides=remote._expOverrides;
+    domApplyOverrides();
+    try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
+    if(curPage==='dom') renderDom();
+    if(curPage==='dash') renderDash();
+  }).catch(()=>{});
 }
 try{const c=localStorage.getItem('dom_v1');if(c){domData=JSON.parse(c);domApplyOverrides();}}catch{}
 
