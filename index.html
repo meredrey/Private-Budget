@@ -2145,6 +2145,7 @@ function domSetVal(expName,field,val,ym,rerender){
 
 function domRenderRow(exp,ym){
   const plan=domGetPlan(exp,ym);
+  const planIsManual=domData[ym]?.[exp.name]?.plan!=null;
   const allEntries=domGetAllEntries(exp.name,ym);
   const d=domData[ym]?.[exp.name];
   const manualVal=d?.realManual??(allEntries.length===0?(d?.real??null):null);
@@ -2244,7 +2245,12 @@ function domRenderRow(exp,ym){
       <div style="flex:1;min-width:0;font-size:13px;font-weight:600;color:${hasReal?'#18102c':'#9a8fbe'}">${exp.icon||''} ${exp.name}</div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         ${diffHtml}
-        <div style="font-size:11px;color:#b0a4cc">/${fmt(plan)} zł</div>
+        <div onclick="domEditPlan(this,'${safeId}')"
+          title="${planIsManual?'Kliknij aby zmienić plan':'Kliknij aby dostosować sugestię'}"
+          style="font-size:11px;color:${planIsManual?'#7a6e98':'#b0a4cc'};cursor:pointer;padding:2px 5px;border-radius:5px;border:1px dashed transparent;white-space:nowrap;font-style:${planIsManual?'normal':'italic'}"
+          onmouseover="this.style.borderColor='#b0a4cc';this.style.color='#5e4d82'"
+          onmouseout="this.style.borderColor='transparent';this.style.color='${planIsManual?'#7a6e98':'#b0a4cc'}'"
+          id="${safeId}_plan">${planIsManual?'':'~'}${fmt(plan)} zł ✎</div>
         ${realDisplay}
         <button onclick="domToggleForm('${safeId}','${ym}',${!showForm})"
           style="width:28px;height:28px;background:${showForm?'#e8e4f0':'#5e4d82'};border:none;border-radius:8px;
@@ -2331,12 +2337,36 @@ function domEditPlan(el,safeId){
   if(!meta)return;
   const {exp,ym}=meta;
   const cur=domGetPlan(exp,ym);
+  const suggested=domGetSuggested(exp,ym);
+
+  // Pokaż input inline
   const inp=document.createElement('input');
-  inp.type='number';inp.value=cur||'';
-  inp.style.cssText='width:70px;padding:4px 6px;border:2px solid #5e4d82;border-radius:7px;font-family:Georgia,serif;font-size:13px;font-weight:600;text-align:right;outline:none;-webkit-appearance:none';
-  inp.onblur=()=>{domSetVal(exp.name,'plan',inp.value,ym);};
-  inp.onkeydown=(e)=>{if(e.key==='Enter')inp.blur();};
-  el.replaceWith(inp);inp.focus();inp.select();
+  inp.type='number';
+  inp.value=cur||'';
+  inp.placeholder=suggested>0?String(Math.round(suggested)):'plan';
+  inp.style.cssText='width:90px;padding:5px 8px;border:2px solid #5e4d82;border-radius:7px;font-size:13px;font-weight:600;text-align:right;outline:none;-webkit-appearance:none;background:#fff';
+
+  const save=()=>{
+    const val=inp.value.trim();
+    domSetVal(exp.name,'plan',val,ym,false);
+    // Przelicz real oraz zapisz
+    domScheduleSave();
+    domUpdateSummary();
+    // Odśwież wiersz
+    const rowEl=document.getElementById(safeId);
+    if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
+  };
+  inp.onblur=save;
+  inp.onkeydown=(e)=>{
+    if(e.key==='Enter'){inp.blur();}
+    if(e.key==='Escape'){
+      const rowEl=document.getElementById(safeId);
+      if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
+    }
+  };
+  el.replaceWith(inp);
+  inp.focus();
+  inp.select();
 }
 
 function domSetValById(safeId,field,val,ym,rerender){
