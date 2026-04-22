@@ -1288,78 +1288,129 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:12px">💰 Krok 1 — Wynagrodzenie</div>
 
-    <!-- Godziny -->
-    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:10px">
-      <div style="flex:1">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:2px">⏱️ Godziny w poprzednim mies.</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.5)" id="mata-calc-detail">Wpisz godziny</div>
+    <!-- Toggle: prognoza vs rzeczywistość -->
+    <div style="display:flex;background:rgba(255,255,255,.12);border-radius:10px;padding:3px;margin-bottom:14px">
+      <button id="mata-mode-forecast" onclick="mataSwitchMode('forecast')"
+        style="flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:#fff;color:#5e4d82">
+        🔮 Prognoza
+      </button>
+      <button id="mata-mode-actual" onclick="mataSwitchMode('actual')"
+        style="flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;background:none;color:rgba(255,255,255,.7)">
+        ✅ Wpłynęło
+      </button>
+    </div>
+
+    <!-- TRYB PROGNOZA -->
+    <div id="mata-mode-forecast-content">
+      <!-- Baza -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:12px;color:rgba(255,255,255,.7);flex:1">Baza netto</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="mata-base-inp" value="15700"
+            style="width:110px;padding:7px 10px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;font-size:15px;font-weight:700;background:rgba(255,255,255,.12);color:#fff;text-align:right;outline:none;-webkit-appearance:none"
+            oninput="mataCalc()" onchange="mataCalc()">
+          <span style="font-size:12px;color:rgba(255,255,255,.5)">zł</span>
+        </div>
       </div>
-      <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
-        style="width:72px;padding:8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:18px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
-        oninput="mataCalc()" onchange="mataCalc()">
-      <div style="text-align:right;min-width:60px">
-        <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1px">WYNIK</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
+
+      <!-- Godziny -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:rgba(255,255,255,.7)">Godziny w poprzednim mies.</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">próg: <span id="mata-threshold-lbl">125</span>h — poniżej brak bonusu</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
+            style="width:80px;padding:7px 10px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;font-size:18px;font-weight:700;background:rgba(255,255,255,.12);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+            oninput="mataCalc()" onchange="mataCalc()">
+          <span style="font-size:12px;color:rgba(255,255,255,.5)">h</span>
+        </div>
+      </div>
+
+      <!-- Wynik prognozy -->
+      <div id="mata-forecast-result" style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-size:11px;color:rgba(255,255,255,.6)">Baza <span id="mata-base-val">—</span> + Bonus <span id="mata-bonus-val" style="color:#a8e6c8">—</span> + Nadgodz. <span id="mata-overtime-val" style="color:#ffe0a0">—</span></div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5)" id="mata-pct-val"></div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4)" id="mata-calc-detail"></div>
+      </div>
+
+      <!-- Parametry zaawansowane (zwinięte) -->
+      <div onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.12)">
+        <div style="font-size:11px;color:rgba(255,255,255,.4)">⚙️ Próg godzin i stawki bonusów</div>
+        <span id="mata-params-arrow" style="font-size:11px;color:rgba(255,255,255,.3)">▼</span>
+      </div>
+      <div id="mata-params-card" style="display:none;margin-top:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Próg godzin</div>
+            <input class="dom-inp" type="number" id="mata-threshold-inp" value="125"
+              style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
+              oninput="mataCalc();document.getElementById('mata-threshold-lbl').textContent=this.value" onchange="mataCalc()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Bonus za próg (%)</div>
+            <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20"
+              style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
+              oninput="mataCalc()" onchange="mataCalc()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Nadgodziny (%)</div>
+            <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150"
+              style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
+              oninput="mataCalc()" onchange="mataCalc()">
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Wynagrodzenie breakdown -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">—</div>
+    <!-- TRYB RZECZYWISTOŚĆ -->
+    <div id="mata-mode-actual-content" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">Ile wpłynęło na konto?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">łączna kwota wypłaty netto</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="mata-actual-salary" placeholder="0"
+            style="width:120px;padding:8px 10px;border:2px solid rgba(255,255,255,.4);border-radius:10px;font-size:18px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:right;outline:none;-webkit-appearance:none"
+            oninput="mataActualChanged()" onchange="mataActualChanged()">
+          <span style="font-size:13px;color:rgba(255,255,255,.6)">zł</span>
+        </div>
       </div>
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BONUS H</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-bonus-val">0</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">Którego dnia wpłynęło?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">wyznacza start nowego cyklu</div>
+        </div>
+        <input type="number" id="mata-actual-payday" placeholder="28" min="1" max="31"
+          style="width:80px;padding:8px 10px;border:2px solid rgba(255,255,255,.4);border-radius:10px;font-size:18px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+          oninput="mataActualChanged()" onchange="mataActualChanged()">
       </div>
-      <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">NADGODZ</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#ffe0a0" id="mata-overtime-val">0</div>
-      </div>
+      <div id="mata-actual-feedback" style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,.7);display:none;line-height:1.6"></div>
     </div>
 
-    <!-- Dodatkowe wpływy -->
-    <div id="mata-extra-income-list-top"></div>
-    <button onclick="mataAddExtraIncome()" style="padding:6px 14px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.35);background:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;width:100%;margin-bottom:10px">+ Dodaj dodatkowy wpływ</button>
+    <!-- Dodatkowe wpływy (wspólne dla obu trybów) -->
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)">
+      <div id="mata-extra-income-list-top"></div>
+      <button onclick="mataAddExtraIncome()"
+        style="padding:6px 14px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.3);background:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;width:100%">
+        + Dodaj dodatkowy wpływ
+      </button>
+    </div>
 
     <!-- Łączny dochód -->
-    <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+    <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:12px">
       <div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6)">ŁĄCZNY DOCHÓD</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px" id="mata-salary-breakdown">—</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55)">ŁĄCZNY DOCHÓD</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px" id="mata-salary-breakdown">—</div>
       </div>
-      <div style="font-family:Georgia,serif;font-size:30px;font-weight:600;color:#fff" id="mata-total-income">—</div>
-    </div>
-
-    <!-- Parametry (zwinięte) -->
-    <div onclick="mataToggleParams()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15)">
-      <div style="font-size:11px;color:rgba(255,255,255,.5)">⚙️ Parametry wynagrodzenia</div>
-      <span id="mata-params-arrow" style="font-size:11px;color:rgba(255,255,255,.4)">▼ rozwiń</span>
-    </div>
-    <div id="mata-params-card" style="display:none;margin-top:10px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Baza netto (zł)</div>
-          <input class="dom-inp" type="number" id="mata-base-inp" value="15700" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Próg godzin</div>
-          <input class="dom-inp" type="number" id="mata-threshold-inp" value="125" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Bonus za próg (%)</div>
-          <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Nadgodziny (%)</div>
-          <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-      </div>
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:32px;font-weight:400;color:#fff" id="mata-total-income">—</div>
     </div>
   </div>
 
-  <!-- ══ KROK 2: HIPOTEKA ══ -->
+<!-- ══ KROK 2: HIPOTEKA ══ -->
   <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
     <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc;display:flex;justify-content:space-between;align-items:center">
       <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">🏦 Krok 2 — Kredyt hipoteczny</div>
@@ -3507,6 +3558,71 @@ function mataCalcSalary(hours, params){
   return { base, bonus, overtime, total: base + bonus + overtime, hoursForBonus, overtimeHours };
 }
 
+
+// ── TRYB WYNAGRODZENIA ──
+function mataSwitchMode(mode){
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  mataData[mataYM].salaryMode = mode;
+  mataScheduleSave();
+
+  const forecastBtn = document.getElementById('mata-mode-forecast');
+  const actualBtn   = document.getElementById('mata-mode-actual');
+  const forecastDiv = document.getElementById('mata-mode-forecast-content');
+  const actualDiv   = document.getElementById('mata-mode-actual-content');
+
+  const isForecast = mode === 'forecast';
+  if(forecastBtn){ forecastBtn.style.background = isForecast ? '#fff' : 'none'; forecastBtn.style.color = isForecast ? '#5e4d82' : 'rgba(255,255,255,.7)'; }
+  if(actualBtn){   actualBtn.style.background   = isForecast ? 'none' : '#fff'; actualBtn.style.color   = isForecast ? 'rgba(255,255,255,.7)' : '#5e4d82'; }
+  if(forecastDiv)  forecastDiv.style.display = isForecast ? 'block' : 'none';
+  if(actualDiv)    actualDiv.style.display   = isForecast ? 'none'  : 'block';
+
+  if(isForecast) mataCalc();
+  else mataActualChanged();
+}
+
+function mataActualChanged(){
+  const salary = parseFloat(document.getElementById('mata-actual-salary')?.value) || 0;
+  const payday = parseInt(document.getElementById('mata-actual-payday')?.value) || null;
+  const extra  = mataGetExtraIncomeTotal();
+  const total  = salary + extra;
+
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  mataData[mataYM].actualSalary = salary || null;
+  mataData[mataYM].actualPayday = payday || null;
+  mataScheduleSave();
+
+  // Update payday in budget settings if provided
+  if(payday && payday >= 1 && payday <= 31){
+    const st = load();
+    if(st.payday !== payday){
+      st.payday = payday;
+      save(st);
+    }
+  }
+
+  // Update total income display
+  const totEl = document.getElementById('mata-total-income');
+  if(totEl) totEl.textContent = total > 0 ? fmt(Math.round(total)) + ' zł' : '—';
+  const brkEl = document.getElementById('mata-salary-breakdown');
+  if(brkEl) brkEl.textContent = extra > 0 ? `Wypłata ${fmt(salary)} + extra ${fmt(extra)} zł` : (salary > 0 ? `Wypłata ${fmt(salary)} zł` : '—');
+
+  // Feedback
+  const fb = document.getElementById('mata-actual-feedback');
+  if(fb && (salary > 0 || payday)){
+    fb.style.display = 'block';
+    const lines = [];
+    if(salary > 0) lines.push(`💰 Dochód: <b>${fmt(Math.round(total))} zł</b>`);
+    if(payday)     lines.push(`📅 Wypłata ${payday}. → cykl budżetowy aktualizowany`);
+    fb.innerHTML = lines.join('<br>');
+  } else if(fb){ fb.style.display = 'none'; }
+
+  // Update also hidden salary-total for renderMata compatibility
+  const stEl = document.getElementById('mata-salary-total');
+  if(stEl) stEl.textContent = fmt(Math.round(salary));
+
+  mataTransferCalc();
+}
+
 function mataCalc(){
   const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
   const params = mataGetParams();
@@ -3514,12 +3630,15 @@ function mataCalc(){
   mataData[mataYM].hours = isNaN(hours) ? null : hours;
   mataData[mataYM].params = params;
   mataScheduleSave();
+  const forecastResultEl=document.getElementById('mata-forecast-result');
   if(isNaN(hours)||hours<0){
+    if(forecastResultEl)forecastResultEl.style.display='none';
     const extra0=mataGetExtraIncomeTotal();
     const totEl0=document.getElementById('mata-total-income');
     if(totEl0)totEl0.textContent=fmt(Math.round(params.base+extra0))+' zł';
     mataTransferCalc();return;
   }
+  if(forecastResultEl)forecastResultEl.style.display='block';
   const res=mataCalcSalary(hours,params);
   const pct=Math.round((Math.min(hours,params.threshold)/params.threshold)*100);
   document.getElementById('mata-salary-total').textContent=fmt(res.total)+' zł';
@@ -3550,6 +3669,15 @@ function renderMata(){
   const hoursEl=document.getElementById('mata-hours-inp');if(hoursEl)hoursEl.value=saved.hours??'';
   const hipEl=document.getElementById('mata-hipoteka-inp');
   if(hipEl&&saved.hipotekaAmt!=null)hipEl.value=saved.hipotekaAmt;
+  // Restore salary mode
+  const mode=saved.salaryMode||'forecast';
+  mataSwitchMode(mode);
+  if(mode==='actual'){
+    const actEl=document.getElementById('mata-actual-salary');
+    if(actEl&&saved.actualSalary)actEl.value=saved.actualSalary;
+    const pdEl=document.getElementById('mata-actual-payday');
+    if(pdEl&&saved.actualPayday)pdEl.value=saved.actualPayday;
+  }
   const mbStdEl=document.getElementById('mata-mbank-std');if(mbStdEl)mbStdEl.value=saved.mbankStd??2000;
   const mbExtraEl=document.getElementById('mata-mbank-extra');if(mbExtraEl)mbExtraEl.value=saved.mbankExtra??'';
   const cushionEl=document.getElementById('mata-cushion-inp');
@@ -3603,10 +3731,23 @@ function mataHipotekaChanged(){
   mataTransferCalc();
 }
 
+function mataGetTotalIncome(){
+  // Tryb rzeczywistość: użyj wpisanej wypłaty
+  const mode = mataData[mataYM]?.salaryMode || 'forecast';
+  const extra = mataGetExtraIncomeTotal();
+  if(mode === 'actual'){
+    const actual = mataData[mataYM]?.actualSalary || 0;
+    return actual + extra;
+  }
+  // Tryb prognoza: kalkulator godzinowy
+  const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
+  const params = mataGetParams();
+  const salary = isNaN(hours) ? params.base : mataCalcSalary(hours, params).total;
+  return salary + extra;
+}
+
 function mataGetSurplus(){
-  const hours=parseFloat(document.getElementById('mata-hours-inp')?.value);
-  const params=mataGetParams();const salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
-  const extra=mataGetExtraIncomeTotal();const totalIncome=salary+extra;
+  const totalIncome = mataGetTotalIncome();
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
@@ -3708,9 +3849,7 @@ function mataRenderExtraIncome(){
 }
 function mataGetExtraIncomeTotal(){return(mataData[mataYM]?.extraIncome||[]).reduce((s,x)=>s+(x.amount||0),0);}
 function mataTransferCalc(){
-  const hours=parseFloat(document.getElementById('mata-hours-inp')?.value);
-  const params=mataGetParams();const salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
-  const extraIncome=mataGetExtraIncomeTotal();const totalIncome=salary+extraIncome;
+  const totalIncome=mataGetTotalIncome();const salary=totalIncome-mataGetExtraIncomeTotal();const extraIncome=mataGetExtraIncomeTotal();
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const domIncome=domGetIncome();const skladka=Math.max(0,(planSum-domIncome)/2);
