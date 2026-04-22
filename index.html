@@ -1267,7 +1267,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 </div>
 <div class="page" id="page-mata">
   <div class="header">
-        <div class="h-eye">Moje Finanse</div>
+    <div class="h-eye">Moje Finanse</div>
     <h1>Mata <em>💛</em></h1>
     <div class="h-sub" id="h-mata-sub">—</div>
   </div>
@@ -1275,7 +1275,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <div style="height:14px"></div>
 
   <!-- MONTH NAV -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:16px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:0 12px 16px;background:#fff;border:2px solid #b0a4cc;border-radius:16px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.07)">
     <button onclick="changeMataMonth(-1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
     <div style="text-align:center">
       <div style="font-size:17px;font-weight:700;color:#18102c" id="mata-month-label">—</div>
@@ -1284,32 +1284,30 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <button onclick="changeMataMonth(1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
   </div>
 
-  <!-- 1. DOCHÓD MIESIĄCA -->
+  <!-- ══ KROK 1: WYNAGRODZENIE ══ -->
   <div style="background:#5e4d82;border-radius:16px;margin:0 12px 12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px">Dochód miesiąca</div>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-      <div style="font-size:13px;color:rgba(255,255,255,.7)">💼 Wynagrodzenie</div>
-      <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#fff" id="mata-salary-total">—</div>
-    </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px" id="mata-salary-breakdown">—</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:12px">💰 Krok 1 — Wynagrodzenie</div>
 
-    <!-- GODZINY — wpisz tu -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 14px">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7);flex:1">⏱️ Godziny w poprzednim miesiącu</div>
+    <!-- Godziny -->
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:10px">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:2px">⏱️ Godziny w poprzednim mies.</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5)" id="mata-calc-detail">Wpisz godziny</div>
+      </div>
       <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
-        style="width:70px;padding:7px 8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:16px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+        style="width:72px;padding:8px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;font-size:18px;font-weight:700;background:rgba(255,255,255,.15);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
         oninput="mataCalc()" onchange="mataCalc()">
-      <div style="text-align:right">
-        <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600">WYNIK</div>
-        <div style="font-family:Georgia,serif;font-size:13px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
+      <div style="text-align:right;min-width:60px">
+        <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1px">WYNIK</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#a8e6c8" id="mata-pct-val">—</div>
       </div>
     </div>
-    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:10px" id="mata-calc-detail"></div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+    <!-- Wynagrodzenie breakdown -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
       <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
         <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BAZA</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">14 880</div>
+        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#fff" id="mata-base-val">—</div>
       </div>
       <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px;text-align:center">
         <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:2px">BONUS H</div>
@@ -1320,340 +1318,233 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#ffe0a0" id="mata-overtime-val">0</div>
       </div>
     </div>
-    <div style="border-top:1px solid rgba(255,255,255,.2);padding-top:12px;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px">Dodatkowe wpływy</div>
-      <div id="mata-extra-income-list-top"></div>
-      <button onclick="mataAddExtraIncome()" style="padding:7px 14px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.4);background:none;font-size:12px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;width:100%;margin-top:4px">+ Dodaj wpływ</button>
+
+    <!-- Dodatkowe wpływy -->
+    <div id="mata-extra-income-list-top"></div>
+    <button onclick="mataAddExtraIncome()" style="padding:6px 14px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.35);background:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;width:100%;margin-bottom:10px">+ Dodaj dodatkowy wpływ</button>
+
+    <!-- Łączny dochód -->
+    <div style="background:rgba(255,255,255,.18);border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6)">ŁĄCZNY DOCHÓD</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px" id="mata-salary-breakdown">—</div>
+      </div>
+      <div style="font-family:Georgia,serif;font-size:30px;font-weight:600;color:#fff" id="mata-total-income">—</div>
     </div>
-    <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.7)">ŁĄCZNY DOCHÓD</div>
-      <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-total-income">—</div>
+
+    <!-- Parametry (zwinięte) -->
+    <div onclick="mataToggleParams()" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15)">
+      <div style="font-size:11px;color:rgba(255,255,255,.5)">⚙️ Parametry wynagrodzenia</div>
+      <span id="mata-params-arrow" style="font-size:11px;color:rgba(255,255,255,.4)">▼ rozwiń</span>
+    </div>
+    <div id="mata-params-card" style="display:none;margin-top:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Baza netto (zł)</div>
+          <input class="dom-inp" type="number" id="mata-base-inp" value="15700" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Próg godzin</div>
+          <input class="dom-inp" type="number" id="mata-threshold-inp" value="125" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Bonus za próg (%)</div>
+          <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">Nadgodziny (%)</div>
+          <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150" style="width:100%;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" oninput="mataCalc()" onchange="mataCalc()">
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 2. INSTRUKCJA PRZELEWÓW — najważniejsze, na górze -->
-  <div class="sec-lbl">📋 Instrukcja przelewów</div>
-  <div class="card" style="margin-bottom:12px">
-    <div id="mata-transfers-list" style="padding:14px 16px">
-      <div style="color:#7a6e98;font-size:12px;padding:4px 0">Wpisz godziny aby zobaczyć instrukcję.</div>
+  <!-- ══ KROK 2: HIPOTEKA ══ -->
+  <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">🏦 Krok 2 — Kredyt hipoteczny</div>
     </div>
-    <!-- Przelewy wykonane button -->
+    <div style="padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#18102c">Rata miesięczna</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:2px">Millennium → auto-spłata</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:13px;color:#7a4868;font-weight:600">−</span>
+          <input class="dom-inp" type="number" id="mata-hipoteka-inp" value="2500" placeholder="2500"
+            style="width:100px;border-color:#9a4060;background:#fff0f4;color:#9a4060;font-size:16px;font-weight:700"
+            oninput="mataHipotekaChanged()" onchange="mataHipotekaChanged()">
+          <span style="font-size:13px;color:#7a4868;font-weight:600">zł</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#b0a4cc;padding:8px 10px;background:#fdf8ff;border-radius:8px">
+        💡 Zmień kwotę jeśli rata się zmieniła — wpłynie na wszystkie przelewy poniżej
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ KROK 3: PRZELEWY ══ -->
+  <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">📋 Krok 3 — Instrukcja przelewów</div>
+    </div>
+    <div id="mata-transfers-list" style="padding:4px 14px 10px">
+      <div style="color:#7a6e98;font-size:12px;padding:12px 0">Wpisz godziny aby zobaczyć instrukcję.</div>
+    </div>
     <div style="padding:0 14px 14px">
-      <button id="mata-done-btn" onclick="mataToggleDone()" style="width:100%;padding:12px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:13px;font-weight:700;color:#4a4060;cursor:pointer">
+      <button id="mata-done-btn" onclick="mataToggleDone()"
+        style="width:100%;padding:12px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:13px;font-weight:700;color:#4a4060;cursor:pointer">
         ☐ Oznacz przelewy jako wykonane
       </button>
     </div>
   </div>
 
-  <!-- 4. PARAMETRY — zwinięte domyślnie -->
-  <div class="sec-lbl" onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-    <span>⚙️ Parametry wynagrodzenia</span>
-    <span id="mata-params-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
-  </div>
-  <div class="card" id="mata-params-card" style="display:none">
+  <!-- ══ KROK 4: OSZCZĘDNOŚCI I ANDY ══ -->
+
+  <!-- Poduszka bezpieczeństwa -->
+  <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">🛡️ Krok 4a — Poduszka bezpieczeństwa</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="font-size:10px;font-weight:700;color:#fff;background:#5e4d82;padding:3px 9px;border-radius:20px;white-space:nowrap" id="mata-stage-badge">
+          <span id="mata-stage-icon">🎯</span>
+          <span id="mata-stage-name" style="margin-left:3px">—</span>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#5e4d82" id="mata-cushion-pct">—%</div>
+      </div>
+    </div>
     <div style="padding:14px 16px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Baza netto (zł/mies.)</div>
-          <input class="dom-inp" type="number" id="mata-base-inp" value="15700"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Próg godzin</div>
-          <input class="dom-inp" type="number" id="mata-threshold-inp" value="125"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Bonus za próg (%)</div>
-          <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:5px">Nadgodziny (%)</div>
-          <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150"
-            style="width:100%" oninput="mataCalc()" onchange="mataCalc()">
-        </div>
+      <!-- Progress bar -->
+      <div style="height:10px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:8px">
+        <div id="mata-cushion-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#3d7a60);width:0%;transition:width .5s"></div>
       </div>
-      <div style="margin-top:10px;font-size:11px;color:#7a6e98">Zmiany parametrów są zapisywane automatycznie.</div>
-    </div>
-
-    <!-- Historia importów -->
-    <div style="margin-top:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 6px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">📋 Historia importów</div>
-        <button onclick="domImportRenderHistory()" 
-          style="font-size:11px;color:#7a6e98;background:none;border:none;cursor:pointer;padding:4px 8px">Odśwież</button>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98;margin-bottom:14px">
+        <div id="mata-cushion-current">0 zł</div>
+        <div>cel: 50 000 zł</div>
       </div>
-      <div id="dom-import-history-list" style="padding:0 0 24px">
-        <div style="text-align:center;padding:20px;color:#b0a4cc;font-size:13px">Ładowanie...</div>
-      </div>
-    </div>
-  </div>
 
-  
-
-  <!-- CO ZOSTAJE -->
-  <div class="sec-lbl" onclick="mataToggleSection('mata-zostaje-card','mata-zostaje-arrow')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-    <span>💸 Co zostaje</span>
-    <span id="mata-zostaje-arrow" style="font-size:12px;color:#7a6e98;margin-right:16px">▼ rozwiń</span>
-  </div>
-  <div id="mata-zostaje-card" style="display:none">
-    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-
-      <!-- Stałe odliczenia -->
-    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">STAŁE ODLICZENIA</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c">🏦 Kredyt hipoteczny</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868">− 2 500 zł</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c">🏠 Składka na Dom</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#7a4868" id="mata-skladka-dom">− — zł</div>
-      </div>
-    </div>
-
-    <!-- Przelew mBank -->
-    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PRZELEW NA MBANK (FUNDUSZ SWOBODNY)</div>
+      <!-- Stan konta -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c;flex:1">📱 Standard</div>
-        <input class="dom-inp" type="number" id="mata-mbank-std" value="2000"
-          style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
-        <span style="font-size:12px;color:#7a6e98">zł</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-        <div style="min-width:0;flex:1">
-          <div style="font-size:13px;color:#18102c">➕ Dodatkowe w tym miesiącu</div>
-          <div style="font-size:10px;color:#7a6e98;margin-top:1px">np. wakacje, zakupy, wyjście</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:#4a4060">Stan konta oszczędnościowego</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:2px" id="mata-cushion-suggest">—</div>
         </div>
-        <input class="dom-inp" type="number" id="mata-mbank-extra" value="" placeholder="0"
-          style="width:90px" oninput="mataTransferCalc()" onchange="mataTransferCalc()">
+        <input class="dom-inp" type="number" id="mata-cushion-inp" placeholder="9500"
+          style="width:110px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
         <span style="font-size:12px;color:#7a6e98">zł</span>
       </div>
-      <div style="margin-top:10px;background:#f4f1fc;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:12px;font-weight:700;color:#4a4060">Przelew na mBank łącznie</div>
-        <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#5e4d82" id="mata-mbank-total">2 000 zł</div>
-      </div>
-    </div>
 
-    <!-- Zostaje -->
-    <div style="padding:14px 16px">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">PODSUMOWANIE</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c">💰 Wynagrodzenie</div>
-        <div style="font-family:Georgia,serif;font-size:14px;font-weight:600;color:#3d7a60" id="mata-sum-salary">— zł</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c">− Kredyt hipoteczny</div>
-        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98">2 500 zł</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;color:#18102c">− Składka na Dom</div>
-        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-skladka">— zł</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:13px;color:#18102c">− Przelew mBank</div>
-        <div style="font-family:Georgia,serif;font-size:14px;color:#7a6e98" id="mata-sum-mbank">— zł</div>
-      </div>
-      <div style="background:#5e4d82;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)">ZOSTAJE NA MILLENNIUM</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">na oszczędności i spłatę pożyczki</div>
-        </div>
-        <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;color:#fff" id="mata-pozostaje">— zł</div>
-      </div>
+      <!-- Przycisk wpłaty -->
+      <button id="mata-cushion-paid-btn" onclick="mataCushionMarkPaid()"
+        style="width:100%;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer;margin-bottom:8px">
+        ☐ Wpłaciłam oszczędności tego miesiąca
+      </button>
+
+      <div style="font-size:12px;color:#7a6e98;background:#f8f6ff;padding:9px 12px;border-radius:9px;border:1px solid #e0dcea" id="mata-cushion-eta">—</div>
+      <!-- Hidden IDs needed by JS -->
+      <div style="display:none" id="mata-stage-label"></div>
+      <div style="display:none" id="mata-stage-sub"></div>
     </div>
   </div>
 
-  <!-- POŻYCZKA OD ANDY'EGO -->
-  <div class="sec-lbl">🚗 Pożyczka od Andy'ego</div>
-  <div class="card" style="margin-bottom:12px">
-
-    <!-- Progress -->
-    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:13px;font-weight:700;color:#18102c">Pozostały kapitał</div>
-        <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#7a4868" id="mata-loan-remaining">54 490 zł</div>
-      </div>
+  <!-- Pożyczka Andy'ego -->
+  <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">🚗 Krok 4b — Pożyczka Andy'ego</div>
+      <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#7a4868" id="mata-loan-remaining">—</div>
+    </div>
+    <div style="padding:14px 16px">
+      <!-- Progress bar -->
       <div style="height:8px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
         <div id="mata-loan-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#9a607a,#5e4d82);transition:width .4s"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98;margin-bottom:14px">
         <div id="mata-loan-paid-lbl">spłacono 0 zł</div>
         <div id="mata-loan-original-lbl">z 84 135 zł</div>
       </div>
-    </div>
 
-    <!-- Rata w tym miesiącu -->
-    <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px;letter-spacing:.5px">RATA W TYM MIESIĄCU</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:13px;color:#18102c">💸 Rata pożyczki (70% nadwyżki)</div>
-        <div style="font-family:Georgia,serif;font-size:15px;font-weight:700;color:#7a4868" id="mata-loan-payment">— zł</div>
+      <!-- Rata tego miesiąca -->
+      <div style="background:#fdf0f4;border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:12px;font-weight:700;color:#4a4060">Rata tego miesiąca</div>
+          <div style="font-family:Georgia,serif;font-size:18px;font-weight:700;color:#7a4868" id="mata-loan-payment">—</div>
+        </div>
+        <div style="font-size:12px;color:#9a607a;line-height:1.9">
+          <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">—</span></div>
+          <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">—</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">—</span></div>
+        </div>
       </div>
-      <div style="background:#fdf0f4;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.9">
-        <div style="display:flex;justify-content:space-between"><span>📊 Odsetki (0,5%/mies.)</span><span id="mata-loan-interest">— zł</span></div>
-        <div style="display:flex;justify-content:space-between"><span>💰 Kapitał</span><span id="mata-loan-capital">— zł</span></div>
-        <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:4px;padding-top:4px;border-top:1px solid #e8c0cc"><span>📉 Zostanie po racie</span><span id="mata-loan-after">— zł</span></div>
-      </div>
-      <!-- Przycisk oznacz jako zapłacone → auto-update kapitału -->
+
       <button id="mata-loan-paid-btn" onclick="mataLoanMarkPaid()"
-        style="width:100%;margin-top:10px;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer">
+        style="width:100%;padding:10px;background:#eeebf5;border:2px solid #b0a4cc;border-radius:10px;font-size:12px;font-weight:700;color:#4a4060;cursor:pointer;margin-bottom:8px">
         ☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał
       </button>
-    </div>
 
-    <!-- Wiadomość do Andy'ego -->
-    <div style="padding:12px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div onclick="mataToggleSection('mata-andy-card','mata-andy-arrow')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:0">
-        <div style="font-size:11px;font-weight:700;color:#4a4060;letter-spacing:.5px">📨 WIADOMOŚĆ DO ANDY'EGO</div>
+      <!-- Wiadomość do Andy'ego -->
+      <div onclick="mataToggleSection('mata-andy-card','mata-andy-arrow')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding-top:8px;border-top:1px solid #e8e4f0">
+        <div style="font-size:11px;font-weight:700;color:#4a4060;letter-spacing:.5px">📨 Wiadomość do Andy'ego</div>
         <span id="mata-andy-arrow" style="font-size:11px;color:#7a6e98">▼ rozwiń</span>
       </div>
       <div id="mata-andy-card" style="display:none;margin-top:8px">
         <div id="mata-andy-msg" style="background:#f4f1fc;border-radius:10px;padding:12px;font-size:12px;color:#4a4060;line-height:1.8;white-space:pre-wrap">—</div>
-        <button onclick="mataCopyAndyMsg()"
-          style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">
-          📋 Kopiuj wiadomość
-        </button>
+        <button onclick="mataCopyAndyMsg()" style="width:100%;margin-top:8px;padding:9px;background:#5e4d82;border:none;border-radius:10px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">📋 Kopiuj wiadomość</button>
       </div>
-    </div>
-
-    <!-- Prognoza -->
-    <div style="padding:12px 16px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-loan-forecast">—</div>
-  </div>
-
-  <!-- OSZCZĘDNOŚCI -->
-  <div class="sec-lbl">🏦 Oszczędności i inwestycje</div>
-
-  <!-- ETAP BADGE -->
-  <div style="margin:0 12px 12px;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px" id="mata-stage-badge">
-    <div style="font-size:28px" id="mata-stage-icon">🎯</div>
-    <div>
-      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.7)" id="mata-stage-label">ETAP</div>
-      <div style="font-size:15px;font-weight:700;color:#fff" id="mata-stage-name">—</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:1px" id="mata-stage-sub">—</div>
+      <div style="padding-top:8px;font-size:12px;color:#4a4060;line-height:1.9" id="mata-loan-forecast">—</div>
     </div>
   </div>
 
-  <!-- PODUSZKA -->
-  <div class="card" style="margin-bottom:12px">
-    <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;color:#18102c">🛡️ Poduszka bezpieczeństwa</div>
-        <div style="font-size:11px;font-weight:700;color:#5e4d82" id="mata-cushion-pct">—%</div>
-      </div>
-      <div style="height:10px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
-        <div id="mata-cushion-bar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#8a78b0,#3d7a60);width:0%;transition:width .5s"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6e98">
-        <div id="mata-cushion-current">0 zł</div>
-        <div>cel: 50 000 zł</div>
-      </div>
+  <!-- Prognozy i cele -->
+  <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">🔭 Kiedy osiągniesz cele</div>
     </div>
-    <div style="padding:12px 16px;display:flex;align-items:center;gap:10px">
-      <div style="flex:1">
-        <div style="font-size:12px;color:#4a4060;font-weight:600">Stan konta oszczędnościowego</div>
-        <div style="font-size:11px;color:#7a6e98;margin-top:2px" id="mata-cushion-suggest">—</div>
-      </div>
-      <input class="dom-inp" type="number" id="mata-cushion-inp" placeholder="9500"
-        style="width:110px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
-      <span style="font-size:12px;color:#7a6e98">zł</span>
-    </div>
-    <div style="padding:0 16px 12px;font-size:12px;color:#7a6e98;background:#f8f7ff;padding:10px 16px;border-top:1.5px solid #e8e4f0" id="mata-cushion-eta">—</div>
-  </div>
-
-
-
-
-
-  <!-- PROGNOZY -->
-  <div class="card" style="margin-bottom:12px">
-    <div class="card-head"><div class="card-label">🔭 Kiedy osiągniesz cele</div></div>
     <div id="mata-goals-list" style="padding:14px 16px;font-size:13px;line-height:2"></div>
   </div>
 
-  <!-- IKE / IKZE / INWESTYCJE — widoczne w etapie 2+ -->
+  <!-- IKE / IKZE (tylko etap 2+) -->
   <div id="mata-invest-section" style="display:none">
-    <div class="sec-lbl">📈 Inwestycje</div>
-    <div class="card">
-      <div style="padding:14px 16px;border-bottom:1.5px solid #e8e4f0">
-        <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:10px">Limity roczne IKE/IKZE</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+      <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">📈 Inwestycje IKE/IKZE</div>
+      </div>
+      <div style="padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:13px;color:#18102c">📘 IKE wpłacono w tym roku</div>
           <div style="display:flex;align-items:center;gap:6px">
-            <input class="dom-inp" type="number" id="mata-ike-paid" placeholder="0"
-              style="width:90px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
+            <input class="dom-inp" type="number" id="mata-ike-paid" placeholder="0" style="width:90px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
             <span style="font-size:11px;color:#7a6e98">/ 26 019 zł</span>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:13px;color:#18102c">📗 IKZE wpłacono w tym roku</div>
           <div style="display:flex;align-items:center;gap:6px">
-            <input class="dom-inp" type="number" id="mata-ikze-paid" placeholder="0"
-              style="width:90px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
+            <input class="dom-inp" type="number" id="mata-ikze-paid" placeholder="0" style="width:90px" oninput="mataSavingsCalc()" onchange="mataSavingsCalc()">
             <span style="font-size:11px;color:#7a6e98">/ 10 407 zł</span>
           </div>
         </div>
+        <div style="font-size:12px;color:#7a6e98;line-height:1.8" id="mata-invest-detail">—</div>
       </div>
-      <div style="padding:14px 16px;font-size:12px;color:#7a6e98;line-height:1.8" id="mata-invest-detail">—</div>
     </div>
+  </div>
+
+  <!-- Hidden IDs needed by JS but not displayed -->
+  <div style="display:none">
+    <div id="mata-salary-total"></div>
+    <div id="mata-zostaje-arrow"></div>
+    <div id="mata-zostaje-card"></div>
+    <div id="mata-sum-salary"></div>
+    <div id="mata-sum-skladka"></div>
+    <div id="mata-sum-mbank"></div>
+    <div id="mata-pozostaje"></div>
+    <div id="mata-mbank-total"></div>
+    <input type="number" id="mata-mbank-std" value="2000">
+    <input type="number" id="mata-mbank-extra" value="0">
+    <div id="mata-skladka-dom"></div>
   </div>
 
   <div class="sp"></div>
-</div>
-
-<!-- ══ MODAL: WYDATEK ══ -->
-<div class="overlay" id="modal-expense" onclick="handleOC(event,'modal-expense')">
-  <div class="modal">
-    <div class="modal-handle"></div><h3>Nowy wydatek</h3>
-    <div class="fg"><label class="fl">Nazwa</label><input type="text" class="fi-inp" id="exp-name" placeholder="np. Kawa, Buty…"></div>
-    <div class="fg"><label class="fl">Kwota (zł)</label><input type="number" class="fi-inp" id="exp-amount" placeholder="0,00" inputmode="decimal"></div>
-    <div class="fg"><label class="fl">Kategoria</label><div class="cat-pills" id="exp-cats"></div></div>
-    <div class="fg"><label class="fl">Ikona</label><div class="eg" id="exp-emojis"></div></div>
-    <button class="btn-p" onclick="saveExpense()">Zapisz wydatek</button>
-    <button class="btn-g" onclick="closeModal('modal-expense')">Anuluj</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: PLAN ══ -->
-<div class="overlay" id="modal-planned" onclick="handleOC(event,'modal-planned')">
-  <div class="modal">
-    <div class="modal-handle"></div><h3 id="plan-modal-title">Zaplanuj wydatek</h3>
-    <input type="hidden" id="plan-edit-id">
-    <div class="fg"><label class="fl">Nazwa</label><input type="text" class="fi-inp" id="plan-name" placeholder="np. Dentysta, Kolacja…"></div>
-    <div class="fg"><label class="fl">Kwota (zł)</label><input type="number" class="fi-inp" id="plan-amount" placeholder="0,00" inputmode="decimal"></div>
-    <div class="fg"><label class="fl">Data</label><input type="date" class="fi-inp" id="plan-date"></div>
-    <div class="fg"><label class="fl">Ikona</label><div class="eg" id="plan-emojis"></div></div>
-    <button class="btn-p" id="plan-save-btn" onclick="savePlanned()">Zaplanuj</button>
-    <button class="btn-g" onclick="closeModal('modal-planned')">Anuluj</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: STAŁY ══ -->
-<div class="overlay" id="modal-fixed" onclick="handleOC(event,'modal-fixed')">
-  <div class="modal">
-    <div class="modal-handle"></div><h3 id="fixed-modal-title">Stały wydatek</h3>
-    <input type="hidden" id="fixed-edit-id">
-    <div class="fg"><label class="fl">Nazwa</label><input type="text" class="fi-inp" id="fixed-name" placeholder="np. Karnet, Subskrypcja…"></div>
-    <div class="fg"><label class="fl">Kwota / miesiąc (zł)</label><input type="number" class="fi-inp" id="fixed-amount" placeholder="0,00" inputmode="decimal"></div>
-    <div class="fg"><label class="fl">Ikona</label><div class="eg" id="fixed-emojis"></div></div>
-    <button class="btn-p" onclick="saveFixed()">Zapisz</button>
-    <button class="btn-g" onclick="closeModal('modal-fixed')">Anuluj</button>
-  </div>
-</div>
-
-<!-- ══ CONFIRM ══ -->
-<div class="confirm-overlay" id="confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="c-title">Usunąć?</div>
-    <div class="confirm-sub" id="c-sub">Tej operacji nie można cofnąć.</div>
-    <div class="confirm-btns">
-      <button class="confirm-yes" id="c-yes">Usuń</button>
-      <button class="confirm-no" onclick="closeConfirm()">Anuluj</button>
-    </div>
-  </div>
-</div>
 
 <script>
 
@@ -3657,6 +3548,8 @@ function renderMata(){
   const bonEl=document.getElementById('mata-bonus-pct-inp');if(bonEl)bonEl.value=p.bonusPct||20;
   const otEl=document.getElementById('mata-ot-pct-inp');if(otEl)otEl.value=p.otPct||150;
   const hoursEl=document.getElementById('mata-hours-inp');if(hoursEl)hoursEl.value=saved.hours??'';
+  const hipEl=document.getElementById('mata-hipoteka-inp');
+  if(hipEl&&saved.hipotekaAmt!=null)hipEl.value=saved.hipotekaAmt;
   const mbStdEl=document.getElementById('mata-mbank-std');if(mbStdEl)mbStdEl.value=saved.mbankStd??2000;
   const mbExtraEl=document.getElementById('mata-mbank-extra');if(mbExtraEl)mbExtraEl.value=saved.mbankExtra??'';
   const cushionEl=document.getElementById('mata-cushion-inp');
@@ -3680,7 +3573,7 @@ function renderMata(){
   const skEl=document.getElementById('mata-skladka-dom');if(skEl)skEl.textContent=`− ${fmt(Math.round(skladka))} zł`;
   const pzEl=document.getElementById('mata-pozostaje');if(pzEl){pzEl.textContent=`${fmt(Math.round(pozostaje))} zł`;pzEl.style.color=pozostaje<0?'#f4a8c0':'#fff';}
   const mtEl=document.getElementById('mata-mbank-total');if(mtEl)mtEl.textContent=`${fmt(mbankTotal)} zł`;
-  mataRenderExtraIncome();mataRenderTransfers();mataRenderSavings();mataLoanRender();mataUpdateDoneBtn();
+  mataRenderExtraIncome();mataRenderTransfers();mataRenderSavings();mataLoanRender();mataUpdateDoneBtn();mataCushionUpdateBtn();
 }
 
 function changeMataMonth(dir){mataYM=mataAddMonths(mataYM,dir);renderMata();}
@@ -3695,6 +3588,21 @@ function mataToggleParams(){
   if(arrow)arrow.textContent=open?'▼ rozwiń':'▲ zwiń';
 }
 
+function mataGetHipoteka(){
+  const saved = mataData[mataYM]?.hipotekaAmt;
+  if(saved!=null) return saved;
+  const el = document.getElementById('mata-hipoteka-inp');
+  return parseFloat(el?.value)||2500;
+}
+
+function mataHipotekaChanged(){
+  const val = parseFloat(document.getElementById('mata-hipoteka-inp')?.value)||2500;
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  mataData[mataYM].hipotekaAmt = val;
+  mataScheduleSave();
+  mataTransferCalc();
+}
+
 function mataGetSurplus(){
   const hours=parseFloat(document.getElementById('mata-hours-inp')?.value);
   const params=mataGetParams();const salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
@@ -3704,7 +3612,7 @@ function mataGetSurplus(){
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
-  return Math.max(0,totalIncome-2500-skladka-mbankStd-mbankExtra);
+  return Math.max(0,totalIncome-mataGetHipoteka()-skladka-mbankStd-mbankExtra);
 }
 
 function mataRenderTransfers(){
@@ -3721,7 +3629,7 @@ function mataRenderTransfers(){
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
   const steps=[
-    {id:'hipoteka',n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:2500,color:'#7a4868'},
+    {id:'hipoteka',n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:mataGetHipoteka(),color:'#7a4868'},
     {id:'skladka',n:2,icon:'🏠',label:'Składka na Dom',target:'Wspólne konto (Andy)',amt:Math.round(skladka),color:'#7a4868'},
     {id:'mbank',n:3,icon:'📱',label:'Fundusz swobodny',target:'mBank',amt:mbankStd+mbankExtra,color:'#5e4d82'},
     {id:'loan',n:4,icon:stage===3?'🏠':'🚗',label:stage===3?'Nadpłata hipoteki':"Pożyczka Andy'ego",target:stage===3?'Millennium kredyt':"Konto Andy'ego",amt:autoAmount,color:'#9a607a'},
@@ -3860,12 +3768,7 @@ function mataLoanCalc(){
   if(paidBtn){paidBtn.textContent=ratePaid?`✅ Rata zapłacona ${saved.loanRatePaidDate||''}`:'☐ Oznacz ratę jako zapłaconą → zaktualizuje kapitał';paidBtn.style.background=ratePaid?'#d4f0e4':'#eeebf5';paidBtn.style.borderColor=ratePaid?'#3d7a60':'#b0a4cc';paidBtn.style.color=ratePaid?'#3d7a60':'#4a4060';}
   mataGenerateAndyMsg(payment,interest,capitalPayment,remaining);
   const forecastEl=document.getElementById('mata-loan-forecast');
-  if(forecastEl&&!ratePaid&&currentCapital>0){
-    let sim=currentCapital,months=0;
-    while(sim>0&&months<120){const i=sim*MATA_CAR_RATE;const c=Math.min(sim,payment-i);if(c<=0){months=999;break;}sim-=c;months++;}
-    if(months<120){const d=new Date();d.setMonth(d.getMonth()+months);forecastEl.innerHTML=`⏱️ Spłata za <b>${months} mies.</b> · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`;}
-  } else if(forecastEl&&currentCapital<=0){forecastEl.innerHTML='<b style="color:#3d7a60">✅ Pożyczka spłacona!</b>';}
-  else if(forecastEl&&ratePaid){forecastEl.innerHTML='';}
+  if(forecastEl) forecastEl.innerHTML='';
 }
 
 function mataLoanMarkPaid(){
@@ -3915,6 +3818,50 @@ function mataGetStage(cushion,loanPaid){
   if(cushion<cushionGoal)return 1;if(ikePaid<ikeLimit)return 2;if(ikzePaid<ikzeLimit)return 3;return 4;
 }
 
+function mataCushionMarkPaid(){
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  const already = mataData[mataYM].cushionPaid||false;
+  if(already){
+    mataData[mataYM].cushionPaid = false;
+  } else {
+    // Zaproponuj kwotę wpłaty (savAmount z nadwyżki)
+    const surplus = mataGetSurplus();
+    const savAmount = Math.round(surplus * MATA_SAVE_SPLIT);
+    const current = parseFloat(document.getElementById('mata-cushion-inp')?.value)||0;
+    const suggested = savAmount > 0 ? current + savAmount : current;
+    const input = prompt(
+      `Jaki jest teraz stan konta oszczędnościowego po wpłacie?
+(sugestia: ${fmt(Math.round(suggested))} zł = ${fmt(current)} zł + ${fmt(savAmount)} zł wpłaty)`,
+      Math.round(suggested)
+    );
+    if(input === null) return;
+    const newVal = parseFloat(input);
+    if(isNaN(newVal)||newVal < 0){ alert('Nieprawidłowa kwota'); return; }
+    // Zaktualizuj stan konta
+    const el = document.getElementById('mata-cushion-inp');
+    if(el){ el.value = newVal; }
+    mataData[mataYM].cushion = newVal;
+    mataData[mataYM]._savingsUpdated = true;
+    mataData[mataYM]._savingsTs = Date.now();
+    mataData[mataYM].cushionPaid = true;
+    mataData[mataYM].cushionPaidDate = new Date().toISOString().slice(0,10);
+    mataScheduleSave();
+  }
+  mataCushionUpdateBtn();
+  mataSavingsCalc({skipSave: !mataData[mataYM].cushionPaid});
+}
+
+function mataCushionUpdateBtn(){
+  const btn = document.getElementById('mata-cushion-paid-btn');
+  if(!btn) return;
+  const paid = mataData[mataYM]?.cushionPaid||false;
+  const date = mataData[mataYM]?.cushionPaidDate||'';
+  btn.textContent = paid ? `✅ Oszczędności wpłacone ${date}` : '☐ Wpłaciłam oszczędności tego miesiąca';
+  btn.style.background = paid ? '#d4f0e4' : '#eeebf5';
+  btn.style.borderColor = paid ? '#3d7a60' : '#b0a4cc';
+  btn.style.color = paid ? '#3d7a60' : '#4a4060';
+}
+
 function mataSavingsCalc(opts){
   const doSave=!opts?.skipSave;
   const cushion=parseFloat(document.getElementById('mata-cushion-inp')?.value)||9500;
@@ -3933,11 +3880,7 @@ function mataSavingsCalc(opts){
   const pctEl=document.getElementById('mata-cushion-pct');if(pctEl)pctEl.textContent=pct+'%';
   const curEl=document.getElementById('mata-cushion-current');if(curEl)curEl.textContent=fmt(cushion)+' zł';
   const etaEl=document.getElementById('mata-cushion-eta');
-  if(etaEl){
-    if(cushion>=MATA_CUSHION_GOAL){etaEl.textContent='✅ Poduszka gotowa!';etaEl.style.color='#3d7a60';}
-    else if(savAmount>0){const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/savAmount);const d=new Date();d.setMonth(d.getMonth()+m);etaEl.textContent=`Za ${m} mies. — ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})} · ${fmt(savAmount)} zł/mies.`;}
-    else{etaEl.textContent='Wpisz wynagrodzenie aby zobaczyć prognozę';}
-  }
+  if(etaEl) etaEl.textContent='';
   const suggestEl=document.getElementById('mata-cushion-suggest');
   if(savAmount>0&&suggestEl){
     const suggested=Math.round(cushion+savAmount);
@@ -3945,20 +3888,81 @@ function mataSavingsCalc(opts){
   }
   const stageData={1:{icon:'🎯',name:'Etap 1 — Poduszka',sub:`Zostało ${fmt(Math.max(0,(mataData._settings?.cushionGoal||50000)-cushion))} zł do celu`,color:'#5e4d82'},2:{icon:'📘',name:'Etap 2 — IKE',sub:'60% oszczędności → VWCE w XTB',color:'#2d6a50'},3:{icon:'📗',name:'Etap 3 — IKZE',sub:'Limit IKE wypełniony → teraz IKZE',color:'#3d6a7a'},4:{icon:'🚀',name:'Etap 4 — Agresywne inwestycje',sub:'IKE + IKZE pełne → rachunek maklerski',color:'#6a3d2d'}};
   const sd=stageData[stage];
-  const badge=document.getElementById('mata-stage-badge');if(badge)badge.style.background=sd.color;
+  // Stage badge is now a pill inside cushion header
+  const badge=document.getElementById('mata-stage-badge');
+  if(badge) badge.style.background=sd.color;
   const si=document.getElementById('mata-stage-icon');if(si)si.textContent=sd.icon;
   const sn=document.getElementById('mata-stage-name');if(sn)sn.textContent=sd.name;
   const ss=document.getElementById('mata-stage-sub');if(ss)ss.textContent=sd.sub;
+  const sl=document.getElementById('mata-stage-label');if(sl)sl.textContent=sd.name;
   mataRenderTransfers();
   const goalsEl=document.getElementById('mata-goals-list');
-  if(goalsEl&&savAmount>0){
-    const goals=[];
-    if(cushion<MATA_CUSHION_GOAL){const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/savAmount);const d=new Date();d.setMonth(d.getMonth()+m);goals.push(`🛡️ Poduszka 50k → <b>${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}</b> (za ${m} mies.)`);}
-    else goals.push(`🛡️ Poduszka 50k → <b style="color:#3d7a60">✅ Gotowa!</b>`);
-    const kidsM=Math.round(savAmount*0.1/2);
-    if(kidsM>0&&stage>=2){const fv=n=>Math.round(kidsM*((Math.pow(1+0.08/12,n)-1)/(0.08/12)));goals.push(`👧 Córki: ${fmt(kidsM)} zł/mies. każda → <b>~${fmt(fv(18*12))} zł</b> za 18 lat`);}
-    goalsEl.innerHTML=goals.map(g=>`<div style="padding:4px 0">${g}</div>`).join('');
-  } else if(goalsEl){goalsEl.innerHTML='<div style="color:#7a6e98;font-size:12px">Wpisz wynagrodzenie aby zobaczyć prognozy.</div>';}
+  if(goalsEl){
+    if(savAmount<=0){
+      goalsEl.innerHTML='<div style="color:#7a6e98;font-size:12px;padding:4px 0">Wpisz wynagrodzenie aby zobaczyć prognozy.</div>';
+    } else {
+      const goals=[];
+
+      // 🛡️ Poduszka
+      if(cushion<MATA_CUSHION_GOAL){
+        const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/savAmount);
+        const d=new Date();d.setMonth(d.getMonth()+m);
+        const pct=Math.round(cushion/MATA_CUSHION_GOAL*100);
+        goals.push({
+          icon:'🛡️',label:'Poduszka bezpieczeństwa',
+          status:`za ${m} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
+          detail:`${fmt(cushion)} / 50 000 zł · ${pct}%`,
+          bar:pct,barColor:'#5e4d82',done:false
+        });
+      } else {
+        goals.push({icon:'🛡️',label:'Poduszka bezpieczeństwa',status:'✅ Gotowa!',detail:`${fmt(cushion)} zł`,bar:100,barColor:'#3d7a60',done:true});
+      }
+
+      // 🚗 Spłata kredytu Andy'ego
+      const currentCapital = mataData[mataYM]?.loanCapital ?? 54490;
+      if(currentCapital>0){
+        const autoAmt=Math.round(savAmount*MATA_CAR_SPLIT);
+        const payment=Math.max(2000,autoAmt);
+        let sim=currentCapital,months=0;
+        while(sim>0&&months<240){const intr=sim*MATA_CAR_RATE;const cp=Math.min(sim,payment-intr);if(cp<=0){months=999;break;}sim-=cp;months++;}
+        const paidPct=Math.round((1-currentCapital/MATA_LOAN_ORIGINAL)*100);
+        if(months<240){
+          const d=new Date();d.setMonth(d.getMonth()+months);
+          goals.push({
+            icon:'🚗',label:"Spłata kredytu Andy'ego",
+            status:`za ${months} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
+            detail:`${fmt(currentCapital)} zł zostało · ${paidPct}% spłacone`,
+            bar:paidPct,barColor:'#9a607a',done:false
+          });
+        } else {
+          goals.push({icon:'🚗',label:"Spłata kredytu Andy'ego",status:'za bardzo długo 😅',detail:`rata ${fmt(payment)} zł / mies. za niska`,bar:paidPct,barColor:'#9a607a',done:false});
+        }
+      } else {
+        goals.push({icon:'🚗',label:"Spłata kredytu Andy'ego",status:'✅ Spłacony!',detail:'',bar:100,barColor:'#3d7a60',done:true});
+      }
+
+      // 👧 Córki
+      const kidsM=Math.round(savAmount*0.1/2);
+      if(kidsM>0&&stage>=2){
+        const fv=n=>Math.round(kidsM*((Math.pow(1+0.08/12,n)-1)/(0.08/12)));
+        goals.push({icon:'👧',label:'Córki (fundusz)',status:`~${fmt(fv(18*12))} zł za 18 lat`,detail:`${fmt(kidsM)} zł/mies. każda · 8%/rok`,bar:null,done:false});
+      }
+
+      goalsEl.innerHTML = goals.map(g=>`
+        <div style="padding:10px 0;border-bottom:1px solid #f0ecf8">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:${g.bar!=null?'6px':'0'}">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:${g.done?'#3d7a60':'#18102c'}">${g.icon} ${g.label}</div>
+              <div style="font-size:12px;color:${g.done?'#3d7a60':'#5e4d82'};font-weight:600;margin-top:2px">${g.status}</div>
+              ${g.detail?`<div style="font-size:11px;color:#b0a4cc;margin-top:1px">${g.detail}</div>`:''}
+            </div>
+          </div>
+          ${g.bar!=null?`<div style="height:5px;background:#e8e4f0;border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${g.bar}%;background:${g.barColor};border-radius:99px;transition:width .5s"></div>
+          </div>`:''}
+        </div>`).join('');
+    }
+  }
   const inv=document.getElementById('mata-invest-section');if(inv)inv.style.display=stage>=2?'block':'none';
   const invD=document.getElementById('mata-invest-detail');
   if(invD&&stage>=2){
