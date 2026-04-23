@@ -4117,40 +4117,31 @@ function mataGetPrevVal(key,defaultVal){
 }
 
 function mataRenderSavings(){
-  const saved=mataData[mataYM];
-  const thisYM=domGetThisYM(); // bieżący miesiąc
-  const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<mataYM).sort();
-  let prevSaved=null, prevYM=null;
-  for(let i=months.length-1;i>=0;i--){const m=mataData[months[i]];if(m?._savingsUpdated){prevSaved=m;prevYM=months[i];break;}}
-  const ownTs=saved?._savingsTs||0;const prevTs=prevSaved?._savingsTs||0;
-  const useOwn=saved?._savingsUpdated&&ownTs>prevTs;
+  // Znajdź ostatni miesiąc z zapisanymi oszczędnościami (włącznie z bieżącym)
+  const allMonths = Object.keys(mataData)
+    .filter(k => /^\d{4}-\d{2}$/.test(k) && k <= mataYM)
+    .sort();
 
-  let cushionVal,ikeVal,ikzeVal;
-  if(useOwn){
-    cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;
-  } else if(prevSaved){
-    // Jeśli przeglądamy przyszły miesiąc - prognozuj od ostatniego zapisanego
-    cushionVal=prevSaved.cushion;ikeVal=prevSaved.ikePaid;ikzeVal=prevSaved.ikzePaid;
-    // Dla miesięcy w przyszłości: dodaj prognozowane oszczędności
-    if(mataYM>thisYM && prevYM){
-      // Policz ile miesięcy między prevYM a mataYM
-      const p=new Date(prevYM+'-01'),t=new Date(mataYM+'-01');
-      const monthsAhead=Math.max(0,(t.getFullYear()-p.getFullYear())*12+(t.getMonth()-p.getMonth()));
-      if(monthsAhead>0){
-        const savAmount=Math.round(mataGetSurplus()*MATA_SAVE_SPLIT);
-        if(savAmount>0) cushionVal=Math.min(50000,Math.round(cushionVal+savAmount*monthsAhead));
-      }
+  let cushionVal = 9500, ikeVal = null, ikzeVal = null;
+
+  for(let i = allMonths.length - 1; i >= 0; i--){
+    const m = mataData[allMonths[i]];
+    if(m?._savingsUpdated && m?.cushion != null){
+      cushionVal = m.cushion;
+      ikeVal = m.ikePaid ?? null;
+      ikzeVal = m.ikzePaid ?? null;
+      break;
     }
-  } else if(saved?._savingsUpdated){
-    cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;
-  } else {
-    cushionVal=9500;ikeVal=null;ikzeVal=null;
   }
 
-  const el=document.getElementById('mata-cushion-inp');if(el)el.value=cushionVal??'';
-  const ie=document.getElementById('mata-ike-paid');if(ie)ie.value=ikeVal??'';
-  const ize=document.getElementById('mata-ikze-paid');if(ize)ize.value=ikzeVal??'';
-  mataSavingsCalc({skipSave:true});
+  const el = document.getElementById('mata-cushion-inp');
+  if(el) el.value = cushionVal ?? '';
+  const ie = document.getElementById('mata-ike-paid');
+  if(ie) ie.value = ikeVal ?? '';
+  const ize = document.getElementById('mata-ikze-paid');
+  if(ize) ize.value = ikzeVal ?? '';
+
+  mataSavingsCalc({skipSave: true});
 }
 
 
