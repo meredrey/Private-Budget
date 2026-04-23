@@ -3869,7 +3869,42 @@ function mataScheduleSave(){
   mataSyncTimer=setTimeout(()=>{const data=encodeURIComponent(JSON.stringify(mataData));fetch(`${API}?action=write&sheet=MataData&data=${data}`).then(r=>r.json()).catch(()=>{});},1500);
 }
 function mataSyncFromSheets(){
-  fetch(`${API}?action=read&sheet=MataData`).then(r=>r.json()).then(r=>{if(r.success&&r.data){mataData=r.data;try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}if(curPage==='mata')renderMata();if(curPage==='dash')renderDash();}}).catch(()=>{});
+  fetch(`${API}?action=read&sheet=MataData`).then(r=>r.json()).then(r=>{
+    if(r.success&&r.data){
+      const remote = r.data;
+      // Merge: lokalne dane mają pierwszeństwo nad Sheets
+      // Dla każdego YM: zachowaj lokalne jeśli mają _savingsUpdated lub nowszy timestamp
+      Object.keys(remote).forEach(ym=>{
+        if(!/^\d{4}-\d{2}$/.test(ym)){ // pola niebędące miesiącami (np. _settings)
+          if(!mataData[ym]) mataData[ym]=remote[ym];
+          return;
+        }
+        if(!mataData[ym]){
+          mataData[ym]=remote[ym]; // lokalne nie ma → weź z Sheets
+        } else {
+          const localTs=mataData[ym]?._savingsTs||0;
+          const remoteTs=remote[ym]?._savingsTs||0;
+          // Dla oszczędności: lokalne mają pierwszeństwo jeśli nowsze lub są cushionPaid
+          if(mataData[ym]._savingsUpdated && localTs >= remoteTs){
+            // zachowaj lokalne — są nowsze lub równe
+          } else if(remote[ym]._savingsUpdated && remoteTs > localTs){
+            mataData[ym]=remote[ym]; // remote nowsze
+          } else if(!mataData[ym]._savingsUpdated){
+            // lokalne nie mają oszczędności — weź z remote ale nie nadpisuj _savingsUpdated=false lokalnie
+            const localSavingsUpdated = mataData[ym]._savingsUpdated;
+            const localCushionPaid = mataData[ym].cushionPaid;
+            Object.assign(mataData[ym], remote[ym]);
+            // Przywróć lokalne flagi jeśli były ustawione
+            if(localSavingsUpdated!==undefined) mataData[ym]._savingsUpdated=localSavingsUpdated;
+            if(localCushionPaid!==undefined) mataData[ym].cushionPaid=localCushionPaid;
+          }
+        }
+      });
+      try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}
+      if(curPage==='mata')renderMata();
+      if(curPage==='dash')renderDash();
+    }
+  }).catch(()=>{});
 }
 try{const c=localStorage.getItem('mata_v1');if(c)mataData=JSON.parse(c);}catch{}
 
@@ -4117,7 +4152,7 @@ function mataGetPrevVal(key,defaultVal){
 }
 
 function mataRenderSavings(){
-  // Znajdź ostatni miesiąc z zapisanymi oszczędnościami (włącznie z bieżącym)
+  // Znajdź ostatni miesiąc z cushionPaid=true (użytkownik faktycznie potwierdził wpłatę)
   const allMonths = Object.keys(mataData)
     .filter(k => /^\d{4}-\d{2}$/.test(k) && k <= mataYM)
     .sort();
@@ -4126,7 +4161,8 @@ function mataRenderSavings(){
 
   for(let i = allMonths.length - 1; i >= 0; i--){
     const m = mataData[allMonths[i]];
-    if(m?._savingsUpdated && m?.cushion != null){
+    // Wymagaj cushionPaid=true — tylko miesiące gdzie użytkownik kliknął "Wpłaciłam"
+    if(m?.cushionPaid === true && m?.cushion != null){
       cushionVal = m.cushion;
       ikeVal = m.ikePaid ?? null;
       ikzeVal = m.ikzePaid ?? null;
