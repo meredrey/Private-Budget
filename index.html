@@ -1058,7 +1058,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
               </div>
             </label>
             <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-              <span style="font-size:12px;color:rgba(255,255,255,.8)">🏠 Wynajem (gotówka)</span>
+              <span style="font-size:12px;color:rgba(255,255,255,.8)">💰 Dodatkowe przychody</span>
               <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-rent-expected-inline">— zł</span>
                 <input type="checkbox" id="chk-rent-inline" onchange="domQuickCheck()"
@@ -1068,7 +1068,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
             <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
               <span style="font-size:12px;color:rgba(255,255,255,.8)">🏦 Kredyt hipoteczny ściągnięty</span>
               <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:11px;color:rgba(255,255,255,.5)">3 350 zł</span>
+                <span style="font-size:11px;color:rgba(255,255,255,.5)" id="chk-hipoteka-expected-inline">— zł</span>
                 <input type="checkbox" id="chk-hipoteka-inline" onchange="domQuickCheck()"
                   style="width:18px;height:18px;cursor:pointer;accent-color:#a8e6c8">
               </div>
@@ -1106,34 +1106,27 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div class="sec-lbl">💰 Przychody wspólne</div>
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0">
-        <div style="font-size:13px;font-weight:600">800+ × 2</div>
+        <div style="font-size:13px;font-weight:600">👶 800+ × 2</div>
         <div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#3d7a60">1 600 zł</div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0;gap:10px">
-        <div style="font-size:13px;font-weight:600">Wynajem</div>
+        <div>
+          <div style="font-size:13px;font-weight:600">💰 Dodatkowe przychody</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:1px">np. wynajem, inne wpływy</div>
+        </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <input class="dom-inp" type="number" id="dom-wynajem-inp" value="1145" placeholder="1145"
+          <input class="dom-inp" type="number" id="dom-wynajem-inp" value="0" placeholder="0"
             style="width:90px;border-color:#3d7a60;background:#f0f8f4;color:#3d7a60"
             onchange="domSetIncome(this.value,'wynajem')" oninput="domSetIncome(this.value,'wynajem')">
           <span style="font-size:13px;color:#3d7a60;font-weight:600">zł</span>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1.5px solid #cec6e0;background:#fff8f8">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:#9a4060">🏦 Kredyt hipoteczny</div>
-          <div style="font-size:11px;color:#7a6e98">miesięczna rata</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:13px;color:#9a4060;font-weight:600">−</span>
-          <input class="dom-inp" type="number" id="dom-hipoteka-inp" value="3350" placeholder="3350"
-            style="width:90px;border-color:#9a4060;background:#fff0f4;color:#9a4060"
-            onchange="domSetIncome(this.value,'hipoteka')" oninput="domSetIncome(this.value,'hipoteka')">
-          <span style="font-size:13px;color:#9a4060;font-weight:600">zł</span>
-        </div>
-      </div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;background:#f8f7ff">
-        <div style="font-size:13px;font-weight:700">Razem przychody</div>
-        <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dom-income-total">2 745 zł</div>
+        <div>
+          <div style="font-size:13px;font-weight:700">Razem przychody wspólne</div>
+          <div style="font-size:11px;color:#7a6e98;margin-top:2px">odliczane przed podziałem kosztów</div>
+        </div>
+        <div style="font-family:Georgia,serif;font-size:20px;font-weight:600;color:#3d7a60" id="dom-income-total">1 600 zł</div>
       </div>
     </div>
 
@@ -2319,13 +2312,9 @@ function domSetValById(safeId,field,val,ym,rerender){
 
 function domSetIncome(val, field){
   if(!domData[domYM]) domData[domYM]={};
-  if(field==='hipoteka'){
-    domHipoteka = parseFloat(val)||3350;
-    domData[domYM].hipoteka = domHipoteka;
-  } else {
-    domWynajem = parseFloat(val)||1145;
-    domData[domYM].wynajem = domWynajem;
-  }
+  const parsed = parseFloat(val) || 0;
+  domWynajem = parsed;
+  domData[domYM].wynajem = parsed;
   const total = 1600 + domWynajem;
   const el = document.getElementById('dom-income-total');
   if(el) el.textContent = fmt(total)+' zł';
@@ -2335,13 +2324,16 @@ function domSetIncome(val, field){
 
 function domGetIncome(){
   const savedW = domData[domYM]?.wynajem;
-  const savedH = domData[domYM]?.hipoteka;
-  domWynajem = savedW ?? domWynajem;
-  domHipoteka = savedH ?? domHipoteka;
+  domWynajem = savedW ?? 0;
   return 1600 + domWynajem;
 }
 function domGetHipoteka(){
-  return domData[domYM]?.hipoteka ?? domHipoteka;
+  // Czyta z inputu w zakładce Dom, fallback do Finanse
+  const domInp = parseFloat(document.getElementById('dom-hipoteka-inp')?.value);
+  if(!isNaN(domInp) && domInp > 0) return domInp;
+  const mataInp = parseFloat(document.getElementById('mata-hipoteka-inp')?.value);
+  if(!isNaN(mataInp) && mataInp > 0) return mataInp;
+  return domData[domYM]?.hipoteka ?? mataData[mataYM]?.hipotekaAmt ?? 2500;
 }
 
 function domUpdateSummary(){
@@ -2435,15 +2427,21 @@ function domQuickCheck(){
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();
+  // Składka Andy'ego = połowa kosztów domu ponad przychody wspólne
   const skladka=Math.max(0,Math.round((planSum-income)/2));
-  const wynajem = 2000;
+  // Dodatkowe przychody = wartość z inputu (domyślnie 0)
+  const dodatkowePrzychody=parseFloat(document.getElementById('dom-wynajem-inp')?.value)||0;
+
+  // Składka Andy'ego = składka domowa MINUS rata pożyczki (Andy płaci ratę zamiast części składki)
   const loanPayment = mataData[mataYM]?._loanPayment || Math.max(2000, Math.round(mataGetSurplus()*0.70));
   const andySkladka = Math.max(0, skladka - loanPayment);
 
   const andyEl=document.getElementById('chk-andy-expected-inline');
   if(andyEl) andyEl.textContent=fmt(andySkladka)+' zł';
   const rentEl=document.getElementById('chk-rent-expected-inline');
-  if(rentEl) rentEl.textContent=fmt(wynajem)+' zł';
+  if(rentEl) rentEl.textContent=fmt(dodatkowePrzychody)+' zł';
+  const hipEl=document.getElementById('chk-hipoteka-expected-inline');
+  if(hipEl) hipEl.textContent=fmt(domGetHipoteka())+' zł';
 
   // Zapisz stan checkboxów
   if(!domData[domYM]) domData[domYM]={};
@@ -2464,7 +2462,7 @@ function domQuickCheck(){
   if(beforeHipoteka) total -= domGetHipoteka();
   if(!andyPaid) total += andySkladka;
   if(!plus800Paid) total += 1600;
-  if(!rentPaid) total += wynajem;
+  if(!rentPaid) total += dodatkowePrzychody;
 
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,domYM)||0),0);
   const expected = Math.round(planSum - realSum);
@@ -2728,8 +2726,7 @@ function renderDom(){
   domUpdateLastUpdated();
   const inp=document.getElementById('dom-wynajem-inp');
   if(inp&&domData[domYM]?.wynajem!=null) inp.value=domData[domYM].wynajem;
-  const hipInp=document.getElementById('dom-hipoteka-inp');
-  if(hipInp&&domData[domYM]?.hipoteka!=null) hipInp.value=domData[domYM].hipoteka;
+
   // Sync globals
   domGetIncome();
   domRenderRows();
@@ -3431,9 +3428,11 @@ function chkToggle(key){
 function chkRender(){
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-  const income=domGetIncome();const skladka=Math.max(0,(planSum-income)/2);const wynajem=domWynajem||1145;
+  const income=domGetIncome();
+  const skladka=Math.max(0,Math.round((planSum-income)/2));
+  const dodatkowePrzychody=parseFloat(document.getElementById('dom-wynajem-inp')?.value)||0;
   const andyEl=document.getElementById('chk-andy-expected');if(andyEl)andyEl.textContent=`oczekiwana: ${fmt(skladka)} zł`;
-  const rentEl=document.getElementById('chk-rent-expected');if(rentEl)rentEl.textContent=`oczekiwana: ${fmt(wynajem)} zł`;
+  const rentEl=document.getElementById('chk-rent-expected');if(rentEl)rentEl.textContent=`oczekiwana: ${fmt(dodatkowePrzychody)} zł`;
   const saved=domData[domYM]?._chk;
   if(saved){
     ['andy','800plus','rent','hipoteka'].forEach(k=>{const el=document.getElementById('chk-'+k+'-inline');if(el&&saved[k])el.checked=true;});
@@ -3447,7 +3446,7 @@ function chkUpdate(){
   const cash=parseFloat(document.getElementById('chk-cash')?.value)||0;
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-  const income=domGetIncome();const skladka=Math.max(0,(planSum-income)/2);const wynajem=domWynajem||1145;
+  const income=domGetIncome();const skladka=Math.max(0,Math.round((planSum-income)/2));const wynajem=parseFloat(document.getElementById('dom-wynajem-inp')?.value)||0;
   const realSum=allExp.reduce((s,e)=>{const r=domGetReal(e,domYM);return s+(r||0);},0);
   let expMil=0;if(chkState.andy)expMil+=skladka;if(chkState['800plus'])expMil+=1600;expMil-=realSum;
   let expCash=0;if(chkState.rent)expCash+=wynajem;
@@ -4058,7 +4057,7 @@ function mataSavingsCalc(opts){
       }
 
       // 🚗 Spłata kredytu Andy'ego
-      const currentCapital = mataData[mataYM]?.loanCapital ?? 54490;
+      const currentCapital = mataData[mataYM]?.loanCapital ?? mataGetPrevVal('loanCapital', 54490);
       if(currentCapital>0){
         const autoAmt=Math.round(savAmount*MATA_CAR_SPLIT);
         const payment=Math.max(2000,autoAmt);
@@ -4119,16 +4118,35 @@ function mataGetPrevVal(key,defaultVal){
 
 function mataRenderSavings(){
   const saved=mataData[mataYM];
+  const thisYM=domGetThisYM(); // bieżący miesiąc
   const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<mataYM).sort();
-  let prevSaved=null;
-  for(let i=months.length-1;i>=0;i--){const m=mataData[months[i]];if(m?._savingsUpdated){prevSaved=m;break;}}
+  let prevSaved=null, prevYM=null;
+  for(let i=months.length-1;i>=0;i--){const m=mataData[months[i]];if(m?._savingsUpdated){prevSaved=m;prevYM=months[i];break;}}
   const ownTs=saved?._savingsTs||0;const prevTs=prevSaved?._savingsTs||0;
   const useOwn=saved?._savingsUpdated&&ownTs>prevTs;
+
   let cushionVal,ikeVal,ikzeVal;
-  if(useOwn){cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;}
-  else if(prevSaved){cushionVal=prevSaved.cushion;ikeVal=prevSaved.ikePaid;ikzeVal=prevSaved.ikzePaid;}
-  else if(saved?._savingsUpdated){cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;}
-  else{cushionVal=9500;ikeVal=null;ikzeVal=null;}
+  if(useOwn){
+    cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;
+  } else if(prevSaved){
+    // Jeśli przeglądamy przyszły miesiąc - prognozuj od ostatniego zapisanego
+    cushionVal=prevSaved.cushion;ikeVal=prevSaved.ikePaid;ikzeVal=prevSaved.ikzePaid;
+    // Dla miesięcy w przyszłości: dodaj prognozowane oszczędności
+    if(mataYM>thisYM && prevYM){
+      // Policz ile miesięcy między prevYM a mataYM
+      const p=new Date(prevYM+'-01'),t=new Date(mataYM+'-01');
+      const monthsAhead=Math.max(0,(t.getFullYear()-p.getFullYear())*12+(t.getMonth()-p.getMonth()));
+      if(monthsAhead>0){
+        const savAmount=Math.round(mataGetSurplus()*MATA_SAVE_SPLIT);
+        if(savAmount>0) cushionVal=Math.min(50000,Math.round(cushionVal+savAmount*monthsAhead));
+      }
+    }
+  } else if(saved?._savingsUpdated){
+    cushionVal=saved.cushion;ikeVal=saved.ikePaid;ikzeVal=saved.ikzePaid;
+  } else {
+    cushionVal=9500;ikeVal=null;ikzeVal=null;
+  }
+
   const el=document.getElementById('mata-cushion-inp');if(el)el.value=cushionVal??'';
   const ie=document.getElementById('mata-ike-paid');if(ie)ie.value=ikeVal??'';
   const ize=document.getElementById('mata-ikze-paid');if(ize)ize.value=ikzeVal??'';
