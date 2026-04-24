@@ -1634,11 +1634,8 @@ function setSyncStatus(status){
 
 function syncToSheets(s){
   setSyncStatus('saving');
-  fetch(API, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'write',sheet:'BudgetData',data:s})
-  })
+  const params = new URLSearchParams({action:'write',sheet:'BudgetData',data:JSON.stringify(s)});
+  fetch(`${API}?${params}`)
   .then(r=>r.json())
   .then(r=>{
     if(r.success){setSyncStatus('saved');}
@@ -3148,11 +3145,10 @@ function domImportConfirm(){
   if(domSyncTimer) clearTimeout(domSyncTimer);
   fetch(API, {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
-  })
-    .then(r=>r.json())
-    .catch(()=>{});
+  }).catch(()=>{});
 
   const remaining = _importTxns.filter(t=>!t._skip&&!t._category).length;
   const msg = remaining > 0
@@ -3479,11 +3475,11 @@ function domScheduleSave(){
   domSyncTimer=setTimeout(()=>{
     fetch(API, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
     })
-    .then(r=>r.json())
-    .then(r=>{ if(r.success){ try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{} } })
+    .then(()=>{ try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{} })
     .catch(()=>{ /* bez internetu — zostaje w localStorage */ });
   },800);
 }
@@ -3878,9 +3874,10 @@ function mataScheduleSave(){
   mataSyncTimer=setTimeout(()=>{
     fetch(API, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({action:'write',sheet:'MataData',data:mataData})
-    }).then(r=>r.json()).catch(()=>{});
+    }).catch(()=>{});
   },1500);
 }
 function mataSyncFromSheets(){
