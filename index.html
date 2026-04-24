@@ -1634,8 +1634,11 @@ function setSyncStatus(status){
 
 function syncToSheets(s){
   setSyncStatus('saving');
-  const data=encodeURIComponent(JSON.stringify(s));
-  fetch(`${API}?action=write&sheet=BudgetData&data=${data}`)
+  fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'write',sheet:'BudgetData',data:s})
+  })
   .then(r=>r.json())
   .then(r=>{
     if(r.success){setSyncStatus('saved');}
@@ -3143,8 +3146,11 @@ function domImportConfirm(){
   try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
   // Zapisz do Sheets synchronicznie (nie czekaj na debounce)
   if(domSyncTimer) clearTimeout(domSyncTimer);
-  const saveData = encodeURIComponent(JSON.stringify(domData));
-  fetch(`${API}?action=write&sheet=DomData&data=${saveData}`)
+  fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
+  })
     .then(r=>r.json())
     .catch(()=>{});
 
@@ -3471,8 +3477,11 @@ function domScheduleSave(){
   try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
   // Synchronizuj z Sheets po 800ms (debounce)
   domSyncTimer=setTimeout(()=>{
-    const data=encodeURIComponent(JSON.stringify(domData));
-    fetch(`${API}?action=write&sheet=DomData&data=${data}`)
+    fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
+    })
     .then(r=>r.json())
     .then(r=>{ if(r.success){ try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{} } })
     .catch(()=>{ /* bez internetu — zostaje w localStorage */ });
@@ -3866,38 +3875,35 @@ function mataTransferCalc(){
 function mataScheduleSave(){
   if(mataSyncTimer)clearTimeout(mataSyncTimer);
   try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}
-  mataSyncTimer=setTimeout(()=>{const data=encodeURIComponent(JSON.stringify(mataData));fetch(`${API}?action=write&sheet=MataData&data=${data}`).then(r=>r.json()).catch(()=>{});},1500);
+  mataSyncTimer=setTimeout(()=>{
+    fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'write',sheet:'MataData',data:mataData})
+    }).then(r=>r.json()).catch(()=>{});
+  },1500);
 }
 function mataSyncFromSheets(){
   fetch(`${API}?action=read&sheet=MataData`).then(r=>r.json()).then(r=>{
     if(r.success&&r.data){
       const remote = r.data;
-      // Merge: lokalne dane mają pierwszeństwo nad Sheets
-      // Dla każdego YM: zachowaj lokalne jeśli mają _savingsUpdated lub nowszy timestamp
+      // Merge: lokalne mają pierwszeństwo jeśli cushionPaid=true i nowszy timestamp
       Object.keys(remote).forEach(ym=>{
-        if(!/^\d{4}-\d{2}$/.test(ym)){ // pola niebędące miesiącami (np. _settings)
+        if(!/^\d{4}-\d{2}$/.test(ym)){
           if(!mataData[ym]) mataData[ym]=remote[ym];
           return;
         }
         if(!mataData[ym]){
-          mataData[ym]=remote[ym]; // lokalne nie ma → weź z Sheets
+          mataData[ym]=remote[ym];
         } else {
           const localTs=mataData[ym]?._savingsTs||0;
           const remoteTs=remote[ym]?._savingsTs||0;
-          // Dla oszczędności: lokalne mają pierwszeństwo jeśli nowsze lub są cushionPaid
-          if(mataData[ym]._savingsUpdated && localTs >= remoteTs){
-            // zachowaj lokalne — są nowsze lub równe
-          } else if(remote[ym]._savingsUpdated && remoteTs > localTs){
-            mataData[ym]=remote[ym]; // remote nowsze
-          } else if(!mataData[ym]._savingsUpdated){
-            // lokalne nie mają oszczędności — weź z remote ale nie nadpisuj _savingsUpdated=false lokalnie
-            const localSavingsUpdated = mataData[ym]._savingsUpdated;
-            const localCushionPaid = mataData[ym].cushionPaid;
-            Object.assign(mataData[ym], remote[ym]);
-            // Przywróć lokalne flagi jeśli były ustawione
-            if(localSavingsUpdated!==undefined) mataData[ym]._savingsUpdated=localSavingsUpdated;
-            if(localCushionPaid!==undefined) mataData[ym].cushionPaid=localCushionPaid;
+          if(mataData[ym].cushionPaid && localTs>=remoteTs){
+            // lokalne nowsze — zachowaj
+          } else if(remote[ym]?._savingsTs && remoteTs>localTs){
+            mataData[ym]=remote[ym];
           }
+          // w pozostałych przypadkach zachowaj lokalne
         }
       });
       try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}
@@ -4152,7 +4158,7 @@ function mataGetPrevVal(key,defaultVal){
 }
 
 function mataRenderSavings(){
-  // Znajdź ostatni miesiąc z cushionPaid=true (użytkownik faktycznie potwierdził wpłatę)
+  // Znajdź ostatni miesiąc gdzie użytkownik kliknął "Wpłaciłam" (cushionPaid=true)
   const allMonths = Object.keys(mataData)
     .filter(k => /^\d{4}-\d{2}$/.test(k) && k <= mataYM)
     .sort();
@@ -4161,7 +4167,6 @@ function mataRenderSavings(){
 
   for(let i = allMonths.length - 1; i >= 0; i--){
     const m = mataData[allMonths[i]];
-    // Wymagaj cushionPaid=true — tylko miesiące gdzie użytkownik kliknął "Wpłaciłam"
     if(m?.cushionPaid === true && m?.cushion != null){
       cushionVal = m.cushion;
       ikeVal = m.ikePaid ?? null;
