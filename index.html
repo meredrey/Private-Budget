@@ -1942,11 +1942,9 @@ let domWynajem=1145; // editable
 let domHipoteka=3350; // editable
 
 function domGetThisYM(){
-  // Zwraca YM bieżącego okresu rozliczeniowego (miesiąc końca cyklu wypłaty)
-  const st = load();
-  const pd = st.payday || 1;
-  const {end} = budGetCycle(pd);
-  return `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}`;
+  // Zwraca YM bieżącego miesiąca kalendarzowego (nie końca cyklu)
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
