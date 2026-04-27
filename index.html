@@ -1942,9 +1942,11 @@ let domWynajem=1145; // editable
 let domHipoteka=3350; // editable
 
 function domGetThisYM(){
-  // Zwraca YM bieżącego miesiąca kalendarzowego (nie końca cyklu)
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  // Zwraca YM bieżącego okresu rozliczeniowego (miesiąc końca cyklu wypłaty)
+  const st = load();
+  const pd = st.payday || 1;
+  const {end} = budGetCycle(pd);
+  return `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
@@ -1959,47 +1961,30 @@ function domGetSuggested(exp,ym){
   }
   if(exp.type==='avg3'){
     const vals=[];
-    const cycleStart=domGetThisYM();
-    for(let i=1;i<=24&&vals.length<3;i++){
+    const thisYM=domGetThisYM();
+    const cutoff=domAddMonths(thisYM,-12);
+    // Tylko domData (dane wpisane w aplikacji) — ignoruj DOM_HISTORY
+    for(let i=1;i<=12&&vals.length<3;i++){
       const pym=domAddMonths(ym,-i);
-      if(pym>=cycleStart) continue;
-      // Check if month has real data saved by user
+      if(pym>=thisYM) continue;
+      if(pym<cutoff) break;
       const s=domData[pym]?.[exp.name];
-      const h=DOM_HISTORY[pym]?.[exp.name];
-      const real=s?.real??h?.real;
-      // Only use if real exists AND is from history (trusted) OR user saved it themselves
-      const isHistoric=!!DOM_HISTORY[pym]?.[exp.name]?.real;
-      const isUserSaved=s?.real!=null;
-      if(!isHistoric&&!isUserSaved) continue; // no real data — skip
-      if(real!=null&&real>0) vals.push(real);
+      if(s?.real!=null&&s.real>0) vals.push(s.real);
     }
     if(vals.length>=1){
-      return Math.round(vals.slice(0,3).reduce((a,b)=>a+b,0)/Math.min(vals.length,3));
-    }
-    // Fallback: plan from any completed month
-    for(let i=1;i<=24;i++){
-      const pym=domAddMonths(ym,-i);
-      if(pym>=cycleStart) continue;
-      const h=DOM_HISTORY[pym]?.[exp.name];
-      const s=domData[pym]?.[exp.name];
-      const plan=s?.plan??h?.plan;
-      if(plan!=null&&plan>0) return plan;
+      return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
     }
     return 0;
   }
   if(exp.type==='lastYear'){
+    // Najpierw domData, potem DOM_HISTORY jako fallback
     const lym=`${parseInt(ym.slice(0,4))-1}-${ym.slice(5,7)}`;
-    const h=DOM_HISTORY[lym]?.[exp.name];
     const s=domData[lym]?.[exp.name];
+    const h=DOM_HISTORY[lym]?.[exp.name];
     if(s?.real!=null)return s.real;
-    if(h?.real!=null)return h.real;
     if(s?.plan!=null)return s.plan;
+    if(h?.real!=null)return h.real;
     if(h?.plan!=null)return h.plan;
-    // Try 2 years back
-    const lym2=`${parseInt(ym.slice(0,4))-2}-${ym.slice(5,7)}`;
-    const h2=DOM_HISTORY[lym2]?.[exp.name];
-    if(h2?.real!=null)return h2.real;
-    if(h2?.plan!=null)return h2.plan;
     return 0;
   }
   return 0;
