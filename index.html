@@ -2351,6 +2351,9 @@ function domUpdateSummary(){
   const skPlan=Math.max(0,(planSum-income)/2);
   const skReal=realCnt>0?Math.max(0,(realSum-income)/2):null;
   const available=planSum>0?planSum-realSum:null;
+  // Aktualizuj kafelek "Razem przychody wspólne"
+  const incomeTotEl=document.getElementById('dom-income-total');
+  if(incomeTotEl) incomeTotEl.textContent=fmt(1600+domWynajem)+' zł';
 
   // Progress bar
   const pct=planSum>0?Math.min(100,Math.round((realSum/planSum)*100)):0;
