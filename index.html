@@ -3583,7 +3583,17 @@ function mataSwitchMode(mode){
   if(actualDiv)    actualDiv.style.display   = isForecast ? 'none'  : 'block';
 
   if(isForecast) mataCalc();
-  else mataActualChanged();
+  else {
+    // Wywołaj tylko jeśli mamy zapisane dane — nie nadpisuj nullem
+    const hasSaved = mataData[mataYM]?.actualSalary;
+    if(hasSaved) mataActualChanged();
+    else {
+      // Tylko przelicz totale bez zapisywania
+      const extra = mataGetExtraIncomeTotal();
+      const totEl = document.getElementById('mata-total-income');
+      if(totEl) totEl.textContent = hasSaved ? fmt(Math.round(hasSaved+extra))+' zł' : '—';
+    }
+  }
 }
 
 function mataActualChanged(){
@@ -3675,15 +3685,15 @@ function renderMata(){
   const hoursEl=document.getElementById('mata-hours-inp');if(hoursEl)hoursEl.value=saved.hours??'';
   const hipEl=document.getElementById('mata-hipoteka-inp');
   if(hipEl&&saved.hipotekaAmt!=null)hipEl.value=saved.hipotekaAmt;
-  // Restore salary mode
+  // Restore salary mode — najpierw wpisz wartości, potem przełącz tryb
   const mode=saved.salaryMode||'forecast';
-  mataSwitchMode(mode);
   if(mode==='actual'){
     const actEl=document.getElementById('mata-actual-salary');
-    if(actEl&&saved.actualSalary)actEl.value=saved.actualSalary;
+    if(actEl&&saved.actualSalary) actEl.value=saved.actualSalary;
     const pdEl=document.getElementById('mata-actual-payday');
-    if(pdEl&&saved.actualPayday)pdEl.value=saved.actualPayday;
+    if(pdEl&&saved.actualPayday) pdEl.value=saved.actualPayday;
   }
+  mataSwitchMode(mode);
   const mbStdEl=document.getElementById('mata-mbank-std');if(mbStdEl)mbStdEl.value=saved.mbankStd??2000;
   const mbExtraEl=document.getElementById('mata-mbank-extra');if(mbExtraEl)mbExtraEl.value=saved.mbankExtra??'';
   const cushionEl=document.getElementById('mata-cushion-inp');
