@@ -1945,6 +1945,13 @@ function domGetThisYM(){
   // Zwraca bieżący miesiąc kalendarzowy
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
+function getCycleYM(){
+  // Zwraca miesiąc końca cyklu wypłaty (np. maj jeśli wypłata 28 kwietnia)
+  const st = load();
+  const pd = st.payday || 1;
+  const {end} = budGetCycle(pd);
+  return `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
@@ -4619,7 +4626,7 @@ function renderStats(){
 }
 
 function renderAll(){
-  if(!_monthsInitialized){domYM=domGetThisYM();mataYM=domGetThisYM();_monthsInitialized=true;}
+  if(!_monthsInitialized){domYM=getCycleYM();mataYM=getCycleYM();_monthsInitialized=true;}
   renderWeek();renderMonth();renderPlans();renderSettings();renderDash();
 }
 
@@ -4698,7 +4705,7 @@ function showPage(name){
   document.getElementById('tab-'+(name==='month'||name==='plans'?'week':name))?.classList.add('active');
   if(name==='week'){showBudgetTab('week');}else if(name==='month'){showBudgetTab('month');}
   else if(name==='plans'){showBudgetTab('plans');}else if(name==='settings')renderSettings();
-  else if(name==='dom'){domYM=domGetThisYM();domView='month';setDomView('month');domSyncFromSheets();}
+  else if(name==='dom'){domYM=getCycleYM();domView='month';setDomView('month');domSyncFromSheets();}
   else if(name==='mata'){
     // mataYM = koniec cyklu wypłaty (np. maj jeśli wypłata 28 kwietnia)
     const _st=load();const _pd=_st.payday||1;
