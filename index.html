@@ -3703,10 +3703,17 @@ function renderMata(){
   const ikzeEl=document.getElementById('mata-ikze-paid');
   if(ikzeEl)ikzeEl.value=(saved._savingsUpdated?saved.ikzePaid:mataGetPrevVal('ikzePaid',null))??'';
   const params=mataGetParams();const hours=parseFloat(hoursEl?.value);
-  const salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
-  const bonus=isNaN(hours)?0:mataCalcSalary(hours,params).bonus;
-  const overtime=isNaN(hours)?0:mataCalcSalary(hours,params).overtime;
-  const extra=mataGetExtraIncomeTotal();const totalIncome=salary+extra;
+  const extra=mataGetExtraIncomeTotal();
+  // Użyj actual salary jeśli wpisano, inaczej prognoza
+  const savedMode=saved.salaryMode||'forecast';
+  let salary, totalIncome;
+  if(savedMode==='actual' && saved.actualSalary){
+    salary = saved.actualSalary;
+    totalIncome = salary + extra;
+  } else {
+    salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
+    totalIncome=salary+extra;
+  }
   const stEl=document.getElementById('mata-salary-total');if(stEl)stEl.textContent=fmt(Math.round(salary))+' zł';
   const tiEl=document.getElementById('mata-total-income');if(tiEl)tiEl.textContent=fmt(Math.round(totalIncome))+' zł';
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
@@ -3748,11 +3755,12 @@ function mataHipotekaChanged(){
 }
 
 function mataGetTotalIncome(){
-  // Tryb rzeczywistość: użyj wpisanej wypłaty
+  // Tryb rzeczywistość: użyj wpisanej wypłaty (extra już wliczone w actualSalary lub osobno)
   const mode = mataData[mataYM]?.salaryMode || 'forecast';
   const extra = mataGetExtraIncomeTotal();
   if(mode === 'actual'){
     const actual = mataData[mataYM]?.actualSalary || 0;
+    // actualSalary to czysta wypłata, extra to osobne wpływy
     return actual + extra;
   }
   // Tryb prognoza: kalkulator godzinowy
@@ -4691,7 +4699,13 @@ function showPage(name){
   if(name==='week'){showBudgetTab('week');}else if(name==='month'){showBudgetTab('month');}
   else if(name==='plans'){showBudgetTab('plans');}else if(name==='settings')renderSettings();
   else if(name==='dom'){domYM=domGetThisYM();domView='month';setDomView('month');domSyncFromSheets();}
-  else if(name==='mata'){mataYM=domGetThisYM();renderMata();mataSyncFromSheets();}
+  else if(name==='mata'){
+    // mataYM = koniec cyklu wypłaty (np. maj jeśli wypłata 28 kwietnia)
+    const _st=load();const _pd=_st.payday||1;
+    const {end:_end}=budGetCycle(_pd);
+    mataYM=`${_end.getFullYear()}-${String(_end.getMonth()+1).padStart(2,'0')}`;
+    renderMata();mataSyncFromSheets();
+  }
   else if(name==='stats'){renderStats();}
   else if(name==='dash'){renderDash();domSyncFromSheets();mataSyncFromSheets();}
   else renderWeek();
