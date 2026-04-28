@@ -1961,13 +1961,26 @@ function domGetSuggested(exp,ym){
     const vals=[];
     const thisYM=domGetThisYM();
     const cutoff=domAddMonths(thisYM,-12);
-    // Tylko domData (dane wpisane w aplikacji) — ignoruj DOM_HISTORY
+    // Najpierw szukaj w domData (dane wpisane w aplikacji)
     for(let i=1;i<=12&&vals.length<3;i++){
       const pym=domAddMonths(ym,-i);
       if(pym>=thisYM) continue;
       if(pym<cutoff) break;
       const s=domData[pym]?.[exp.name];
       if(s?.real!=null&&s.real>0) vals.push(s.real);
+    }
+    // Jeśli mamy mniej niż 3 — uzupełnij z DOM_HISTORY
+    if(vals.length<3){
+      for(let i=1;i<=12&&vals.length<3;i++){
+        const pym=domAddMonths(ym,-i);
+        if(pym>=thisYM) continue;
+        if(pym<cutoff) break;
+        // Pomiń jeśli już wzięliśmy z domData
+        const s=domData[pym]?.[exp.name];
+        if(s?.real!=null&&s.real>0) continue;
+        const h=DOM_HISTORY[pym]?.[exp.name];
+        if(h?.real!=null&&h.real>0) vals.push(h.real);
+      }
     }
     if(vals.length>=1){
       return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
