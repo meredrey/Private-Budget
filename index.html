@@ -2363,7 +2363,12 @@ function domUpdateSummary(){
   // Ostatnia aktualizacja kafelek
   const updCard=document.getElementById('dom-last-updated-card');
   const updBanner=document.getElementById('dom-last-updated');
-  const d=domData[domYM]?._lastUpdated?.date;
+  // Znajdź najnowszą datę _updated spośród wszystkich kategorii bieżącego miesiąca
+  const allCatDates = Object.values(domData[domYM]||{})
+    .filter(v=>v&&typeof v==='object'&&v._updated)
+    .map(v=>v._updated)
+    .sort().reverse();
+  const d = allCatDates[0] || null;
   const updTxt=d?d:'brak';
   if(updCard) updCard.textContent=updTxt;
   if(updBanner) updBanner.textContent=d?`ostatnia aktualizacja: ${d}`:'';
@@ -4475,7 +4480,11 @@ function renderDash(){
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,dashDomYM)||0),0);
   const pct=planSum>0?Math.min(100,Math.round((realSum/planSum)*100)):0;
   const pendingCnt=allExp.filter(e=>(domGetPlan(e,dashDomYM)||0)>0&&domGetReal(e,dashDomYM)==null).length;
-  const updDate=domData[dashDomYM]?._lastUpdated?.date;
+  const allDashDates = Object.values(domData[dashDomYM]||{})
+    .filter(v=>v&&typeof v==='object'&&v._updated)
+    .map(v=>v._updated)
+    .sort().reverse();
+  const updDate = allDashDates[0] || null;
   const domPctEl=el('dash-dom-pct');
   if(domPctEl){domPctEl.textContent=pct+'%';domPctEl.style.fontSize=pct>=100?'40px':'48px';domPctEl.style.color=pct>100?'#b03050':pct>80?'#806020':'#4a3870';}
   const domBar=el('dash-dom-bar');if(domBar){domBar.style.width=pct+'%';domBar.style.background=pct>100?'linear-gradient(90deg,#c05070,#803050)':pct>80?'linear-gradient(90deg,#c09030,#806010)':'linear-gradient(90deg,#a090cc,#5e4d82)';}
