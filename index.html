@@ -2471,7 +2471,9 @@ function domQuickCheck(){
   if(!mil&&!cash){resEl.textContent='';return;}
 
   let total = mil + cash;
-  if(beforeHipoteka) total -= domGetHipoteka();
+  // Jeśli hipoteka nie ściągnięta — odejmij bo jeszcze wyjdzie z konta
+  if(!hipotekaPaid) total -= domGetHipoteka();
+  // Jeśli wpływy nie wpłynęły — dodaj bo jeszcze wejdą na konto
   if(!andyPaid) total += andySkladka;
   if(!plus800Paid) total += 1600;
   if(!rentPaid) total += dodatkowePrzychody;
