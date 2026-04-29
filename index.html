@@ -2329,12 +2329,15 @@ function domGetIncome(){
   return 1600 + domWynajem;
 }
 function domGetHipoteka(){
-  // Czyta z inputu w zakładce Dom, fallback do Finanse
-  const domInp = parseFloat(document.getElementById('dom-hipoteka-inp')?.value);
-  if(!isNaN(domInp) && domInp > 0) return domInp;
+  // Najpierw z zapisanych danych (niezależnie od tego czy input jest widoczny)
+  const savedMata = mataData[mataYM]?.hipotekaAmt;
+  if(savedMata && savedMata > 0) return savedMata;
+  // Fallback do inputów jeśli są widoczne
   const mataInp = parseFloat(document.getElementById('mata-hipoteka-inp')?.value);
   if(!isNaN(mataInp) && mataInp > 0) return mataInp;
-  return domData[domYM]?.hipoteka ?? mataData[mataYM]?.hipotekaAmt ?? 2500;
+  const domInp = parseFloat(document.getElementById('dom-hipoteka-inp')?.value);
+  if(!isNaN(domInp) && domInp > 0) return domInp;
+  return 2500;
 }
 
 function domUpdateSummary(){
