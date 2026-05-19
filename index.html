@@ -4240,7 +4240,7 @@ function budGetWeekBounds(){
   const budget=st.budget||0;const fixed=(st.fixedExpenses||[]).reduce((s,e)=>s+e.amount,0);
   const freeBudget=Math.max(0,budget-fixed);const weeks=[];let d=new Date(cStart);
   while(d<=cEnd){const wEnd=new Date(Math.min(new Date(d.getFullYear(),d.getMonth(),d.getDate()+6),cEnd));weeks.push({start:new Date(d),end:wEnd});d=new Date(wEnd.getFullYear(),wEnd.getMonth(),wEnd.getDate()+1);}
-  const today=new Date();const curWeek=weeks.find(w=>today>=w.start&&today<=w.end)||weeks[0];
+  const todayStr=dKeyB(new Date());const curWeek=weeks.find(w=>dKeyB(w.start)<=todayStr&&todayStr<=dKeyB(w.end))||weeks[weeks.length-1];
   const weekDays=Math.round((curWeek.end-curWeek.start)/86400000)+1;
   const weekBudget=Math.round(freeBudget*weekDays/cycleDays);
   return{cStart,cEnd,freeBudget,curWeek,weekBudget,cycleDays,weeks};
@@ -4269,7 +4269,7 @@ function dKeyB(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2
 function renderBudget(){
   const st=load();const{cStart,cEnd,freeBudget,curWeek,weekBudget,weeks}=budGetWeekBounds();
   const fmt2=d=>d.toLocaleDateString('pl-PL',{day:'numeric',month:'short'});const today=new Date();
-  const weekCalc=budCalcWeeks();const curWC=weekCalc.find(w=>today>=w.start&&today<=w.end)||weekCalc[0];
+  const weekCalc=budCalcWeeks();const todayStr2=dKeyB(new Date());const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr2&&todayStr2<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const weekSpent=curWC.spent,weekPlanned=curWC.plannedAmt,weekLeft=curWC.leftAfterSpent;
   const weekAfterPlans=curWC.leftAfterPlanned,weekAvailable=curWC.available;
   const cycleExp=(st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd));
@@ -4362,7 +4362,7 @@ function budAffordCheck(){
   const resEl=document.getElementById('bud-afford-result');if(!resEl)return;
   if(isNaN(amt)||amt<=0){resEl.style.display='none';return;}
   const weekCalc=budCalcWeeks();const{cStart,cEnd,freeBudget}=budGetWeekBounds();
-  const today=new Date();const curWC=weekCalc.find(w=>today>=w.start&&today<=w.end)||weekCalc[0];
+  const todayStr4=dKeyB(new Date());const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr4&&todayStr4<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const st=load();
   const cycleSpent=(st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
   const cyclePlanned=(st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd)).reduce((s,p)=>s+p.amount,0);
@@ -4391,8 +4391,8 @@ function budAffordInline(){
   const amt=parseFloat(document.getElementById('bud-add-amt')?.value);
   const alertEl=document.getElementById('bud-inline-alert');if(!alertEl)return;
   if(isNaN(amt)||amt<=0){alertEl.style.display='none';return;}
-  const weekCalc=budCalcWeeks();const today=new Date();
-  const curWC=weekCalc.find(w=>today>=w.start&&today<=w.end)||weekCalc[0];
+  const weekCalc=budCalcWeeks();const todayStr5=dKeyB(new Date());
+  const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr5&&todayStr5<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const freeNow=curWC.available-curWC.spent,freeAfterPlans=freeNow-curWC.plannedAmt;
   alertEl.style.display='block';
   if(curWC.frozen){alertEl.style.background='#fdf0f4';alertEl.style.color='#7a4868';alertEl.textContent='❄️ Budżet zamrożony w tym tygodniu';}
@@ -4481,8 +4481,8 @@ function renderDash(){
   const el=id=>document.getElementById(id);const set=(id,txt,styles)=>{const e=el(id);if(!e)return;if(txt!==undefined)e.textContent=txt;if(styles)Object.assign(e.style,styles);};
   set('dash-date',`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`);
   const{cStart,cEnd,freeBudget,curWeek,weekBudget,weeks}=budGetWeekBounds();
-  const weekCalc=budCalcWeeks();const today2=new Date();
-  const curWC=weekCalc.find(w=>today2>=w.start&&today2<=w.end)||weekCalc[0];
+  const weekCalc=budCalcWeeks();const today2=new Date();const todayStr3=dKeyB(today2);
+  const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr3&&todayStr3<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const weekSpent=curWC.spent,weekPlanned=curWC.plannedAmt,weekLeft=curWC.leftAfterSpent;
   const weekAfterPlans=curWC.leftAfterPlanned,weekAvailable=curWC.available;
   const weekPct=weekAvailable>0?Math.min(100,Math.round(((weekSpent+weekPlanned)/weekAvailable)*100)):0;
