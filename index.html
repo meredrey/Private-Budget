@@ -471,50 +471,71 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
   <div style="height:14px"></div>
 
-  <!-- GŁÓWNA KARTA — ten tydzień -->
+  <!-- GŁÓWNA KARTA — cały cykl -->
   <div id="bud-week-card" style="margin:0 12px 12px;background:#5e4d82;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.12)">
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:4px" id="bud-week-label">TEN TYDZIEŃ</div>
-
-    <!-- Stan tygodnia -->
-    <div style="font-family:Georgia,serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px" id="bud-week-main">—</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="bud-week-status">—</div>
-
-    <!-- Pasek tygodnia -->
-    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:12px">
-      <div id="bud-week-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .4s;width:0%"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.6)" id="bud-cycle-label">CAŁY CYKL</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4)" id="bud-free-total-sub">— zł budżetu</div>
     </div>
 
-    <!-- Dwie liczby: po wydatkach / po planowanych -->
+    <!-- Duża liczba — zostało w cyklu -->
+    <div style="font-family:Georgia,serif;font-size:52px;font-weight:600;line-height:1;margin-bottom:4px" id="bud-cycle-left-val">—</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:12px" id="bud-cycle-status-sub">zostało w tym cyklu</div>
+
+    <!-- Pasek cyklu -->
+    <div style="height:6px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-bottom:6px">
+      <div id="bud-cycle-bar" style="height:100%;border-radius:99px;background:#fff;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.4);margin-bottom:12px">
+      <span id="bud-cycle-pct-lbl">0% wydano</span>
+      <span id="bud-free-total">—</span>
+    </div>
+
+    <!-- 3 kafelki -->
     <div style="display:flex;gap:8px">
       <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
         <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">WYDANO</div>
-        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="bud-week-spent">—</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:#fff" id="bud-cycle-spent-val">—</div>
       </div>
       <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
         <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">PO PLANACH</div>
-        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600" id="bud-week-after-plans">—</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600" id="bud-cycle-after-plans">—</div>
       </div>
       <div style="flex:1;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">LIMIT</div>
-        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.8)" id="bud-week-budget">—</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.55);margin-bottom:3px">BUDŻET</div>
+        <div style="font-family:Georgia,serif;font-size:18px;font-weight:600;color:rgba(255,255,255,.8)" id="bud-cycle-budget-val">—</div>
       </div>
     </div>
   </div>
 
-  <!-- KONTEKST CYKLU — mniejszy, pod główną kartą -->
-  <div style="margin:0 12px 12px;background:#fff;border:2px solid #e8e4f0;border-radius:14px;padding:12px 14px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7a6e98;margin-bottom:8px" id="bud-cycle-label">CAŁY CYKL</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div style="font-size:12px;color:#4a4060">Budżet swobodny</div>
-      <div style="font-size:14px;font-weight:700;color:#18102c" id="bud-free-total">—</div>
+  <!-- TYDZIEŃ — kompaktowa karta -->
+  <div style="margin:0 12px 12px;background:#fff;border:2px solid #b0a4cc;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+    <div style="background:#eeebf5;padding:10px 14px;border-bottom:2px solid #b0a4cc;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#7a6e98" id="bud-week-label">TEN TYDZIEŃ</div>
+      <div id="bud-week-badge" style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:#5e4d82;color:#fff">—</div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <div style="font-size:12px;color:#4a4060">Zostało po wydatkach</div>
-      <div style="font-size:14px;font-weight:700" id="bud-cycle-left-val">—</div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid #e8e4f0">
-      <div style="font-size:12px;color:#4a4060">Zostało po planowanych</div>
-      <div style="font-size:14px;font-weight:700" id="bud-cycle-after-plans">—</div>
+    <div style="padding:12px 14px">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+        <div style="font-family:Georgia,serif;font-size:32px;font-weight:600;line-height:1" id="bud-week-main">—</div>
+        <div style="font-size:12px;color:#7a6e98" id="bud-week-status">—</div>
+      </div>
+      <div style="height:5px;background:#e8e4f0;border-radius:99px;overflow:hidden;margin-bottom:10px">
+        <div id="bud-week-bar" style="height:100%;border-radius:99px;background:#5e4d82;transition:width .4s;width:0%"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#b0a4cc;margin-bottom:2px">WYDANO</div>
+          <div style="font-family:Georgia,serif;font-size:15px;font-weight:600;color:#4a4060" id="bud-week-spent">—</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#b0a4cc;margin-bottom:2px">PO PLANACH</div>
+          <div style="font-family:Georgia,serif;font-size:15px;font-weight:600" id="bud-week-after-plans">—</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#b0a4cc;margin-bottom:2px">LIMIT</div>
+          <div style="font-family:Georgia,serif;font-size:15px;font-weight:600;color:#7a6e98" id="bud-week-budget">—</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4280,29 +4301,46 @@ function renderBudget(){
   const mainEl=document.getElementById('bud-week-main'),statusEl=document.getElementById('bud-week-status');
   const barEl=document.getElementById('bud-week-bar'),labelEl=document.getElementById('bud-week-label');
   if(labelEl)labelEl.textContent=`TEN TYDZIEŃ · ${fmt2(curWeek.start)}–${fmt2(curWeek.end)}`;
+  const badgeEl=document.getElementById('bud-week-badge');
   if(curWC.frozen){
     let unfreezeDate=null;
     for(const w of weekCalc){if(w.start<=curWeek.start)continue;if(!w.frozen){unfreezeDate=w.start;break;}}
-    const overBy=Math.abs(Math.min(0,weekLeft));const overStr=overBy>0?`przekroczono o ${fmt(overBy)} zł · `:'';
-    if(mainEl){mainEl.textContent='❄️ Zamrożony';mainEl.style.color='#f4a8c0';mainEl.style.fontSize='32px';}
-    if(statusEl)statusEl.textContent=overStr+(unfreezeDate?`odmrożenie ${fmt2(unfreezeDate)}`:'do końca cyklu');
+    const overBy=Math.abs(Math.min(0,weekLeft));const overStr=overBy>0?`przekroczono o ${fmt(overBy)} zł`:'';
+    if(mainEl){mainEl.textContent='❄️ Zamrożony';mainEl.style.color='#9a4060';mainEl.style.fontSize='28px';}
+    if(statusEl)statusEl.textContent=overStr;
     if(barEl){barEl.style.width='100%';barEl.style.background='#f4a8c0';}
+    if(badgeEl){badgeEl.textContent='zamrożony';badgeEl.style.background='#9a4060';}
   } else {
     const weekPctUsed=weekAvailable>0?Math.min(100,Math.round((weekSpent/weekAvailable)*100)):0;
-    if(mainEl){mainEl.textContent=fmt(Math.round(weekLeft))+' zł';mainEl.style.color='#fff';mainEl.style.fontSize='52px';}
-    if(statusEl)statusEl.textContent=`zostało z ${fmt(weekAvailable)} zł limitu`;
-    if(barEl){barEl.style.width=Math.max(5,100-weekPctUsed)+'%';barEl.style.background=weekPctUsed>85?'#ffe0a0':'#fff';}
+    if(mainEl){mainEl.textContent=fmt(Math.round(weekLeft))+' zł';mainEl.style.color=weekLeft<0?'#9a4060':'#18102c';mainEl.style.fontSize='32px';}
+    if(statusEl)statusEl.textContent=`zostało z ${fmt(weekAvailable)} zł`;
+    if(barEl){barEl.style.width=Math.max(2,100-weekPctUsed)+'%';barEl.style.background=weekPctUsed>85?'#e8a0b8':'#5e4d82';}
+    if(badgeEl){
+      if(weekPctUsed>85){badgeEl.textContent='uważaj ⚠️';badgeEl.style.background='#9a6020';}
+      else{badgeEl.textContent='ok ✓';badgeEl.style.background='#3d7a60';}
+    }
   }
   const spentEl=document.getElementById('bud-week-spent');if(spentEl)spentEl.textContent=fmt(Math.round(weekSpent))+' zł';
   const afterEl=document.getElementById('bud-week-after-plans');
   if(afterEl){afterEl.textContent=fmt(Math.round(weekAfterPlans))+' zł';afterEl.style.color=weekAfterPlans<0?'#f4a8c0':'#a8e6c8';}
   const budEl=document.getElementById('bud-week-budget');if(budEl)budEl.textContent=fmt(weekAvailable)+' zł';
+  // ── CYKL (hero karta) ──
   const cycLabel=document.getElementById('bud-cycle-label');if(cycLabel)cycLabel.textContent=`CAŁY CYKL · ${fmt2(cStart)}–${fmt2(cEnd)}`;
-  const freeTotEl=document.getElementById('bud-free-total');if(freeTotEl)freeTotEl.textContent=fmt(freeBudget)+' zł';
+  const freeTotEl=document.getElementById('bud-free-total');if(freeTotEl)freeTotEl.textContent=fmt(freeBudget)+' zł budżetu';
+  const freeTotSubEl=document.getElementById('bud-free-total-sub');if(freeTotSubEl)freeTotSubEl.textContent=fmt(freeBudget)+' zł budżetu';
   const cycLeftEl=document.getElementById('bud-cycle-left-val');
-  if(cycLeftEl){cycLeftEl.textContent=fmt(Math.round(cycleLeft))+' zł';cycLeftEl.style.color=cycleLeft<0?'#f4a8c0':'#3d7a60';}
+  if(cycLeftEl){cycLeftEl.textContent=fmt(Math.round(cycleLeft))+' zł';cycLeftEl.style.color=cycleLeft<0?'#f4a8c0':'#fff';}
+  const cycStatusEl=document.getElementById('bud-cycle-status-sub');
+  if(cycStatusEl)cycStatusEl.textContent=cycleLeft<0?'przekroczono budżet cyklu':'zostało w tym cyklu';
   const cycAfterEl=document.getElementById('bud-cycle-after-plans');
-  if(cycAfterEl){cycAfterEl.textContent=fmt(Math.round(cycleAfterPlans))+' zł';cycAfterEl.style.color=cycleAfterPlans<0?'#f4a8c0':'#3d7a60';}
+  if(cycAfterEl){cycAfterEl.textContent=fmt(Math.round(cycleAfterPlans))+' zł';cycAfterEl.style.color=cycleAfterPlans<0?'#f4a8c0':'#a8e6c8';}
+  const cycSpentEl=document.getElementById('bud-cycle-spent-val');if(cycSpentEl)cycSpentEl.textContent=fmt(Math.round(cycleSpent))+' zł';
+  const cycBudgetEl=document.getElementById('bud-cycle-budget-val');if(cycBudgetEl)cycBudgetEl.textContent=fmt(freeBudget)+' zł';
+  // pasek cyklu
+  const cycPct=freeBudget>0?Math.min(100,Math.round((cycleSpent/freeBudget)*100)):0;
+  const cycBar=document.getElementById('bud-cycle-bar');
+  if(cycBar){cycBar.style.width=Math.max(2,100-cycPct)+'%';cycBar.style.background=cycPct>90?'#f4a8c0':cycPct>70?'rgba(255,220,100,.9)':'rgba(255,255,255,.85)';}
+  const cycPctLbl=document.getElementById('bud-cycle-pct-lbl');if(cycPctLbl)cycPctLbl.textContent=cycPct+'% wydano';
   const hSub=document.getElementById('h-cycle-week');if(hSub)hSub.textContent=`${fmt2(cStart)} — ${fmt2(cEnd)}`;
   budRenderList();renderSettings();
 }
@@ -4362,7 +4400,7 @@ function budAffordCheck(){
   const resEl=document.getElementById('bud-afford-result');if(!resEl)return;
   if(isNaN(amt)||amt<=0){resEl.style.display='none';return;}
   const weekCalc=budCalcWeeks();const{cStart,cEnd,freeBudget}=budGetWeekBounds();
-  const todayStr4=dKeyB(new Date());const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr4&&todayStr4<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
+  const todayStr5=dKeyB(new Date());const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr5&&todayStr5<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const st=load();
   const cycleSpent=(st.expenses||[]).filter(e=>e.date>=dKeyB(cStart)&&e.date<=dKeyB(cEnd)).reduce((s,e)=>s+e.amount,0);
   const cyclePlanned=(st.planned||[]).filter(p=>p.date>=dKeyB(cStart)&&p.date<=dKeyB(cEnd)).reduce((s,p)=>s+p.amount,0);
@@ -4391,8 +4429,8 @@ function budAffordInline(){
   const amt=parseFloat(document.getElementById('bud-add-amt')?.value);
   const alertEl=document.getElementById('bud-inline-alert');if(!alertEl)return;
   if(isNaN(amt)||amt<=0){alertEl.style.display='none';return;}
-  const weekCalc=budCalcWeeks();const todayStr5=dKeyB(new Date());
-  const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr5&&todayStr5<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
+  const weekCalc=budCalcWeeks();const todayStr4=dKeyB(new Date());
+  const curWC=weekCalc.find(w=>dKeyB(w.start)<=todayStr4&&todayStr4<=dKeyB(w.end))||weekCalc[weekCalc.length-1];
   const freeNow=curWC.available-curWC.spent,freeAfterPlans=freeNow-curWC.plannedAmt;
   alertEl.style.display='block';
   if(curWC.frozen){alertEl.style.background='#fdf0f4';alertEl.style.color='#7a4868';alertEl.textContent='❄️ Budżet zamrożony w tym tygodniu';}
