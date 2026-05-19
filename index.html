@@ -528,7 +528,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
           <div style="font-family:Georgia,serif;font-size:15px;font-weight:600;color:#4a4060" id="bud-week-spent">—</div>
         </div>
         <div style="flex:1">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#b0a4cc;margin-bottom:2px">PO PLANACH</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#b0a4cc;margin-bottom:2px" id="bud-week-after-plans-lbl">PO PLANACH</div>
           <div style="font-family:Georgia,serif;font-size:15px;font-weight:600" id="bud-week-after-plans">—</div>
         </div>
         <div style="flex:1">
@@ -4270,17 +4270,27 @@ function budGetWeekBounds(){
 function budCalcWeeks(){
   const{cStart,cEnd,freeBudget,weeks,cycleDays}=budGetWeekBounds();
   const st=load();const expenses=st.expenses||[];const planned=st.planned||[];
-  let debt=0;
+  // balance: dodatni = nadwyżka z poprzednich tygodni, ujemny = dług
+  let balance=0;
+  const today=new Date();const todayStr=dKeyB(today);
   return weeks.map(w=>{
     const wDays=Math.round((w.end-w.start)/86400000)+1;
     const baseBudget=Math.round(freeBudget*wDays/cycleDays);
-    const effectiveBudget=baseBudget-debt;const available=Math.max(0,effectiveBudget);
+    // effectiveBudget = bazowy + nadwyżka lub - dług z poprzednich tygodni
+    const effectiveBudget=baseBudget+balance;
+    const available=Math.max(0,effectiveBudget);
     const frozen=effectiveBudget<=0;
     const spent=expenses.filter(e=>e.date>=dKeyB(w.start)&&e.date<=dKeyB(w.end)).reduce((s,e)=>s+e.amount,0);
     const plannedAmt=planned.filter(p=>p.date>=dKeyB(w.start)&&p.date<=dKeyB(w.end)).reduce((s,p)=>s+p.amount,0);
     const leftAfterSpent=available-spent;const leftAfterPlanned=leftAfterSpent-plannedAmt;
     const effectivelyFrozen=frozen||leftAfterSpent<=0;
-    if(frozen){debt=Math.max(0,debt-baseBudget);}else{debt=Math.max(0,spent-available);}
+    // Aktualizuj balance tylko dla tygodni które już minęły (lub bieżącego)
+    const weekPast=dKeyB(w.end)<todayStr;
+    const weekCurrent=dKeyB(w.start)<=todayStr&&todayStr<=dKeyB(w.end);
+    if(weekPast||weekCurrent){
+      // przekroczenie = dług, oszczędność = nadwyżka — wszystko idzie do następnego tygodnia
+      balance=effectiveBudget-spent; // może być ujemne (dług) lub dodatnie (nadwyżka)
+    }
     return{start:w.start,end:w.end,baseBudget,effectiveBudget:Math.round(effectiveBudget),available:Math.round(available),frozen:effectivelyFrozen,spent:Math.round(spent),plannedAmt:Math.round(plannedAmt),leftAfterSpent:Math.round(leftAfterSpent),leftAfterPlanned:Math.round(leftAfterPlanned),planWarning:leftAfterPlanned<0};
   });
 }
@@ -4321,6 +4331,9 @@ function renderBudget(){
     }
   }
   const spentEl=document.getElementById('bud-week-spent');if(spentEl)spentEl.textContent=fmt(Math.round(weekSpent))+' zł';
+  // Etykieta "Po planach" — zmień na "Zostało" jeśli brak planów
+  const apLblEl=document.getElementById('bud-week-after-plans-lbl');
+  if(apLblEl)apLblEl.textContent=weekPlanned>0?'PO PLANACH':'ZOSTAŁO';
   const afterEl=document.getElementById('bud-week-after-plans');
   if(afterEl){afterEl.textContent=fmt(Math.round(weekAfterPlans))+' zł';afterEl.style.color=weekAfterPlans<0?'#f4a8c0':'#a8e6c8';}
   const budEl=document.getElementById('bud-week-budget');if(budEl)budEl.textContent=fmt(weekAvailable)+' zł';
