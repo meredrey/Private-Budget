@@ -1418,6 +1418,15 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         style="padding:6px 14px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.3);background:none;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;width:100%">
         + Dodaj dodatkowy wpływ
       </button>
+
+      <!-- Dodatkowe wydatki -->
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)">
+        <div id="mata-extra-expenses-list-top"></div>
+        <button onclick="mataAddExtraExpense()"
+          style="padding:6px 14px;border-radius:9px;border:1.5px dashed rgba(255,100,100,.3);background:none;font-size:12px;font-weight:600;color:rgba(255,160,160,.7);cursor:pointer;width:100%">
+          − Dodaj jednorazowy wydatek
+        </button>
+      </div>
     </div>
 
     <!-- Łączny dochód -->
@@ -3658,8 +3667,15 @@ function mataActualChanged(){
   // Update total income display
   const totEl = document.getElementById('mata-total-income');
   if(totEl) totEl.textContent = total > 0 ? fmt(Math.round(total)) + ' zł' : '—';
+  const extraExp2 = mataGetExtraExpenseTotal();
   const brkEl = document.getElementById('mata-salary-breakdown');
-  if(brkEl) brkEl.textContent = extra > 0 ? `Wypłata ${fmt(salary)} + extra ${fmt(extra)} zł` : (salary > 0 ? `Wypłata ${fmt(salary)} zł` : '—');
+  if(brkEl){
+    let parts=[];
+    if(salary>0) parts.push(`Wypłata ${fmt(salary)} zł`);
+    if(extra>0) parts.push(`+${fmt(extra)} zł wpływy`);
+    if(extraExp2>0) parts.push(`−${fmt(extraExp2)} zł wydatki`);
+    brkEl.textContent=parts.join(' ') || '—';
+  }
 
   // Feedback
   const fb = document.getElementById('mata-actual-feedback');
@@ -3763,7 +3779,7 @@ function renderMata(){
   const skEl=document.getElementById('mata-skladka-dom');if(skEl)skEl.textContent=`− ${fmt(Math.round(skladka))} zł`;
   const pzEl=document.getElementById('mata-pozostaje');if(pzEl){pzEl.textContent=`${fmt(Math.round(pozostaje))} zł`;pzEl.style.color=pozostaje<0?'#f4a8c0':'#fff';}
   const mtEl=document.getElementById('mata-mbank-total');if(mtEl)mtEl.textContent=`${fmt(mbankTotal)} zł`;
-  mataRenderExtraIncome();mataRenderTransfers();mataRenderSavings();mataLoanRender();mataUpdateDoneBtn();mataCushionUpdateBtn();
+  mataRenderExtraIncome();mataRenderExtraExpenses();mataRenderTransfers();mataRenderSavings();mataLoanRender();mataUpdateDoneBtn();mataCushionUpdateBtn();
 }
 
 function changeMataMonth(dir){mataYM=mataAddMonths(mataYM,dir);renderMata();}
@@ -3794,19 +3810,17 @@ function mataHipotekaChanged(){
 }
 
 function mataGetTotalIncome(){
-  // Tryb rzeczywistość: użyj wpisanej wypłaty (extra już wliczone w actualSalary lub osobno)
   const mode = mataData[mataYM]?.salaryMode || 'forecast';
-  const extra = mataGetExtraIncomeTotal();
+  const extraIncome = mataGetExtraIncomeTotal();
+  const extraExpenses = mataGetExtraExpenseTotal();
   if(mode === 'actual'){
     const actual = mataData[mataYM]?.actualSalary || 0;
-    // actualSalary to czysta wypłata, extra to osobne wpływy
-    return actual + extra;
+    return actual + extraIncome - extraExpenses;
   }
-  // Tryb prognoza: kalkulator godzinowy
   const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
   const params = mataGetParams();
   const salary = isNaN(hours) ? params.base : mataCalcSalary(hours, params).total;
-  return salary + extra;
+  return salary + extraIncome - extraExpenses;
 }
 
 function mataGetSurplus(){
@@ -3893,6 +3907,7 @@ function mataUpdateExtraIncome(id,field,val){
 function mataRenderExtraIncome(){
   const list=document.getElementById('mata-extra-income-list-top');if(!list)return;
   const items=mataData[mataYM]?.extraIncome||[];
+  mataRenderExtraExpenses();
   if(!items.length){list.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,.4);padding:4px 0">Brak dodatkowych wpływów</div>';return;}
   list.innerHTML=items.map(item=>`
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
@@ -3911,6 +3926,39 @@ function mataRenderExtraIncome(){
   const totEl=document.getElementById('mata-total-income');if(totEl)totEl.textContent=fmt(Math.round(salary2+extra2))+' zł';
 }
 function mataGetExtraIncomeTotal(){return(mataData[mataYM]?.extraIncome||[]).reduce((s,x)=>s+(x.amount||0),0);}
+function mataGetExtraExpenseTotal(){return(mataData[mataYM]?.extraExpenses||[]).reduce((s,x)=>s+(x.amount||0),0);}
+
+function mataAddExtraExpense(){
+  if(!mataData[mataYM])mataData[mataYM]={};
+  if(!mataData[mataYM].extraExpenses)mataData[mataYM].extraExpenses=[];
+  mataData[mataYM].extraExpenses.push({id:Date.now()+'',name:'',amount:null});
+  mataRenderExtraExpenses();mataScheduleSave();
+}
+function mataRemoveExtraExpense(id){
+  if(!mataData[mataYM]?.extraExpenses)return;
+  mataData[mataYM].extraExpenses=mataData[mataYM].extraExpenses.filter(x=>x.id!==id);
+  mataRenderExtraExpenses();mataTransferCalc();mataScheduleSave();
+}
+function mataUpdateExtraExpense(id,field,val){
+  const item=mataData[mataYM]?.extraExpenses?.find(x=>x.id===id);if(!item)return;
+  item[field]=field==='amount'?(parseFloat(val)||null):val;mataTransferCalc();mataScheduleSave();
+}
+function mataRenderExtraExpenses(){
+  const list=document.getElementById('mata-extra-expenses-list-top');if(!list)return;
+  const items=mataData[mataYM]?.extraExpenses||[];
+  if(!items.length){list.innerHTML='';return;}
+  list.innerHTML=items.map(item=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <input type="text" value="${item.name||''}" placeholder="np. OC auta"
+        style="flex:1;padding:7px 10px;border:1.5px solid rgba(255,150,150,.3);border-radius:9px;font-size:12px;background:rgba(255,100,100,.1);color:#fff;outline:none;min-width:0"
+        oninput="mataUpdateExtraExpense('${item.id}','name',this.value)">
+      <input type="number" value="${item.amount||''}" placeholder="0"
+        style="width:80px;padding:7px 8px;border:1.5px solid rgba(255,150,150,.3);border-radius:9px;font-size:13px;font-weight:600;background:rgba(255,100,100,.1);color:#fff;text-align:right;outline:none;-webkit-appearance:none"
+        oninput="mataUpdateExtraExpense('${item.id}','amount',this.value)">
+      <span style="font-size:11px;color:rgba(255,160,160,.7)">zł</span>
+      <button onclick="mataRemoveExtraExpense('${item.id}')" style="width:26px;height:26px;border:none;background:rgba(255,100,100,.2);border-radius:7px;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0">×</button>
+    </div>`).join('');
+}
 function mataTransferCalc(){
   const totalIncome=mataGetTotalIncome();const salary=totalIncome-mataGetExtraIncomeTotal();const extraIncome=mataGetExtraIncomeTotal();
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
