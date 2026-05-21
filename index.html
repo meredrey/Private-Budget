@@ -566,6 +566,12 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         style="width:76px;padding:9px 8px;border:2px solid #b0a4cc;border-radius:10px;font-size:14px;font-weight:700;text-align:right;outline:none;-webkit-appearance:none"
         oninput="budAffordInline()" onkeydown="if(event.key==='Enter')budQuickSave()">
     </div>
+    <div id="bud-expense-date-row" style="margin-bottom:8px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;font-weight:700;color:#7a6e98;white-space:nowrap">📅 Data:</span>
+      <input type="date" id="bud-add-expense-date"
+        style="flex:1;padding:8px 10px;border:2px solid #b0a4cc;border-radius:10px;font-size:13px;outline:none;color:#18102c">
+      <span id="bud-expense-date-hint" style="font-size:11px;color:#b0a4cc;white-space:nowrap">dziś</span>
+    </div>
     <div id="bud-inline-alert" style="display:none;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:700;margin-bottom:8px"></div>
     <div id="bud-date-row" style="display:none;margin-bottom:8px">
       <input type="date" id="bud-add-date"
@@ -4268,30 +4274,66 @@ function budGetWeekBounds(){
 }
 
 function budCalcWeeks(){
-  const{cStart,cEnd,freeBudget,weeks,cycleDays}=budGetWeekBounds();
+  const{cStart,cEnd,freeBudget,weeks}=budGetWeekBounds();
   const st=load();const expenses=st.expenses||[];const planned=st.planned||[];
-  // balance: dodatni = nadwyżka z poprzednich tygodni, ujemny = dług
-  let balance=0;
-  const today=new Date();const todayStr=dKeyB(today);
-  return weeks.map(w=>{
-    const wDays=Math.round((w.end-w.start)/86400000)+1;
-    const baseBudget=Math.round(freeBudget*wDays/cycleDays);
-    // effectiveBudget = bazowy + nadwyżka lub - dług z poprzednich tygodni
-    const effectiveBudget=baseBudget+balance;
-    const available=Math.max(0,effectiveBudget);
-    const frozen=effectiveBudget<=0;
+  const todayStr=dKeyB(new Date());
+
+  // Nowa logika: reset co tydzień
+  // 1. Dla każdego tygodnia który się zakończył — zsumuj wydatki z CAŁEGO cyklu do końca tego tygodnia
+  // 2. limit bieżącego tygodnia = (budżet - wydano w zamkniętych tygodniach) / liczba pozostałych tygodni
+  // 3. Wydatek wsteczny w zamkniętym tygodniu → przelicza limit bieżącego tygodnia
+
+  // Znajdź indeks bieżącego tygodnia
+  const curIdx=weeks.findIndex(w=>dKeyB(w.start)<=todayStr&&todayStr<=dKeyB(w.end));
+  const activeCurIdx=curIdx>=0?curIdx:weeks.length-1;
+
+  // Wydatki w zamkniętych tygodniach (wszystkie tygodnie przed bieżącym)
+  const closedEnd=activeCurIdx>0?dKeyB(weeks[activeCurIdx-1].end):'0000-00-00';
+  const spentInClosed=expenses.filter(e=>e.date>=dKeyB(cStart)&&e.date<=closedEnd).reduce((s,e)=>s+e.amount,0);
+
+  // Ile zostało na bieżący + przyszłe tygodnie
+  const remainingBudget=freeBudget-spentInClosed;
+  // Liczba pozostałych tygodni (bieżący + przyszłe)
+  const remainingWeeks=weeks.length-activeCurIdx;
+  // Limit tygodniowy = równy podział pozostałego budżetu
+  const weekLimit=remainingWeeks>0?Math.round(remainingBudget/remainingWeeks):0;
+
+  return weeks.map((w,i)=>{
     const spent=expenses.filter(e=>e.date>=dKeyB(w.start)&&e.date<=dKeyB(w.end)).reduce((s,e)=>s+e.amount,0);
     const plannedAmt=planned.filter(p=>p.date>=dKeyB(w.start)&&p.date<=dKeyB(w.end)).reduce((s,p)=>s+p.amount,0);
-    const leftAfterSpent=available-spent;const leftAfterPlanned=leftAfterSpent-plannedAmt;
-    const effectivelyFrozen=frozen||leftAfterSpent<=0;
-    // Aktualizuj balance tylko dla tygodni które już minęły (lub bieżącego)
-    const weekPast=dKeyB(w.end)<todayStr;
-    const weekCurrent=dKeyB(w.start)<=todayStr&&todayStr<=dKeyB(w.end);
-    if(weekPast||weekCurrent){
-      // przekroczenie = dług, oszczędność = nadwyżka — wszystko idzie do następnego tygodnia
-      balance=effectiveBudget-spent; // może być ujemne (dług) lub dodatnie (nadwyżka)
+
+    let available,effectiveBudget;
+    if(i<activeCurIdx){
+      // Zamknięty tydzień — pokaż ile faktycznie był limit (równy podział w momencie gdy był bieżący)
+      // Uproszczenie: pokaż baseBudget jako historyczny limit
+      const wDays=Math.round((w.end-w.start)/86400000)+1;
+      const cycleDays=Math.round((cEnd-cStart)/86400000)+1;
+      effectiveBudget=Math.round(freeBudget*wDays/cycleDays);
+      available=effectiveBudget;
+    } else {
+      // Bieżący i przyszłe — jednakowy limit
+      effectiveBudget=weekLimit;
+      available=Math.max(0,weekLimit);
     }
-    return{start:w.start,end:w.end,baseBudget,effectiveBudget:Math.round(effectiveBudget),available:Math.round(available),frozen:effectivelyFrozen,spent:Math.round(spent),plannedAmt:Math.round(plannedAmt),leftAfterSpent:Math.round(leftAfterSpent),leftAfterPlanned:Math.round(leftAfterPlanned),planWarning:leftAfterPlanned<0};
+
+    const leftAfterSpent=available-spent;
+    const leftAfterPlanned=leftAfterSpent-plannedAmt;
+    const frozen=i===activeCurIdx&&leftAfterSpent<=0;
+
+    return{
+      start:w.start,end:w.end,
+      baseBudget:effectiveBudget,
+      effectiveBudget,
+      available,
+      frozen,
+      spent:Math.round(spent),
+      plannedAmt:Math.round(plannedAmt),
+      leftAfterSpent:Math.round(leftAfterSpent),
+      leftAfterPlanned:Math.round(leftAfterPlanned),
+      planWarning:leftAfterPlanned<0,
+      isCurrentWeek:i===activeCurIdx,
+      weekIndex:i,
+    };
   });
 }
 
@@ -4355,6 +4397,20 @@ function renderBudget(){
   if(cycBar){cycBar.style.width=Math.max(2,100-cycPct)+'%';cycBar.style.background=cycPct>90?'#f4a8c0':cycPct>70?'rgba(255,220,100,.9)':'rgba(255,255,255,.85)';}
   const cycPctLbl=document.getElementById('bud-cycle-pct-lbl');if(cycPctLbl)cycPctLbl.textContent=cycPct+'% wydano';
   const hSub=document.getElementById('h-cycle-week');if(hSub)hSub.textContent=`${fmt2(cStart)} — ${fmt2(cEnd)}`;
+  // Init daty wydatku — domyślnie dziś
+  const expDateEl=document.getElementById('bud-add-expense-date');
+  if(expDateEl&&!expDateEl.value) expDateEl.value=dKey(new Date());
+  if(expDateEl&&!expDateEl.onchange){
+    expDateEl.onchange=function(){
+      const todayK=dKey(new Date());
+      const hint=document.getElementById('bud-expense-date-hint');
+      if(!hint)return;
+      if(this.value===todayK){hint.textContent='dziś';hint.style.color='#b0a4cc';}
+      else if(this.value<todayK){hint.textContent='wstecz';hint.style.color='#9a6020';}
+      else{hint.textContent='przyszła';hint.style.color='#5e4d82';}
+      budAffordInline();
+    };
+  }
   budRenderList();renderSettings();
 }
 
@@ -4401,9 +4457,11 @@ function budSetFilter(f){
 function budSetType(t){
   budType=t;const eBtn=document.getElementById('bud-type-expense');const pBtn=document.getElementById('bud-type-plan');
   const dateRow=document.getElementById('bud-date-row');const saveBtn=document.getElementById('bud-save-btn');
+  const expDateRow=document.getElementById('bud-expense-date-row');
   if(eBtn){eBtn.style.background=t==='expense'?'#5e4d82':'none';eBtn.style.color=t==='expense'?'#fff':'#7a6e98';}
   if(pBtn){pBtn.style.background=t==='plan'?'#5e4d82':'none';pBtn.style.color=t==='plan'?'#fff':'#7a6e98';}
   if(dateRow)dateRow.style.display=t==='plan'?'block':'none';
+  if(expDateRow)expDateRow.style.display=t==='expense'?'flex':'none';
   if(saveBtn)saveBtn.textContent=t==='plan'?'Zapisz plan':'Zapisz wydatek';
   budAffordInline();
 }
@@ -4455,9 +4513,17 @@ function budAffordInline(){
 function budQuickSave(){
   const name=document.getElementById('bud-add-name')?.value.trim();const amt=parseFloat(document.getElementById('bud-add-amt')?.value);
   if(!name||!amt||amt<=0)return;const st=load();
-  if(budType==='expense'){st.expenses.push({id:Date.now()+'',name,amount:amt,emoji:'💸',cat:'📦 Inne',date:dKey(new Date())});}
-  else{const date=document.getElementById('bud-add-date')?.value||dKey(new Date());if(!st.planned)st.planned=[];st.planned.push({id:Date.now()+'',name,amount:amt,emoji:'🗓️',date});}
+  if(budType==='expense'){
+    const expDate=document.getElementById('bud-add-expense-date')?.value||dKey(new Date());
+    st.expenses.push({id:Date.now()+'',name,amount:amt,emoji:'💸',cat:'📦 Inne',date:expDate});
+  } else {
+    const date=document.getElementById('bud-add-date')?.value||dKey(new Date());
+    if(!st.planned)st.planned=[];st.planned.push({id:Date.now()+'',name,amount:amt,emoji:'🗓️',date});
+  }
   save(st);document.getElementById('bud-add-name').value='';document.getElementById('bud-add-amt').value='';
+  // Reset daty do dziś
+  const dateEl=document.getElementById('bud-add-expense-date');
+  if(dateEl){dateEl.value=dKey(new Date());document.getElementById('bud-expense-date-hint').textContent='dziś';}
   document.getElementById('bud-inline-alert').style.display='none';renderBudget();
 }
 
