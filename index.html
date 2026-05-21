@@ -3705,8 +3705,9 @@ function mataCalc(){
   if(isNaN(hours)||hours<0){
     if(forecastResultEl)forecastResultEl.style.display='none';
     const extra0=mataGetExtraIncomeTotal();
+    const extraExp0=mataGetExtraExpenseTotal();
     const totEl0=document.getElementById('mata-total-income');
-    if(totEl0)totEl0.textContent=fmt(Math.round(params.base+extra0))+' zł';
+    if(totEl0)totEl0.textContent=fmt(Math.round(params.base+extra0-extraExp0))+' zł';
     mataTransferCalc();return;
   }
   if(forecastResultEl)forecastResultEl.style.display='block';
@@ -3721,8 +3722,18 @@ function mataCalc(){
   const bar=document.getElementById('mata-hours-bar');
   if(bar){bar.style.width=Math.min(100,(hours/params.threshold)*100)+'%';bar.style.background=hours>=params.threshold?'linear-gradient(90deg,#3d7a60,#5e4d82)':'linear-gradient(90deg,#8a78b0,#5e4d82)';}
   const extra=mataGetExtraIncomeTotal();
+  const extraExp=mataGetExtraExpenseTotal();
   const totEl=document.getElementById('mata-total-income');
-  if(totEl)totEl.textContent=fmt(Math.round(res.total+extra))+' zł';
+  if(totEl)totEl.textContent=fmt(Math.round(res.total+extra-extraExp))+' zł';
+  // Aktualizuj breakdown
+  const brkEl2=document.getElementById('mata-salary-breakdown');
+  if(brkEl2){
+    let parts=[];
+    parts.push(`Baza ${fmt(res.base)} + Bonus ${fmt(Math.round(res.bonus))} + Nadgodziny ${fmt(Math.round(res.overtime))}`);
+    if(extra>0) parts.push(`+${fmt(extra)} zł wpływy`);
+    if(extraExp>0) parts.push(`−${fmt(extraExp)} zł wydatki`);
+    brkEl2.textContent=parts.join(' · ');
+  }
   mataTransferCalc();
 }
 
@@ -3770,7 +3781,8 @@ function renderMata(){
     totalIncome=salary+extra;
   }
   const stEl=document.getElementById('mata-salary-total');if(stEl)stEl.textContent=fmt(Math.round(salary))+' zł';
-  const tiEl=document.getElementById('mata-total-income');if(tiEl)tiEl.textContent=fmt(Math.round(totalIncome))+' zł';
+  const extraExpRM=mataGetExtraExpenseTotal();
+  const tiEl=document.getElementById('mata-total-income');if(tiEl)tiEl.textContent=fmt(Math.round(totalIncome-extraExpRM))+' zł';
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
