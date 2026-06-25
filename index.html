@@ -3149,10 +3149,17 @@ function domImportConfirm(){
   // Zapisz które kategorie/miesiące zostały zmienione (do cofnięcia)
   const batchTxns = [];
 
+  // Wyznacz daty bieżącego cyklu — transakcje z cyklu zapisuj do domYM
+  const _st=load();const _pd=_st.payday||1;
+  const {start:_cStart,end:_cEnd}=budGetCycle(_pd);
+  const _cStartStr=dKeyB(_cStart);const _cEndStr=dKeyB(_cEnd);
+
   toImport.forEach(t=>{
     const category = t._category;
     const amount = Math.abs(t.amount);
-    const ym = t.date.slice(0,7);
+    // Jeśli transakcja należy do bieżącego cyklu → zapisz do domYM (aktywny miesiąc)
+    // Inaczej → zapisz do miesiąca transakcji
+    const ym = (t.date>=_cStartStr && t.date<=_cEndStr) ? domYM : t.date.slice(0,7);
 
     const fp = domImportFingerprint(t);
     if(!domData._importedFps.includes(fp)) domData._importedFps.push(fp);
