@@ -957,9 +957,8 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
     </div>
 
-    <!-- Naprawa źle przypisanych importów -->
     <div style="margin-top:16px;padding:12px 14px;background:#fbf6ee;border:1px solid #f0e2cf;border-radius:14px">
-      <div style="font-size:12px;color:#8a7355;line-height:1.5;margin-bottom:10px">Jeśli jakaś transakcja z bieżącego cyklu nie pokazuje się w podsumowaniu (bo jej data wypada w poprzednim miesiącu), kliknij poniżej, aby przenieść ją do właściwego cyklu.</div>
+      <div style="font-size:12px;color:#8a7355;line-height:1.5;margin-bottom:10px">Jeśli transakcja z bieżącego cyklu nie pokazuje się w podsumowaniu (bo jej data wypada w poprzednim miesiącu), kliknij, aby przenieść ją do właściwego cyklu.</div>
       <button onclick="domFixMisplacedImports()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#e8d9bf;color:#6b5638;font-weight:700;font-size:13px;cursor:pointer">🔧 Napraw przypisanie do cyklu</button>
     </div>
 
@@ -3138,60 +3137,40 @@ function domImportRender(){
 }
 
 function domFixMisplacedImports(){
-  // Przenosi importowane transakcje, które trafiły do złego miesiąca kalendarzowego,
-  // a należą do bieżącego cyklu budżetowego (np. końcówka maja → cykl czerwcowy).
   const _st=load();const _pd=_st.payday||1;
   const {start:cStart,end:cEnd}=budGetCycle(_pd);
   const cStartStr=dKeyB(cStart);const cEndStr=dKeyB(cEnd);
-  const targetYM=domYM;
-  let moved=0;
-  const touched=new Set();
-
+  const targetYM=domYM;let moved=0;const touched=new Set();
   (domData._importHistory||[]).forEach(batch=>{
     (batch.txns||[]).forEach(t=>{
-      if(!(t.date>=cStartStr && t.date<=cEndStr)) return; // nie z bieżącego cyklu
-      if(t.ym===targetYM) return;                          // już w dobrym miejscu
+      if(!(t.date>=cStartStr && t.date<=cEndStr)) return;
+      if(t.ym===targetYM) return;
       const srcYM=t.ym, cat=t.category;
       const src=domData[srcYM] && domData[srcYM][cat];
       if(!src || !Array.isArray(src.entries)) return;
-      // Dopasuj entry po kwocie i nazwie (import zapisuje name = desc.slice(0,40))
-      const idx=src.entries.findIndex(e=>
-        e._imported &&
-        Math.abs(e.amount-t.amount)<0.01 &&
-        (e.name||'')===t.desc.slice(0,40)
-      );
+      const idx=src.entries.findIndex(e=>e._imported && Math.abs(e.amount-t.amount)<0.01 && (e.name||'')===t.desc.slice(0,40));
       if(idx<0) return;
       const [entry]=src.entries.splice(idx,1);
-      // Wstaw do docelowego miesiąca
       if(!domData[targetYM]) domData[targetYM]={};
       if(!domData[targetYM][cat]) domData[targetYM][cat]={};
       if(!Array.isArray(domData[targetYM][cat].entries)) domData[targetYM][cat].entries=[];
       domData[targetYM][cat].entries.push(entry);
-      t.ym=targetYM;
-      touched.add(srcYM+'|'+cat);
-      touched.add(targetYM+'|'+cat);
-      moved++;
+      t.ym=targetYM;touched.add(srcYM+'|'+cat);touched.add(targetYM+'|'+cat);moved++;
     });
   });
-
-  // Przelicz pole real dla wszystkich dotkniętych kategorii
   touched.forEach(key=>{
-    const [y,cat]=key.split('|');
-    const cd=domData[y] && domData[y][cat];
-    if(!cd) return;
+    const [y,cat]=key.split('|');const cd=domData[y] && domData[y][cat];if(!cd)return;
     const sum=Math.round((cd.entries||[]).reduce((s,e)=>s+e.amount,0)*100)/100;
     const man=cd.realManual ?? null;
     cd.real=Math.round(((man||0)+sum)*100)/100 || null;
     cd._updated=new Date().toISOString().slice(0,10);
   });
-
   if(moved>0){
     try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
     if(typeof renderDom==='function') renderDom();
+    domScheduleSave();
     alert('✅ Przeniesiono '+moved+' transakcji do bieżącego cyklu ('+targetYM+').');
-  } else {
-    alert('Nie znaleziono transakcji do przeniesienia.');
-  }
+  } else { alert('Nie znaleziono transakcji do przeniesienia.'); }
 }
 
 function domImportConfirm(){
@@ -3212,7 +3191,7 @@ function domImportConfirm(){
   // Zapisz które kategorie/miesiące zostały zmienione (do cofnięcia)
   const batchTxns = [];
 
-  // Wyznacz daty bieżącego cyklu — transakcje z cyklu zapisuj do domYM
+  // Transakcje z bieżącego cyklu zapisuj do domYM (cykl np. 29 maj–27 cze pokazuje czerwiec)
   const _st=load();const _pd=_st.payday||1;
   const {start:_cStart,end:_cEnd}=budGetCycle(_pd);
   const _cStartStr=dKeyB(_cStart);const _cEndStr=dKeyB(_cEnd);
@@ -3220,8 +3199,6 @@ function domImportConfirm(){
   toImport.forEach(t=>{
     const category = t._category;
     const amount = Math.abs(t.amount);
-    // Jeśli transakcja należy do bieżącego cyklu budżetowego → zapisz do domYM
-    // (cykl np. 29 maj–27 cze obejmuje końcówkę maja, ale Dom pokazuje czerwiec)
     const ym = (t.date>=_cStartStr && t.date<=_cEndStr) ? domYM : t.date.slice(0,7);
 
     const fp = domImportFingerprint(t);
@@ -3265,10 +3242,14 @@ function domImportConfirm(){
   if(domSyncTimer) clearTimeout(domSyncTimer);
   fetch(API, {
     method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
-  }).catch(()=>{});
+  })
+  .then(r=>r.json())
+  .then(r=>{
+    if(r&&r.success&&r.data&&r.data.written) console.log('[sync] Import → arkusz: zapisano ✓');
+    else console.warn('[sync] Import → arkusz: zapis NIE potwierdzony', r);
+  })
+  .catch(err=>{ console.warn('[sync] Import → arkusz: błąd', err); });
 
   const remaining = _importTxns.filter(t=>!t._skip&&!t._category).length;
   const msg = remaining > 0
@@ -3595,12 +3576,17 @@ function domScheduleSave(){
   domSyncTimer=setTimeout(()=>{
     fetch(API, {
       method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({action:'write',sheet:'DomData',data:domData})
     })
-    .then(()=>{ try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{} })
-    .catch(()=>{ /* bez internetu — zostaje w localStorage */ });
+    .then(r=>r.json())
+    .then(r=>{
+      if(r&&r.success&&r.data&&r.data.written){
+        console.log('[sync] Dom → arkusz: zapisano ✓');
+      } else {
+        console.warn('[sync] Dom → arkusz: zapis NIE potwierdzony', r);
+      }
+    })
+    .catch(err=>{ console.warn('[sync] Dom → arkusz: błąd (offline?)', err); });
   },800);
 }
 function domSyncFromSheets(){
@@ -4063,10 +4049,17 @@ function mataScheduleSave(){
   mataSyncTimer=setTimeout(()=>{
     fetch(API, {
       method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({action:'write',sheet:'MataData',data:mataData})
-    }).catch(()=>{});
+    })
+    .then(r=>r.json())
+    .then(r=>{
+      if(r&&r.success&&r.data&&r.data.written){
+        console.log('[sync] Mata → arkusz: zapisano ✓');
+      } else {
+        console.warn('[sync] Mata → arkusz: zapis NIE potwierdzony', r);
+      }
+    })
+    .catch(err=>{ console.warn('[sync] Mata → arkusz: błąd (offline?)', err); });
   },1500);
 }
 function mataSyncFromSheets(){
