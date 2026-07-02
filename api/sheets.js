@@ -1,23 +1,25 @@
-// api/sheets.js — magazyn danych na Vercel Blob (zastępuje Google Sheets/Apps Script).
-// Aplikacja bez zmian: nadal woła /api/sheets (GET action=read / POST action=write).
-// Bez CORS, bez przekierowań, bez limitu rozmiaru. Dane leżą pod tajnym prefiksem.
-import { put, list } from '@vercel/blob';
+// api/sheets.js — magazyn danych na Vercel Blob (magazyn PRYWATNY).
+// Zastępuje Google Sheets/Apps Script. Aplikacja bez zmian: /api/sheets
+// (GET action=read / POST action=write). Bez CORS, bez limitu rozmiaru.
+import { put, get } from '@vercel/blob';
 
-const SECRET = 'budget-9b830d47370e3068879a1bc1'; // tajny prefiks ścieżki (prywatność danych)
+function pathFor(key) { return `data/${key}.json`; }
 
 async function readKey(key) {
-  const name = `${SECRET}/${key}.json`;
-  const { blobs } = await list({ prefix: name, limit: 100 });
-  const hit = blobs.find(b => b.pathname === name);
-  if (!hit) return null;                 // brak danych -> aplikacja zostawi lokalne
-  const r = await fetch(hit.url, { cache: 'no-store' });
-  if (!r.ok) return null;
-  return await r.json();
+  let res;
+  try {
+    res = await get(pathFor(key), { access: 'private' });
+  } catch {
+    return null; // nie istnieje / błąd -> aplikacja zostawi lokalne dane
+  }
+  if (!res || res.statusCode !== 200 || !res.stream) return null;
+  const text = await new Response(res.stream).text();
+  return JSON.parse(text);
 }
 
 async function writeKey(key, obj) {
-  await put(`${SECRET}/${key}.json`, JSON.stringify(obj), {
-    access: 'public',
+  await put(pathFor(key), JSON.stringify(obj), {
+    access: 'private',
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: 'application/json'
