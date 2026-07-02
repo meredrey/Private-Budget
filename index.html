@@ -4195,13 +4195,13 @@ function mataSavingsCalc(opts){
 
       // 🛡️ Poduszka
       if(cushion<MATA_CUSHION_GOAL){
-        const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/savAmount);
+        const _ptrend=mataTrendMonthly('cushion',true,3);const _prate=(_ptrend&&_ptrend>0)?_ptrend:savAmount;const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/_prate);
         const d=new Date();d.setMonth(d.getMonth()+m);
         const pct=Math.round(cushion/MATA_CUSHION_GOAL*100);
         goals.push({
           icon:'🛡️',label:'Poduszka bezpieczeństwa',
           status:`za ${m} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
-          detail:`${fmt(cushion)} / 50 000 zł · ${pct}%`,
+          detail:`${fmt(cushion)} / 50 000 zł · ${pct}% · ${(_ptrend&&_ptrend>0)?'śr. wpłat 3 mies. '+fmt(Math.round(_prate))+' zł':'plan '+fmt(Math.round(_prate))+' zł'}`,
           bar:pct,barColor:'#5e4d82',done:false
         });
       } else {
@@ -4212,7 +4212,11 @@ function mataSavingsCalc(opts){
       const currentCapital = mataData[mataYM]?.loanCapital ?? mataGetPrevVal('loanCapital', 54490);
       if(currentCapital>0){
         const autoAmt=Math.round(savAmount*MATA_CAR_SPLIT);
-        const payment=Math.max(2000,autoAmt);
+        const _capS=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k].loanCapital!=null).sort().map(k=>mataData[k].loanCapital);
+        const _pays=[];for(let _i=1;_i<_capS.length;_i++){const _red=_capS[_i-1]-_capS[_i];if(_red>0)_pays.push(_red+_capS[_i-1]*MATA_CAR_RATE);}
+        const _lp=_pays.slice(-3);const _tp=_lp.length?_lp.reduce((a,b)=>a+b,0)/_lp.length:null;
+        const _pTrendUsed=(_tp&&_tp>0);
+        const payment=_pTrendUsed?Math.round(_tp):Math.max(2000,autoAmt);
         let sim=currentCapital,months=0;
         while(sim>0&&months<240){const intr=sim*MATA_CAR_RATE;const cp=Math.min(sim,payment-intr);if(cp<=0){months=999;break;}sim-=cp;months++;}
         const paidPct=Math.round((1-currentCapital/MATA_LOAN_ORIGINAL)*100);
@@ -4221,7 +4225,7 @@ function mataSavingsCalc(opts){
           goals.push({
             icon:'🚗',label:"Spłata kredytu Andy'ego",
             status:`za ${months} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
-            detail:`${fmt(currentCapital)} zł zostało · ${paidPct}% spłacone`,
+            detail:`${fmt(currentCapital)} zł zostało · ${paidPct}% spłacone · ${_pTrendUsed?'śr. 3 mies. '+fmt(payment)+' zł':'rata '+fmt(payment)+' zł'}`,
             bar:paidPct,barColor:'#9a607a',done:false
           });
         } else {
@@ -4266,6 +4270,19 @@ function mataGetPrevVal(key,defaultVal){
   const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<mataYM).sort();
   for(let i=months.length-1;i>=0;i--){const v=mataData[months[i]]?.[key];if(v!==undefined&&v!==null)return v;}
   return defaultVal;
+}
+
+// Ostatnia znana wartość (do i włącznie z bieżącym miesiącem) — do przenoszenia salda na Start
+function mataCurVal(key,def){
+  const ms=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<=mataYM&&mataData[k]&&mataData[k][key]!=null).sort();
+  return ms.length?mataData[ms[ms.length-1]][key]:def;
+}
+// Średnia miesięczna zmiana wartości (trend) z ostatnich n dodatnich zmian między miesiącami
+function mataTrendMonthly(key,rising,n){
+  const s=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k][key]!=null).sort().map(k=>mataData[k][key]);
+  const d=[];for(let i=1;i<s.length;i++){const x=rising?(s[i]-s[i-1]):(s[i-1]-s[i]);if(x>0)d.push(x);}
+  const last=d.slice(-(n||3));
+  return last.length?last.reduce((a,b)=>a+b,0)/last.length:null;
 }
 
 function mataRenderSavings(){
@@ -4711,11 +4728,11 @@ function renderDash(){
   set('dash-transfers-sub',done?'wszystkie wykonane':`${stepCount} z 5 kroków`,{color:done?'#3d7a60':'#9a8fbe'});
   const stepKeys=['hipoteka','skladka','mbank','loan','savings'];
   ['ds0','ds1','ds2','ds3','ds4'].forEach((id,i)=>{const e=el(id);if(e)e.style.background=doneSteps[stepKeys[i]]?'#3d7a60':'#e0dced';});
-  const cushion=dashMataData.cushion??9500;const cushionGoal=mataData._settings?.cushionGoal||50000;
+  const cushion=mataCurVal('cushion',9500);const cushionGoal=mataData._settings?.cushionGoal||50000;
   const cpct=Math.min(100,Math.round((cushion/cushionGoal)*100));
   set('dash-cushion-pct',cpct);set('dash-cushion-val',`${fmt(cushion)} zł z ${fmt(cushionGoal)} zł celu`);
   const cBar=el('dash-cushion-bar2');if(cBar)cBar.style.width=cpct+'%';
-  const CAR_ORIGINAL=84135;const carCap=dashMataData.loanCapital??54490;const carPaid=CAR_ORIGINAL-carCap;
+  const CAR_ORIGINAL=84135;const carCap=mataCurVal('loanCapital',54490);const carPaid=CAR_ORIGINAL-carCap;
   const carPct=Math.min(100,Math.max(0,Math.round((carPaid/CAR_ORIGINAL)*100)));
   set('dash-car-remaining',fmt(carCap));set('dash-car-sub',`spłacono ${fmt(carPaid)} zł · ${carPct}% z ${fmt(CAR_ORIGINAL)} zł`);
   const carBar=el('dash-car-bar2');if(carBar)carBar.style.width=carPct+'%';
