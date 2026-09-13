@@ -1394,6 +1394,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:12px;color:rgba(255,255,255,.8);font-weight:600">Ile wpłynęło na konto?</div>
+          <div id="mata-salary-hint" style="font-size:11px;color:#ffe0a0;margin-top:3px;line-height:1.4"></div>
           <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">łączna kwota wypłaty netto</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
@@ -3838,6 +3839,15 @@ function renderMata(){
   const ml=document.getElementById('mata-month-label');if(ml)ml.textContent=lbl2;
   const mm=document.getElementById('mata-month-ym');if(mm)mm.textContent=mataYM;
   const hs=document.getElementById('h-mata-sub');if(hs)hs.textContent=mataYM;
+  // Podpowiedź: która wypłata finansuje ten miesiąc (wypłata z ~payday poprzedniego miesiąca)
+  const _hint=document.getElementById('mata-salary-hint');
+  if(_hint){
+    const [yy,mm]=mataYM.split('-').map(Number);
+    let fm=new Date(yy, mm-1, 1).toLocaleDateString('pl-PL',{month:'long'});
+    fm=fm.charAt(0).toUpperCase()+fm.slice(1);
+    const prevGen=new Date(yy, mm-2, 1).toLocaleDateString('pl-PL',{day:'numeric',month:'long'}).replace(/^\d+\s*/,'');
+    _hint.textContent=`💡 ${fm} ${yy} finansuje wypłata z końca ${prevGen}. Wpisz tutaj tę wypłatę.`;
+  }
   const saved=mataData[mataYM]||{};const p=saved.params||{};
   const baseEl=document.getElementById('mata-base-inp');if(baseEl)baseEl.value=p.base||15700;
   const thrEl=document.getElementById('mata-threshold-inp');if(thrEl)thrEl.value=p.threshold||125;
@@ -4293,13 +4303,13 @@ function mataSavingsCalc(opts){
 
       // 🛡️ Poduszka
       if(cushion<MATA_CUSHION_GOAL){
-        const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/savAmount);
+        const _ptrend=mataTrendMonthly('cushion',true,3);const _prate=(_ptrend&&_ptrend>0)?_ptrend:savAmount;const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/_prate);
         const d=new Date();d.setMonth(d.getMonth()+m);
         const pct=Math.round(cushion/MATA_CUSHION_GOAL*100);
         goals.push({
           icon:'🛡️',label:'Poduszka bezpieczeństwa',
           status:`za ${m} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
-          detail:`${fmt(cushion)} / 50 000 zł · ${pct}%`,
+          detail:`${fmt(cushion)} / 50 000 zł · ${pct}% · ${(_ptrend&&_ptrend>0)?'śr. wpłat 3 mies. '+fmt(Math.round(_prate))+' zł':'plan '+fmt(Math.round(_prate))+' zł'}`,
           bar:pct,barColor:'#5e4d82',done:false
         });
       } else {
@@ -4310,7 +4320,11 @@ function mataSavingsCalc(opts){
       const currentCapital = mataData[mataYM]?.loanCapital ?? mataGetPrevVal('loanCapital', 54490);
       if(currentCapital>0){
         const autoAmt=Math.round(savAmount*MATA_CAR_SPLIT);
-        const payment=Math.max(2000,autoAmt);
+        const _capS=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k].loanCapital!=null).sort().map(k=>mataData[k].loanCapital);
+        const _pays=[];for(let _i=1;_i<_capS.length;_i++){const _red=_capS[_i-1]-_capS[_i];if(_red>0)_pays.push(_red+_capS[_i-1]*MATA_CAR_RATE);}
+        const _lp=_pays.slice(-3);const _tp=_lp.length?_lp.reduce((a,b)=>a+b,0)/_lp.length:null;
+        const _pTrendUsed=(_tp&&_tp>0);
+        const payment=_pTrendUsed?Math.round(_tp):Math.max(2000,autoAmt);
         let sim=currentCapital,months=0;
         while(sim>0&&months<240){const intr=sim*MATA_CAR_RATE;const cp=Math.min(sim,payment-intr);if(cp<=0){months=999;break;}sim-=cp;months++;}
         const paidPct=Math.round((1-currentCapital/MATA_LOAN_ORIGINAL)*100);
@@ -4319,7 +4333,7 @@ function mataSavingsCalc(opts){
           goals.push({
             icon:'🚗',label:"Spłata kredytu Andy'ego",
             status:`za ${months} mies. · ${d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'})}`,
-            detail:`${fmt(currentCapital)} zł zostało · ${paidPct}% spłacone`,
+            detail:`${fmt(currentCapital)} zł zostało · ${paidPct}% spłacone · ${_pTrendUsed?'śr. spłat 3 mies. '+fmt(payment)+' zł':'rata '+fmt(payment)+' zł'}`,
             bar:paidPct,barColor:'#9a607a',done:false
           });
         } else {
@@ -4364,6 +4378,14 @@ function mataGetPrevVal(key,defaultVal){
   const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&k<mataYM).sort();
   for(let i=months.length-1;i>=0;i--){const v=mataData[months[i]]?.[key];if(v!==undefined&&v!==null)return v;}
   return defaultVal;
+}
+
+// Średnia miesięczna zmiana wartości (trend) z ostatnich n dodatnich zmian między miesiącami
+function mataTrendMonthly(key,rising,n){
+  const s=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k][key]!=null).sort().map(k=>mataData[k][key]);
+  const d=[];for(let i=1;i<s.length;i++){const x=rising?(s[i]-s[i-1]):(s[i-1]-s[i]);if(x>0)d.push(x);}
+  const last=d.slice(-(n||3));
+  return last.length?last.reduce((a,b)=>a+b,0)/last.length:null;
 }
 
 function mataRenderSavings(){
