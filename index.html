@@ -1121,9 +1121,9 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div id="dom-zycie-list"></div>
     </div>
 
-    <div class="sec-lbl">👧 Dzieci</div>
+    <div class="sec-lbl">🎉 Przyjemności</div>
     <div class="card">
-      <div class="card-head"><div class="card-label">Wydatki na dzieci</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-dzieci">—</div></div>
+      <div class="card-head"><div class="card-label">Przyjemności (rozrywka, dzieci)</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-dzieci">—</div></div>
       <div id="dom-dzieci-list"></div>
     </div>
 
@@ -1180,7 +1180,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         <select id="dom-new-category" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
           <option value="rachunki">🧾 Rachunki</option>
           <option value="zycie">🌿 Życie</option>
-          <option value="dzieci">👧 Dzieci</option>
+          <option value="dzieci">🎉 Przyjemności</option>
           <option value="extra">✨ Dodatkowe</option>
         </select>
         <select id="dom-new-type" onchange="domNewTypeChange()" style="flex:1;padding:9px 10px;border:2px solid #b0a4cc;border-radius:9px;font-size:13px;background:#fff;outline:none">
@@ -1950,19 +1950,19 @@ const DOM_EXPENSES={
     {name:'Ubezpieczenia',icon:'🛡️',type:'fixed',amount:184},
     {name:'Podatki',icon:'🏛️',type:'schedule',schedule:{'04':631,'05':682,'06':682,'09':682,'11':682}},
     {name:'Zmywarka',icon:'🍽️',type:'schedule',schedule:{'2025-01':240.3,'2025-02':240.3,'2025-03':240.3,'2025-04':240.3,'2025-05':240.3,'2025-06':240.3,'2025-07':240.3,'2025-08':240.3,'2025-09':240.3,'2025-10':240.3}},
+    {name:'Subskrypcje',icon:'📱',type:'fixed',amount:190},
+    {name:'Aneta (sprzątanie)',icon:'🧹',type:'fixed',amount:1150},
+    {name:'Przedszkole',icon:'🎒',type:'avg3'},
   ],
   zycie:[
     {name:'Jedzenie',icon:'🛒',type:'avg3'},
     {name:'Dom',icon:'🏠',type:'avg3'},
     {name:'Transport',icon:'🚗',type:'avg3'},
-    {name:'Rozrywka',icon:'🎭',type:'avg3'},
     {name:'Zdrowie',icon:'💊',type:'lastYear'},
-    {name:'Subskrypcje',icon:'📱',type:'fixed',amount:190},
-    {name:'Aneta (sprzątanie)',icon:'🧹',type:'fixed',amount:1150},
     {name:'Psy',icon:'🐕',type:'bimonthly',amount:230,months:[2,4,6,8,10,12]},
   ],
   dzieci:[
-    {name:'Przedszkole',icon:'🎒',type:'avg3'},
+    {name:'Rozrywka',icon:'🎭',type:'avg3'},
     {name:'Dzieci',icon:'👧',type:'avg3'},
     {name:'Piłka nożna',icon:'⚽',type:'fixed',amount:175},
   ],
@@ -2583,7 +2583,7 @@ function domExpMgrRender(){
   const list = document.getElementById('dom-exp-mgr-list');
   if(!list) return;
   const custom = domData._customExpenses||[];
-  const catLabel = {rachunki:'🧾 Rachunki',zycie:'🌿 Życie',dzieci:'👧 Dzieci',extra:'✨ Dodatkowe'};
+  const catLabel = {rachunki:'🧾 Rachunki',zycie:'🌿 Życie',dzieci:'🎉 Przyjemności',extra:'✨ Dodatkowe'};
   const typeLabel = {fixed:'Stała',avg3:'Śr. 3 mies.',lastYear:'Zeszły rok',manual:'Ręczna',bimonthly:'Co 2 mies.',schedule:'Harmonogram'};
   const sections = ['rachunki','zycie','dzieci','extra'];
 
