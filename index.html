@@ -1000,6 +1000,13 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <button onclick="changeDomMonth(1)" style="width:44px;height:44px;border-radius:12px;border:2px solid #b0a4cc;background:#eeebf5;font-size:22px;font-weight:700;color:#5e4d82;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
     </div>
 
+    <div style="display:flex;gap:6px;margin:0 12px 8px">
+      <button id="dom-mst-open" onclick="domSetMonthStatus('open')" style="flex:1;padding:8px;border-radius:10px;border:2px solid #b0a4cc;background:#fff;font-size:11px;font-weight:700;color:#5e4d82;cursor:pointer">📂 Otwarty</button>
+      <button id="dom-mst-closed" onclick="domSetMonthStatus('closed')" style="flex:1;padding:8px;border-radius:10px;border:2px solid #b0a4cc;background:#fff;font-size:11px;font-weight:700;color:#5e4d82;cursor:pointer">✅ Zakończ</button>
+      <button id="dom-mst-exception" onclick="domSetMonthStatus('exception')" style="flex:1;padding:8px;border-radius:10px;border:2px solid #b0a4cc;background:#fff;font-size:11px;font-weight:700;color:#5e4d82;cursor:pointer">🏖️ Wyjątek</button>
+    </div>
+    <div id="dom-mst-hint" style="font-size:11px;color:#7a6e98;margin:0 12px 12px;line-height:1.4"></div>
+
     <!-- QUICK STATUS — co jeszcze czeka -->
     <div id="dom-status-bar" style="margin:0 12px 12px;border-radius:14px;padding:12px 16px;background:#fff;border:2px solid #b0a4cc;display:none">
       <div style="font-size:12px;font-weight:700;color:#4a4060;margin-bottom:6px">📋 Czeka na uzupełnienie</div>
@@ -1996,6 +2003,35 @@ function getCycleYM(){
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
+function getMonthStatus(ym){ const st=domData._monthStatus||{}; return st[ym]||'open'; }
+function setMonthStatus(ym,s){ if(!domData._monthStatus)domData._monthStatus={}; if(s==='open')delete domData._monthStatus[ym]; else domData._monthStatus[ym]=s; domScheduleSave(); }
+function monthEligibleForAvg(ym){
+  const st=domData._monthStatus||{};
+  const s=st[ym]||'open';
+  if(s==='exception') return false;
+  const anyClosed=Object.values(st).some(v=>v==='closed');
+  if(anyClosed) return s==='closed';
+  return ym!==getCycleYM(); // brak zamkniętych: bierz przeszłe (nie bieżący)
+}
+function domRenderMonthStatus(){
+  const st=getMonthStatus(domYM);
+  const map={open:'dom-mst-open',closed:'dom-mst-closed',exception:'dom-mst-exception'};
+  ['open','closed','exception'].forEach(s=>{
+    const el=document.getElementById(map[s]);if(!el)return;
+    const on=(s===st);
+    el.style.background=on?'#5e4d82':'#fff';
+    el.style.color=on?'#fff':'#5e4d82';
+    el.style.borderColor=on?'#5e4d82':'#b0a4cc';
+  });
+  const hint=document.getElementById('dom-mst-hint');
+  if(hint){
+    hint.textContent = st==='closed' ? '✅ Zakończony — wliczany do średnich (prognozy i podpowiedzi planów).'
+      : st==='exception' ? '🏖️ Wyjątek (np. wakacje) — pomijany w średnich.'
+      : '📂 W toku — jeszcze nie wchodzi do średnich. Zakończ, gdy miesiąc się domknie.';
+  }
+}
+function domSetMonthStatus(s){ setMonthStatus(domYM,s); domRenderMonthStatus(); renderDom(); }
+
 function domGetSuggested(exp,ym){
   const mm=ym.slice(5,7),mo=parseInt(mm);
   if(exp.type==='fixed')return exp.amount;
@@ -2014,6 +2050,7 @@ function domGetSuggested(exp,ym){
       const pym=domAddMonths(ym,-i);
       if(pym>=thisYM) continue;
       if(pym<cutoff) break;
+      if(!monthEligibleForAvg(pym)) continue;
       const s=domData[pym]?.[exp.name];
       if(s?.real!=null&&s.real>0) vals.push(s.real);
     }
@@ -2417,6 +2454,7 @@ function domRenderPace(){
 
 function domUpdateSummary(){
   try{domRenderPace();}catch(e){}
+  try{domRenderMonthStatus();}catch(e){}
   const allExp=domAllFlat();
   let planSum=0,realSum=0,realCnt=0;
   const pending=[];
@@ -4320,8 +4358,8 @@ function mataSavingsCalc(opts){
       const currentCapital = mataData[mataYM]?.loanCapital ?? mataGetPrevVal('loanCapital', 54490);
       if(currentCapital>0){
         const autoAmt=Math.round(savAmount*MATA_CAR_SPLIT);
-        const _capS=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k].loanCapital!=null).sort().map(k=>mataData[k].loanCapital);
-        const _pays=[];for(let _i=1;_i<_capS.length;_i++){const _red=_capS[_i-1]-_capS[_i];if(_red>0)_pays.push(_red+_capS[_i-1]*MATA_CAR_RATE);}
+        const _mS=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k].loanCapital!=null).sort();
+        const _pays=[];for(let _i=1;_i<_mS.length;_i++){if(!monthEligibleForAvg(_mS[_i]))continue;const _red=mataData[_mS[_i-1]].loanCapital-mataData[_mS[_i]].loanCapital;if(_red>0)_pays.push(_red+mataData[_mS[_i-1]].loanCapital*MATA_CAR_RATE);}
         const _lp=_pays.slice(-3);const _tp=_lp.length?_lp.reduce((a,b)=>a+b,0)/_lp.length:null;
         const _pTrendUsed=(_tp&&_tp>0);
         const payment=_pTrendUsed?Math.round(_tp):Math.max(2000,autoAmt);
@@ -4382,8 +4420,14 @@ function mataGetPrevVal(key,defaultVal){
 
 // Średnia miesięczna zmiana wartości (trend) z ostatnich n dodatnich zmian między miesiącami
 function mataTrendMonthly(key,rising,n){
-  const s=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k][key]!=null).sort().map(k=>mataData[k][key]);
-  const d=[];for(let i=1;i<s.length;i++){const x=rising?(s[i]-s[i-1]):(s[i-1]-s[i]);if(x>0)d.push(x);}
+  const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k][key]!=null).sort();
+  const d=[];
+  for(let i=1;i<months.length;i++){
+    if(!monthEligibleForAvg(months[i])) continue;
+    const a=mataData[months[i-1]][key], b=mataData[months[i]][key];
+    const x=rising?(b-a):(a-b);
+    if(x>0) d.push(x);
+  }
   const last=d.slice(-(n||3));
   return last.length?last.reduce((a,b)=>a+b,0)/last.length:null;
 }
