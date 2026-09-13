@@ -1110,7 +1110,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     </div>
 
     <div id="dom-pace-bar" style="margin:0 12px 14px;padding:14px;border-radius:14px;background:#fff;border:2px solid #e0dced"></div>
-    <div class="sec-lbl">🧾 Rachunki</div>
+    <div class="sec-lbl">🧾 Rachunki <span id="dom-pace-rachunki" style="font-size:11px;font-weight:700;float:right"></span></div>
     <div class="card">
       <div class="card-head"><div class="card-label">Stałe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-rachunki">—</div></div>
       <div id="dom-rachunki-list"></div>
@@ -1128,7 +1128,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div id="dom-dzieci-list"></div>
     </div>
 
-    <div class="sec-lbl">➕ Dodatkowe</div>
+    <div class="sec-lbl">➕ Dodatkowe <span id="dom-pace-extra" style="font-size:11px;font-weight:700;float:right"></span></div>
     <div class="card">
       <div class="card-head"><div class="card-label">Jednorazowe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-extra">—</div></div>
       <div id="dom-extra-list"></div>
@@ -2111,7 +2111,7 @@ function domSetVal(expName,field,val,ym,rerender){
     const safeId='domrow_'+ym+'_'+(expName.replace(/[^a-zA-Z0-9]/g,'_'));
     const rowEl=document.getElementById(safeId);
     if(rowEl){
-      const allExps=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+      const allExps=domAllFlat();
       const exp=allExps.find(e=>e.name===expName);
       if(exp) rowEl.outerHTML=domRenderRow(exp,ym);
       domRenderRows();
@@ -2295,10 +2295,10 @@ function domRemoveEntry(safeId, src, idx, ym){
 
 function domRenderRows(){
   const allGroups=[
-    {key:'rachunki',list:DOM_EXPENSES.rachunki},
-    {key:'zycie',list:DOM_EXPENSES.zycie},
-    {key:'dzieci',list:DOM_EXPENSES.dzieci},
-    {key:'extra',list:DOM_EXPENSES.extra},
+    {key:'rachunki',list:domEffGroups().rachunki},
+    {key:'zycie',list:domEffGroups().zycie},
+    {key:'dzieci',list:domEffGroups().dzieci},
+    {key:'extra',list:domEffGroups().extra},
   ];
   allGroups.forEach(({list})=>{
     list.forEach(exp=>{
@@ -2387,7 +2387,7 @@ function domRenderPace(){
   const total=end-start;
   let pctTime=total>0?((now-start)/total)*100:0;
   pctTime=Math.max(0,Math.min(100,pctTime));
-  const sg=(g,fn)=>DOM_EXPENSES[g].reduce((s,e)=>s+(fn(e,domYM)||0),0);
+  const sg=(g,fn)=>domEffGroups()[g].reduce((s,e)=>s+(fn(e,domYM)||0),0);
   const planZ=sg('zycie',domGetPlan), realZ=sg('zycie',domGetReal);
   const planP=sg('dzieci',domGetPlan), realP=sg('dzieci',domGetReal);
   const plan=planZ+planP, real=realZ+realP;
@@ -2408,11 +2408,15 @@ function domRenderPace(){
   const mk=(id,r,p)=>{const el=document.getElementById(id);if(!el)return;const ps=p>0?Math.round(r/p*100):0;const d=ps-pctTime;const c=d>50?'#c0392b':d>10?'#d98514':d<-10?'#3d7a60':'#5e4d82';el.textContent=`${ps}%`;el.style.color=c;};
   mk('dom-pace-zycie',realZ,planZ);
   mk('dom-pace-przyjemnosci',realP,planP);
+  // Rachunki i Dodatkowe: neutralny % wydane z planu grupy (bez alertu tempa)
+  const mkN=(id,g)=>{const el=document.getElementById(id);if(!el)return;const p=sg(g,domGetPlan),r=sg(g,domGetReal);const ps=p>0?Math.round(r/p*100):0;el.textContent=`${ps}%`;el.style.color='#7a6f95';};
+  mkN('dom-pace-rachunki','rachunki');
+  mkN('dom-pace-extra','extra');
 }
 
 function domUpdateSummary(){
   try{domRenderPace();}catch(e){}
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   let planSum=0,realSum=0,realCnt=0;
   const pending=[];
   allExp.forEach(e=>{
@@ -2484,10 +2488,10 @@ function domUpdateSummary(){
   // Section totals
   const rTot=document.getElementById('dom-total-rachunki');
   if(rTot){
-    const rp=DOM_EXPENSES.rachunki.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-    const zp=DOM_EXPENSES.zycie.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-    const dp=DOM_EXPENSES.dzieci.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
-    const ep=DOM_EXPENSES.extra.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+    const rp=domEffGroups().rachunki.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+    const zp=domEffGroups().zycie.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+    const dp=domEffGroups().dzieci.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
+    const ep=domEffGroups().extra.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
     rTot.textContent=fmt(rp)+' zł';
     const zTot=document.getElementById('dom-total-zycie');if(zTot)zTot.textContent=fmt(zp)+' zł';
     const dTot=document.getElementById('dom-total-dzieci');if(dTot)dTot.textContent=fmt(dp)+' zł';
@@ -2509,7 +2513,7 @@ function domQuickCheck(){
   if(!resEl) return;
 
   // Always update labels
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();
   // Składka Andy'ego = połowa kosztów domu ponad przychody wspólne
@@ -2602,6 +2606,24 @@ function domGetAllExpenses(){
   return merged;
 }
 
+// Warstwa efektywnych grup: bazowe + custom, z zastosowaniem przeniesień i ukryć.
+// Puste ustawienia => identyczne z DOM_EXPENSES (nic się nie zmienia).
+function domEffGroups(){
+  const base = domGetAllExpenses();
+  const mv = domData._groupMove||{};
+  const hidden = new Set(domData._hidden||[]);
+  const out = {rachunki:[],zycie:[],dzieci:[],extra:[]};
+  ['rachunki','zycie','dzieci','extra'].forEach(g=>{
+    (base[g]||[]).forEach(e=>{
+      if(hidden.has(e.name)) return;
+      const tgt = (mv[e.name] && out[mv[e.name]]) ? mv[e.name] : g;
+      out[tgt].push(e);
+    });
+  });
+  return out;
+}
+function domAllFlat(){ return Object.values(domEffGroups()).flat(); }
+
 function domExpMgrToggle(){
   const panel = document.getElementById('dom-exp-mgr-panel');
   const arrow = document.getElementById('dom-exp-mgr-arrow');
@@ -2618,42 +2640,74 @@ function domExpMgrRender(){
   const catLabel = {rachunki:'🧾 Rachunki',zycie:'🌿 Życie',dzieci:'🎉 Przyjemności',extra:'✨ Dodatkowe'};
   const typeLabel = {fixed:'Stała',avg3:'Śr. 3 mies.',lastYear:'Zeszły rok',manual:'Ręczna',bimonthly:'Co 2 mies.',schedule:'Harmonogram'};
   const sections = ['rachunki','zycie','dzieci','extra'];
-
-  let html = '';
+  const mv = domData._groupMove||{};
+  const hidden = new Set(domData._hidden||[]);
+  const base = domGetAllExpenses();
+  const disp = {rachunki:[],zycie:[],dzieci:[],extra:[]};
+  sections.forEach(g=>{
+    (base[g]||[]).forEach(e=>{
+      const tgt = (mv[e.name] && disp[mv[e.name]]) ? mv[e.name] : g;
+      const cIdx = custom.findIndex(c=>c.name===e.name);
+      disp[tgt].push({exp:e, origGroup:g, isCustom:cIdx>=0, customIdx:cIdx});
+    });
+  });
+  let out = '';
   sections.forEach(cat=>{
-    const customInCat = custom.filter(c=>c.category===cat);
-    const all = [
-      ...DOM_EXPENSES[cat].map(e=>({...e,_isCustom:false,_cat:cat})),
-      ...customInCat.map(e=>({...e,_isCustom:true,_cat:cat}))
-    ];
+    const all = disp[cat];
     if(!all.length) return;
-    html += `<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7a6e98;margin:12px 0 6px">${catLabel[cat]}</div>`;
-    all.forEach(exp=>{
+    out += `<div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#7a6e98;margin:12px 0 6px">${catLabel[cat]}</div>`;
+    all.forEach(item=>{
+      const exp=item.exp;
       const safeKey = exp.name.replace(/[^a-zA-Z0-9]/g,'_');
       const typeStr = typeLabel[exp.type]||exp.type;
       const amtStr = exp.amount!=null ? fmt(exp.amount)+' zł' : '';
-      const customIdx = exp._isCustom ? custom.indexOf(exp) : -1;
-      html += `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:6px;border:2px solid ${exp._isCustom?'#b0a4cc':'#e8e4f0'}">
+      const isHidden = hidden.has(exp.name);
+      const nameEsc = exp.name.replace(/'/g,"\\'");
+      const opts = sections.map(g=>`<option value="${g}"${g===cat?' selected':''}>${catLabel[g]}</option>`).join('');
+      out += `<div style="background:#fff;border-radius:12px;padding:12px;margin-bottom:6px;border:2px solid ${item.isCustom?'#b0a4cc':'#e8e4f0'};opacity:${isHidden?'0.55':'1'}">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
             <span style="font-size:18px">${exp.icon||'📌'}</span>
             <div>
-              <div style="font-size:13px;font-weight:600;color:#18102c">${exp.name}</div>
+              <div style="font-size:13px;font-weight:600;color:#18102c">${exp.name}${isHidden?' — ukryte':''}</div>
               <div style="font-size:11px;color:#7a6e98">${typeStr}${amtStr?' · '+amtStr:''}</div>
             </div>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0">
-            <button onclick="domExpEdit('${cat}','${safeKey}',${exp._isCustom?customIdx:-1})"
+            <button onclick="domExpToggleHide('${nameEsc}')" title="Ukryj / pokaż"
+              style="padding:5px 8px;background:#eeebf5;border:none;border-radius:8px;font-size:11px;cursor:pointer">${isHidden?'👁️':'🚫'}</button>
+            <button onclick="domExpEdit('${item.origGroup}','${safeKey}',${item.isCustom?item.customIdx:-1})"
               style="padding:5px 10px;background:#eeebf5;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#5e4d82;cursor:pointer">✏️</button>
-            ${exp._isCustom?`<button onclick="domExpDelete(${customIdx})"
+            ${item.isCustom?`<button onclick="domExpDelete(${item.customIdx})"
               style="padding:5px 8px;background:#fdf0f4;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#9a4060;cursor:pointer">✕</button>`:''}
           </div>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:#7a6e98">Grupa:</span>
+          <select onchange="domExpMove('${nameEsc}',this.value)"
+            style="flex:1;padding:6px;border:1.5px solid #d8d0ea;border-radius:8px;font-size:11px;color:#4a4060;background:#faf8ff">${opts}</select>
         </div>
         <div id="dom-edit-${safeKey}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #e8e4f0"></div>
       </div>`;
     });
   });
-  list.innerHTML = html;
+  list.innerHTML = out;
+}
+
+function domExpMove(name, group){
+  if(!domData._groupMove) domData._groupMove={};
+  domData._groupMove[name]=group;
+  domScheduleSave();
+  domExpMgrRender();
+  renderDom();
+}
+function domExpToggleHide(name){
+  const h = new Set(domData._hidden||[]);
+  if(h.has(name)) h.delete(name); else h.add(name);
+  domData._hidden = [...h];
+  domScheduleSave();
+  domExpMgrRender();
+  renderDom();
 }
 
 function domExpEdit(cat, safeKey, customIdx){
@@ -2821,10 +2875,10 @@ function renderDom(){
   // Sync globals
   domGetIncome();
   domRenderRows();
-  document.getElementById('dom-rachunki-list').innerHTML=DOM_EXPENSES.rachunki.map(e=>domRenderRow(e,domYM)).join('');
-  document.getElementById('dom-zycie-list').innerHTML=DOM_EXPENSES.zycie.map(e=>domRenderRow(e,domYM)).join('');
-  document.getElementById('dom-dzieci-list').innerHTML=DOM_EXPENSES.dzieci.map(e=>domRenderRow(e,domYM)).join('');
-  document.getElementById('dom-extra-list').innerHTML=DOM_EXPENSES.extra.map(e=>domRenderRow(e,domYM)).join('');
+  document.getElementById('dom-rachunki-list').innerHTML=domEffGroups().rachunki.map(e=>domRenderRow(e,domYM)).join('');
+  document.getElementById('dom-zycie-list').innerHTML=domEffGroups().zycie.map(e=>domRenderRow(e,domYM)).join('');
+  document.getElementById('dom-dzieci-list').innerHTML=domEffGroups().dzieci.map(e=>domRenderRow(e,domYM)).join('');
+  document.getElementById('dom-extra-list').innerHTML=domEffGroups().extra.map(e=>domRenderRow(e,domYM)).join('');
   // Przywróć stan checkboxów
   const saved=domData[domYM]?._chk;
   if(saved){
@@ -2850,7 +2904,7 @@ function renderDom(){
 }
 
 function renderDomYear(){
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const months=[];
   for(let i=-11;i<=5;i++)months.push(domAddMonths(domGetThisYM(),i));
   let maxT=0;
@@ -3024,7 +3078,7 @@ let _importFilter = 0;
 function domImportSetFilter(f){ _importFilter=f; domImportRender(); }
 
 function domImportRender(){
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const allCats=[...allExp.map(e=>e.name),...(domData._customExpenses||[]).map(e=>e.name)].sort((a,b)=>a.localeCompare(b,'pl'));
   const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
 
@@ -3410,7 +3464,7 @@ function domImportRulesToggle(){
 }
 
 function domImportRenderRules(){
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const catOptions = [...allExp.map(e=>e.name),...(domData._customExpenses||[]).map(e=>e.name)].sort((a,b)=>a.localeCompare(b,'pl')).map(c=>`<option value="${c}">${c}</option>`).join('');
   const ruleSelect=document.getElementById('dom-rule-category');
   if(ruleSelect) ruleSelect.innerHTML='<option value="">— wybierz kategorię —</option>'+catOptions;
@@ -3522,7 +3576,7 @@ function chkToggle(key){
   chkUpdate();
 }
 function chkRender(){
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();
   const skladka=Math.max(0,Math.round((planSum-income)/2));
@@ -3541,7 +3595,7 @@ function chkRender(){
 function chkUpdate(){
   const millennium=parseFloat(document.getElementById('chk-millennium')?.value)||0;
   const cash=parseFloat(document.getElementById('chk-cash')?.value)||0;
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,domYM)||0),0);
   const income=domGetIncome();const skladka=Math.max(0,Math.round((planSum-income)/2));const wynajem=parseFloat(document.getElementById('dom-wynajem-inp')?.value)||0;
   const realSum=allExp.reduce((s,e)=>{const r=domGetReal(e,domYM);return s+(r||0);},0);
@@ -3824,7 +3878,7 @@ function renderMata(){
   const stEl=document.getElementById('mata-salary-total');if(stEl)stEl.textContent=fmt(Math.round(salary))+' zł';
   const extraExpRM=mataGetExtraExpenseTotal();
   const tiEl=document.getElementById('mata-total-income');if(tiEl)tiEl.textContent=fmt(Math.round(totalIncome-extraExpRM))+' zł';
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=parseFloat(mbStdEl?.value)||2000;const mbankExtra=parseFloat(mbExtraEl?.value)||0;
@@ -3878,7 +3932,7 @@ function mataGetTotalIncome(){
 
 function mataGetSurplus(){
   const totalIncome = mataGetTotalIncome();
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
@@ -3894,7 +3948,7 @@ function mataRenderTransfers(){
   const surplus=mataGetSurplus();
   const autoAmount=Math.round(surplus*MATA_CAR_SPLIT);
   const savAmount=Math.round(surplus*MATA_SAVE_SPLIT);
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
@@ -4014,7 +4068,7 @@ function mataRenderExtraExpenses(){
 }
 function mataTransferCalc(){
   const totalIncome=mataGetTotalIncome();const salary=totalIncome-mataGetExtraIncomeTotal();const extraIncome=mataGetExtraIncomeTotal();
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const domIncome=domGetIncome();const skladka=Math.max(0,(planSum-domIncome)/2);
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
@@ -4120,7 +4174,7 @@ function mataLoanMarkPaid(){
 function mataGenerateAndyMsg(payment,interest,capitalPayment,remaining){
   const msgEl=document.getElementById('mata-andy-msg');if(!msgEl)return;
   const now=new Date();const monthName=now.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.round(Math.max(0,(planSum-domGetIncome())/2));
   const toSend=Math.max(0,skladka-payment);
@@ -4670,7 +4724,7 @@ function renderStrategy(){
   const s1now=document.getElementById('strat-cushion-now');if(s1now)s1now.textContent=fmt(cushion)+' zł';
   const params=mataGetParams();const hours=mataData[mataYM]?.hours;
   const salary=hours!=null?mataCalcSalary(hours,params).total:params.base;
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=mataData[mataYM]?.mbankStd||2000;const surplus=Math.max(0,salary-2500-skladka-mbankStd);
@@ -4734,7 +4788,7 @@ function renderDash(){
   set('dash-bud-spent',fmt(Math.round(weekSpent))+' zł');
   const afterPlansEl=el('dash-bud-after-plans');if(afterPlansEl){afterPlansEl.textContent=fmt(Math.round(weekAfterPlans))+' zł';afterPlansEl.style.color=weekAfterPlans<0?'#f4a8c0':'#a8e6c8';}
   set('dash-bud-limit',fmt(weekAvailable)+' zł');
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const dashDomYM=domYM;const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,dashDomYM)||0),0);
   const realSum=allExp.reduce((s,e)=>s+(domGetReal(e,dashDomYM)||0),0);
   const pct=planSum>0?Math.min(100,Math.round((realSum/planSum)*100)):0;
@@ -4830,7 +4884,7 @@ function renderStats(){
   if(el('stats-cushion-eta'))el('stats-cushion-eta').textContent=cushionHist.length?(cushionEta<1?'✅ Osiągnięta!':`cel za ~${cushionEta} mies.`):'—';
   drawLineChart('chart-cushion',cushionHist,cushionProj,'#3d7a60','#7ab0a0','rgba(61,122,96,.08)');
 
-  const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
+  const allExp=domAllFlat();
   const domHistData=[...domHistMonths,...mataMonths.filter(m=>!domHistMonths.includes(m)&&m>=(domHistMonths[0]||'9999'))].sort().map(ym=>{
     let total=0;allExp.forEach(e=>{const r=DOM_HISTORY[ym]?.[e.name]?.real??domGetReal(e,ym);if(r!=null)total+=r;});
     if(total>100)return{ym,v:Math.round(total)};
