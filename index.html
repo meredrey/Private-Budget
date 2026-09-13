@@ -2387,7 +2387,7 @@ function domRenderPace(){
   const total=end-start;
   let pctTime=total>0?((now-start)/total)*100:0;
   pctTime=Math.max(0,Math.min(100,pctTime));
-  const sg=(g,fn)=>DOM_EXPENSES[g].reduce((s,e)=>s+(fn(e.name,domYM)||0),0);
+  const sg=(g,fn)=>DOM_EXPENSES[g].reduce((s,e)=>s+(fn(e,domYM)||0),0);
   const planZ=sg('zycie',domGetPlan), realZ=sg('zycie',domGetReal);
   const planP=sg('dzieci',domGetPlan), realP=sg('dzieci',domGetReal);
   const plan=planZ+planP, real=realZ+realP;
@@ -2403,7 +2403,7 @@ function domRenderPace(){
     bar.style.borderColor=color;
     bar.innerHTML=`<div style="font-size:13px;font-weight:800;color:${color};margin-bottom:8px">${emoji} ${msg}</div>`
       +`<div style="height:12px;background:#efeaf6;border-radius:8px;overflow:hidden;margin-bottom:6px"><div style="width:${Math.max(0,Math.min(100,pctSpent))}%;height:100%;background:${color};transition:width .3s"></div></div>`
-      +`<div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6f95"><span>Wydane swobodne: <b style="color:${color}">${Math.round(pctSpent)}%</b> · minęło ${Math.round(pctTime)}% cyklu</span><span>zostało ${fmt(Math.round(plan-real))} zł</span></div>`;
+      +`<div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6f95"><span>Ruchomy budżet: <b style="color:${color}">${Math.round(pctSpent)}%</b> wydane · minęło ${Math.round(pctTime)}% cyklu</span><span>zostało ${fmt(Math.round(plan-real))} zł</span></div>`;
   }
   const mk=(id,r,p)=>{const el=document.getElementById(id);if(!el)return;const ps=p>0?Math.round(r/p*100):0;const d=ps-pctTime;const c=d>50?'#c0392b':d>10?'#d98514':d<-10?'#3d7a60':'#5e4d82';el.textContent=`${ps}%`;el.style.color=c;};
   mk('dom-pace-zycie',realZ,planZ);
