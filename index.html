@@ -1048,20 +1048,25 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <!-- Weryfikacja inline -->
       <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px">
         <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:8px">✅ SZYBKA WERYFIKACJA</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
           <div>
-            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Saldo Millennium</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Konto główne</div>
             <input type="number" id="chk-millennium-inline" placeholder="0"
               style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
               oninput="domQuickCheck()">
           </div>
           <div>
-            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Gotówka</div>
-            <input type="number" id="chk-cash-inline" placeholder="0"
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Karta (dług)</div>
+            <input type="number" id="chk-card-inline" placeholder="0"
               style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box"
               oninput="domQuickCheck()">
           </div>
+          <div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Karta: przyszły mies.</div>
+            <input type="number" id="chk-cardnext-inline" placeholder="0" style="width:100%;padding:7px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;font-weight:600;background:rgba(255,255,255,.1);color:#fff;outline:none;-webkit-appearance:none;box-sizing:border-box" oninput="domQuickCheck()">
+          </div>
         </div>
+        <div id="dom-available-line" style="font-size:11px;color:rgba(255,255,255,.85);margin:-2px 0 8px;font-weight:600"></div>
         <!-- Wpłynęło / Spłacono -->
         <div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:4px">
           <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:6px">CHECKLIST</div>
@@ -2460,7 +2465,9 @@ function domUpdateSummary(){
 
 function domQuickCheck(){
   const mil=parseFloat(document.getElementById('chk-millennium-inline')?.value)||0;
-  const cash=parseFloat(document.getElementById('chk-cash-inline')?.value)||0;
+  const card=parseFloat(document.getElementById('chk-card-inline')?.value)||0;
+  const cardNext=parseFloat(document.getElementById('chk-cardnext-inline')?.value)||0;
+  const cash=0;
   const beforeHipoteka=document.getElementById('chk-before-hipoteka')?.checked||false;
   const andyPaid=document.getElementById('chk-andy-inline')?.checked||false;
   const plus800Paid=document.getElementById('chk-800plus-inline')?.checked||false;
@@ -2498,13 +2505,17 @@ function domQuickCheck(){
   domData[domYM]._chk.hipoteka = hipotekaPaid;
   domData[domYM]._chk.beforeHipoteka = beforeHipoteka;
   domData[domYM]._chk.millennium = mil||null;
-  domData[domYM]._chk.cash = cash||null;
+  domData[domYM]._chk.card = card||null;
+  domData[domYM]._chk.cardNext = cardNext||null;
   domScheduleSave();
 
-  // Only calculate result when saldo is entered
-  if(!mil&&!cash){resEl.textContent='';return;}
+  // Dostępne = konto − karta + karta na przyszły miesiąc
+  const available = mil - card + cardNext;
+  const availEl=document.getElementById('dom-available-line');
+  if(availEl) availEl.textContent = (mil||card||cardNext) ? `Dostępne: ${fmt(Math.round(available))} zł  ·  konto ${fmt(mil)} − karta ${fmt(card)} + przyszły mies. ${fmt(cardNext)}` : '';
+  if(!mil&&!card&&!cardNext){resEl.textContent='';return;}
 
-  let total = mil + cash;
+  let total = available;
   // Jeśli hipoteka nie ściągnięta — odejmij bo jeszcze wyjdzie z konta
   if(!hipotekaPaid) total -= domGetHipoteka();
   // Jeśli wpływy nie wpłynęły — dodaj bo jeszcze wejdą na konto
@@ -2791,8 +2802,10 @@ function renderDom(){
     });
     const mil=document.getElementById('chk-millennium-inline');
     if(mil&&saved.millennium!=null) mil.value=saved.millennium;
-    const cash=document.getElementById('chk-cash-inline');
-    if(cash&&saved.cash!=null) cash.value=saved.cash;
+    const card=document.getElementById('chk-card-inline');
+    if(card&&saved.card!=null) card.value=saved.card;
+    const cardNext=document.getElementById('chk-cardnext-inline');
+    if(cardNext&&saved.cardNext!=null) cardNext.value=saved.cardNext;
   } else {
     // Reset wszystkich do false jeśli brak danych
     ['andy','800plus','rent','hipoteka'].forEach(k=>{
@@ -3488,7 +3501,8 @@ function chkRender(){
   if(saved){
     ['andy','800plus','rent','hipoteka'].forEach(k=>{const el=document.getElementById('chk-'+k+'-inline');if(el&&saved[k])el.checked=true;});
     if(saved.millennium){const el=document.getElementById('chk-millennium-inline');if(el)el.value=saved.millennium;}
-    if(saved.cash){const el=document.getElementById('chk-cash-inline');if(el)el.value=saved.cash;}
+    if(saved.card){const el=document.getElementById('chk-card-inline');if(el)el.value=saved.card;}
+    if(saved.cardNext){const el=document.getElementById('chk-cardnext-inline');if(el)el.value=saved.cardNext;}
   }
   chkUpdate();
 }
