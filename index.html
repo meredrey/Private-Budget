@@ -1109,19 +1109,20 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       </div>
     </div>
 
+    <div id="dom-pace-bar" style="margin:0 12px 14px;padding:14px;border-radius:14px;background:#fff;border:2px solid #e0dced"></div>
     <div class="sec-lbl">🧾 Rachunki</div>
     <div class="card">
       <div class="card-head"><div class="card-label">Stałe i sezonowe</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-rachunki">—</div></div>
       <div id="dom-rachunki-list"></div>
     </div>
 
-    <div class="sec-lbl">🌿 Życie</div>
+    <div class="sec-lbl">🌿 Życie <span id="dom-pace-zycie" style="font-size:11px;font-weight:700;float:right"></span></div>
     <div class="card">
       <div class="card-head"><div class="card-label">Codzienne wydatki</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-zycie">—</div></div>
       <div id="dom-zycie-list"></div>
     </div>
 
-    <div class="sec-lbl">🎉 Przyjemności</div>
+    <div class="sec-lbl">🎉 Przyjemności <span id="dom-pace-przyjemnosci" style="font-size:11px;font-weight:700;float:right"></span></div>
     <div class="card">
       <div class="card-head"><div class="card-label">Przyjemności (rozrywka, dzieci)</div><div style="font-family:Georgia,serif;font-size:16px;font-weight:600;color:#5e4d82" id="dom-total-dzieci">—</div></div>
       <div id="dom-dzieci-list"></div>
@@ -2379,7 +2380,38 @@ function domGetHipoteka(){
   return 2500;
 }
 
+function domRenderPace(){
+  const pd=(load().payday)||1;
+  const {start,end}=budGetCycle(pd);
+  const now=new Date();
+  const total=end-start;
+  let pctTime=total>0?((now-start)/total)*100:0;
+  pctTime=Math.max(0,Math.min(100,pctTime));
+  const sg=(g,fn)=>DOM_EXPENSES[g].reduce((s,e)=>s+(fn(e.name,domYM)||0),0);
+  const planZ=sg('zycie',domGetPlan), realZ=sg('zycie',domGetReal);
+  const planP=sg('dzieci',domGetPlan), realP=sg('dzieci',domGetReal);
+  const plan=planZ+planP, real=realZ+realP;
+  const pctSpent=plan>0?(real/plan)*100:0;
+  const diff=pctSpent-pctTime;
+  let color,msg,emoji;
+  if(diff>50){color='#c0392b';emoji='🔴';msg='Uwaga, może zabraknąć funduszy w tym miesiącu!';}
+  else if(diff>10){color='#d98514';emoji='🟡';msg='Uwaga, wydajecie pieniądze zbyt szybko!';}
+  else if(diff<-10){color='#3d7a60';emoji='💚';msg='Dobra robota! Jest miejsce, żeby sobie trochę dogodzić.';}
+  else {color='#5e4d82';emoji='🟢';msg='Wszystko zgodnie z planem.';}
+  const bar=document.getElementById('dom-pace-bar');
+  if(bar){
+    bar.style.borderColor=color;
+    bar.innerHTML=`<div style="font-size:13px;font-weight:800;color:${color};margin-bottom:8px">${emoji} ${msg}</div>`
+      +`<div style="height:12px;background:#efeaf6;border-radius:8px;overflow:hidden;margin-bottom:6px"><div style="width:${Math.max(0,Math.min(100,pctSpent))}%;height:100%;background:${color};transition:width .3s"></div></div>`
+      +`<div style="display:flex;justify-content:space-between;font-size:11px;color:#7a6f95"><span>Wydane swobodne: <b style="color:${color}">${Math.round(pctSpent)}%</b> · minęło ${Math.round(pctTime)}% cyklu</span><span>zostało ${fmt(Math.round(plan-real))} zł</span></div>`;
+  }
+  const mk=(id,r,p)=>{const el=document.getElementById(id);if(!el)return;const ps=p>0?Math.round(r/p*100):0;const d=ps-pctTime;const c=d>50?'#c0392b':d>10?'#d98514':d<-10?'#3d7a60':'#5e4d82';el.textContent=`${ps}%`;el.style.color=c;};
+  mk('dom-pace-zycie',realZ,planZ);
+  mk('dom-pace-przyjemnosci',realP,planP);
+}
+
 function domUpdateSummary(){
+  try{domRenderPace();}catch(e){}
   const allExp=[...DOM_EXPENSES.rachunki,...DOM_EXPENSES.zycie,...DOM_EXPENSES.dzieci,...DOM_EXPENSES.extra];
   let planSum=0,realSum=0,realCnt=0;
   const pending=[];
