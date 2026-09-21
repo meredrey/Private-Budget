@@ -1480,6 +1480,12 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <div style="background:#fff;border:2px solid #b0a4cc;border-radius:16px;margin:0 12px 12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07)">
     <div style="background:#eeebf5;padding:10px 16px;border-bottom:2px solid #b0a4cc">
       <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4a4060">📋 Krok 3 — Instrukcja przelewów</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <span style="font-size:12px;color:#4a4060;font-weight:600">📱 Fundusz swobodny (mBank)</span>
+        <span style="white-space:nowrap"><input type="number" id="mata-mbank-std" value="2000" inputmode="numeric"
+          oninput="mataTransferCalc();if(typeof mataSavingsCalc==='function')mataSavingsCalc({skipSave:true})"
+          style="width:88px;padding:6px 8px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;font-weight:700;text-align:right;color:#4a4060;background:#fff"> zł</span>
+      </div>
     </div>
     <div id="mata-transfers-list" style="padding:4px 14px 10px">
       <div style="color:#7a6e98;font-size:12px;padding:12px 0">Wpisz godziny aby zobaczyć instrukcję.</div>
@@ -1631,7 +1637,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div id="mata-sum-mbank"></div>
     <div id="mata-pozostaje"></div>
     <div id="mata-mbank-total"></div>
-    <input type="number" id="mata-mbank-std" value="2000">
+    <input type="hidden" id="mata-mbank-std-legacy">
     <input type="number" id="mata-mbank-extra" value="0">
     <div id="mata-skladka-dom"></div>
   </div>
@@ -2205,7 +2211,7 @@ function domRenderRow(exp,ym){
         return `<div style="background:${dupWarn?'#fff8e8':'transparent'};border-radius:6px;padding:${dupWarn?'3px 5px':'3px 0'};margin-bottom:${dupWarn?'2px':'0'}">
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a6e98">
             <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-              ${isImported?'📥':'✏️'} ${(e.name||'wpłata').slice(0,32)}
+              ${isImported?'📥':`<span onclick="domEditEntry('${safeId}','${src}',${realIdx},'${ym}')" style="cursor:pointer" title="Edytuj">✏️</span>`} ${(e.name||'wpłata').slice(0,32)}
             </span>
             <span style="display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:6px">
               <span style="font-weight:600;color:#18102c">${fmt(e.amount)} zł</span>
@@ -2324,6 +2330,34 @@ function domRemoveEntry(safeId, src, idx, ym){
   if(!meta)return;
   const {exp}=meta;
   domRemoveEntryUnified(exp.name, ym, src, idx);
+  domScheduleSave();
+  domUpdateSummary();
+  const rowEl=document.getElementById(safeId);
+  if(rowEl){rowEl.outerHTML=domRenderRow(exp,ym);domRenderRows();}
+}
+
+function domEditEntry(safeId, src, idx, ym){
+  const meta=_domRowMeta[safeId];
+  if(!meta)return;
+  const {exp}=meta;
+  const d=domData[ym]?.[exp.name];
+  if(!d)return;
+  const arr = src==='_entries' ? d._entries : d.entries;
+  const entry = arr?.[idx];
+  if(!entry)return;
+  const newName = prompt('Nazwa wpisu:', entry.name||'');
+  if(newName===null) return;
+  const newAmtStr = prompt('Kwota (zł):', entry.amount);
+  if(newAmtStr===null) return;
+  const newAmt = parseFloat(String(newAmtStr).replace(',','.').replace(/\s/g,''));
+  if(isNaN(newAmt)){ alert('Niepoprawna kwota'); return; }
+  entry.name = (newName.trim()||entry.name);
+  entry.amount = Math.round(newAmt*100)/100;
+  const all = domGetAllEntries(exp.name, ym);
+  const allSum = Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100;
+  const manual = d.realManual ?? null;
+  d.real = Math.round(((manual||0)+allSum)*100)/100 || null;
+  d._updated = new Date().toISOString().slice(0,10);
   domScheduleSave();
   domUpdateSummary();
   const rowEl=document.getElementById(safeId);
@@ -3990,12 +4024,14 @@ function mataGetSurplus(){
 
 function mataRenderTransfers(){
   const transferEl=document.getElementById('mata-transfers-list');if(!transferEl)return;
+  const _mbEl=document.getElementById('mata-mbank-std');
+  if(_mbEl && document.activeElement!==_mbEl && mataData[mataYM]?.mbankStd!=null) _mbEl.value=mataData[mataYM].mbankStd;
   const cushion=parseFloat(document.getElementById('mata-cushion-inp')?.value)||9500;
   const loanPaid=mataData[mataYM]?.loanPaid||false;
   const stage=mataGetStage(cushion,loanPaid);
   const surplus=mataGetSurplus();
-  const autoAmount=Math.round(surplus*MATA_CAR_SPLIT);
-  const savAmount=Math.round(surplus*MATA_SAVE_SPLIT);
+  const autoAmount=Math.max(MATA_CAR_MIN,Math.round(surplus*MATA_CAR_SPLIT));
+  const savAmount=surplus-autoAmount;
   const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
@@ -4006,7 +4042,7 @@ function mataRenderTransfers(){
     {id:'skladka',n:2,icon:'🏠',label:'Składka na Dom',target:'Wspólne konto (Andy)',amt:Math.round(skladka),color:'#7a4868'},
     {id:'mbank',n:3,icon:'📱',label:'Fundusz swobodny',target:'mBank',amt:mbankStd+mbankExtra,color:'#5e4d82'},
     {id:'loan',n:4,icon:stage===3?'🏠':'🚗',label:stage===3?'Nadpłata hipoteki':"Pożyczka Andy'ego",target:stage===3?'Millennium kredyt':"Konto Andy'ego",amt:autoAmount,color:'#9a607a'},
-    {id:'savings',n:5,icon:stage===1?'🛡️':'📈',label:stage===1?'Poduszka':'Inwestycje',target:stage===1?'Millennium oszczędnościowe':'XTB / obligacje',amt:savAmount,color:'#3d7a60'},
+    {id:'savings',n:5,icon:savAmount<0?'⬇️':(stage===1?'🛡️':'📈'),label:savAmount<0?'Pobierz z oszczędności':(stage===1?'Poduszka':'Inwestycje'),target:savAmount<0?'Millennium oszczędnościowe → konto':(stage===1?'Millennium oszczędnościowe':'XTB / obligacje'),amt:savAmount,color:savAmount<0?'#c0392b':'#3d7a60'},
   ];
   const doneSteps=mataData[mataYM]?.doneSteps||{};
   transferEl.innerHTML=steps.map(s=>{
@@ -4262,7 +4298,7 @@ function mataCushionMarkPaid(){
   } else {
     // Zaproponuj kwotę wpłaty (savAmount z nadwyżki)
     const surplus = mataGetSurplus();
-    const savAmount = Math.round(surplus * MATA_SAVE_SPLIT);
+    const savAmount = surplus - Math.max(MATA_CAR_MIN, Math.round(surplus * MATA_CAR_SPLIT));
     const current = parseFloat(document.getElementById('mata-cushion-inp')?.value)||0;
     const suggested = savAmount > 0 ? current + savAmount : current;
     const input = prompt(
@@ -4304,7 +4340,7 @@ function mataSavingsCalc(opts){
   const ikePaid=parseFloat(document.getElementById('mata-ike-paid')?.value)||0;
   const ikzePaid=parseFloat(document.getElementById('mata-ikze-paid')?.value)||0;
   const loanPaid=mataData[mataYM]?.loanPaid||false;const stage=mataGetStage(cushion,loanPaid);
-  const surplus=mataGetSurplus();const autoAmount=Math.round(surplus*MATA_CAR_SPLIT);const savAmount=Math.round(surplus*MATA_SAVE_SPLIT);
+  const surplus=mataGetSurplus();const autoAmount=Math.max(MATA_CAR_MIN,Math.round(surplus*MATA_CAR_SPLIT));const savAmount=surplus-autoAmount;
   if(doSave){
     if(!mataData[mataYM])mataData[mataYM]={};
     mataData[mataYM].cushion=cushion;mataData[mataYM].ikePaid=ikePaid||null;mataData[mataYM].ikzePaid=ikzePaid||null;
@@ -4320,7 +4356,7 @@ function mataSavingsCalc(opts){
   const suggestEl=document.getElementById('mata-cushion-suggest');
   if(savAmount>0&&suggestEl){
     const suggested=Math.round(cushion+savAmount);
-    suggestEl.textContent=cushion<MATA_CUSHION_GOAL?`Po wpłacie tego mies.: ${fmt(suggested)} zł`:'✅ Cel osiągnięty';suggestEl.style.color='#3d7a60';
+    suggestEl.textContent=(savAmount<0)?`Po pobraniu z oszczędności: ${fmt(suggested)} zł`:(cushion<MATA_CUSHION_GOAL?`Po wpłacie tego mies.: ${fmt(suggested)} zł`:'✅ Cel osiągnięty');suggestEl.style.color=(savAmount<0)?'#c0392b':'#3d7a60';
   }
   const stageData={1:{icon:'🎯',name:'Etap 1 — Poduszka',sub:`Zostało ${fmt(Math.max(0,(mataData._settings?.cushionGoal||50000)-cushion))} zł do celu`,color:'#5e4d82'},2:{icon:'📘',name:'Etap 2 — IKE',sub:'60% oszczędności → VWCE w XTB',color:'#2d6a50'},3:{icon:'📗',name:'Etap 3 — IKZE',sub:'Limit IKE wypełniony → teraz IKZE',color:'#3d6a7a'},4:{icon:'🚀',name:'Etap 4 — Agresywne inwestycje',sub:'IKE + IKZE pełne → rachunek maklerski',color:'#6a3d2d'}};
   const sd=stageData[stage];
@@ -4341,7 +4377,7 @@ function mataSavingsCalc(opts){
 
       // 🛡️ Poduszka
       if(cushion<MATA_CUSHION_GOAL){
-        const _ptrend=mataTrendMonthly('cushion',true,3);const _prate=(_ptrend&&_ptrend>0)?_ptrend:savAmount;const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/_prate);
+        const _ptrend=mataTrendMonthly('cushion',true,3);const _prate=Math.max(1,(_ptrend&&_ptrend>0)?_ptrend:(savAmount>0?savAmount:1));const m=Math.ceil((MATA_CUSHION_GOAL-cushion)/_prate);
         const d=new Date();d.setMonth(d.getMonth()+m);
         const pct=Math.round(cushion/MATA_CUSHION_GOAL*100);
         goals.push({
