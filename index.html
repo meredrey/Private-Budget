@@ -4019,7 +4019,7 @@ function mataGetSurplus(){
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
   const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
-  return Math.max(0,totalIncome-mataGetHipoteka()-skladka-mbankStd-mbankExtra);
+  return totalIncome-mataGetHipoteka()-skladka-mbankStd-mbankExtra;
 }
 
 function mataRenderTransfers(){
