@@ -3880,9 +3880,11 @@ function mataCalc(){
   }
   if(forecastResultEl)forecastResultEl.style.display='block';
   const res=mataCalcSalary(hours,params);
+  const _fit=mataFitSalary();
+  if(_fit){ const _ft=Math.round(_fit.a+_fit.b*hours); res.total=_ft; res.base=Math.round(_fit.a); res.bonus=_ft-Math.round(_fit.a); res.overtime=0; }
   const pct=Math.round((Math.min(hours,params.threshold)/params.threshold)*100);
   document.getElementById('mata-salary-total').textContent=fmt(res.total)+' zł';
-  document.getElementById('mata-salary-breakdown').textContent=`Baza ${fmt(res.base)} + Bonus ${fmt(res.bonus)} + Nadgodziny ${fmt(res.overtime)}`;
+  document.getElementById('mata-salary-breakdown').textContent = _fit ? `📊 Wg Twoich danych: ${fmt(Math.round(_fit.a))} + ${_fit.b.toFixed(0)} zł/godz. (${_fit.n} mies., dopas. ${Math.round(_fit.r2*100)}%)` : `Baza ${fmt(res.base)} + Bonus ${fmt(res.bonus)} + Nadgodziny ${fmt(res.overtime)}`;
   document.getElementById('mata-base-val').textContent=fmt(res.base);
   document.getElementById('mata-bonus-val').textContent=fmt(Math.round(res.bonus));
   document.getElementById('mata-overtime-val').textContent=fmt(Math.round(res.overtime));
@@ -3998,6 +4000,30 @@ function mataHipotekaChanged(){
   mataTransferCalc();
 }
 
+function mataFitSalary(){
+  const pts=[];
+  Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).forEach(k=>{
+    const d=mataData[k]; if(!d) return;
+    if(typeof getMonthStatus==='function' && getMonthStatus(k)==='exception') return;
+    if(d.hours!=null && d.actualSalary!=null) pts.push({ym:k,h:d.hours,s:d.actualSalary});
+  });
+  pts.sort((a,b)=>a.ym<b.ym?-1:1);
+  const use=pts.slice(-6);
+  if(use.length<3) return null;
+  const n=use.length;
+  const sx=use.reduce((t,p)=>t+p.h,0), sy=use.reduce((t,p)=>t+p.s,0);
+  const sxx=use.reduce((t,p)=>t+p.h*p.h,0), sxy=use.reduce((t,p)=>t+p.h*p.s,0);
+  const denom=n*sxx-sx*sx;
+  const mean=sy/n;
+  if(Math.abs(denom)<1e-6) return {a:mean,b:0,n,r2:0,flat:true};
+  const b=(n*sxy-sx*sy)/denom;
+  const a=(sy-b*sx)/n;
+  const ss_tot=use.reduce((t,p)=>t+(p.s-mean)**2,0);
+  const ss_res=use.reduce((t,p)=>t+(p.s-(a+b*p.h))**2,0);
+  const r2=ss_tot>0?1-ss_res/ss_tot:0;
+  return {a,b,n,r2};
+}
+
 function mataGetTotalIncome(){
   const mode = mataData[mataYM]?.salaryMode || 'forecast';
   const extraIncome = mataGetExtraIncomeTotal();
@@ -4008,7 +4034,10 @@ function mataGetTotalIncome(){
   }
   const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
   const params = mataGetParams();
-  const salary = isNaN(hours) ? params.base : mataCalcSalary(hours, params).total;
+  const fit = mataFitSalary();
+  let salary;
+  if(isNaN(hours)){ salary = fit ? Math.round(fit.a + fit.b*params.threshold) : params.base; }
+  else { salary = fit ? Math.round(fit.a + fit.b*hours) : mataCalcSalary(hours, params).total; }
   return salary + extraIncome - extraExpenses;
 }
 
