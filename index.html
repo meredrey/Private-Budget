@@ -2018,6 +2018,21 @@ function getActiveYM(){
   if(has(prev)) return prev;
   return dateCur;
 }
+
+// Granice okresu AKTYWNEGO miesiąca: od startu jego cyklu do naturalnego końca lub do dziś
+// (miesiąc trwa dopóki nie wpłynie nowa wypłata), do filtrowania i przypisywania importu.
+function getActiveCycleBounds(){
+  const pd=(load().payday)||1;
+  const ym=getActiveYM();
+  const [ay,am]=ym.split('-').map(Number);
+  const lastPrev=new Date(ay,am-1,0).getDate();
+  const start=new Date(ay,am-2,Math.min(pd,lastPrev));
+  const lastCur=new Date(ay,am,0).getDate();
+  let end=new Date(ay,am-1,Math.min(pd,lastCur)-1);
+  const today=new Date(); today.setHours(0,0,0,0);
+  if(end<today) end=today;
+  return {start,end};
+}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
 function getMonthStatus(ym){ const st=domData._monthStatus||{}; return st[ym]||'open'; }
@@ -3331,7 +3346,7 @@ function domImportConfirm(){
   const batchTxns = [];
 
   const _st=load();const _pd=_st.payday||1;
-  const {start:_cStart,end:_cEnd}=budGetCycle(_pd);
+  const {start:_cStart,end:_cEnd}=getActiveCycleBounds();
   const _cStartStr=dKeyB(_cStart);const _cEndStr=dKeyB(_cEnd);
   toImport.forEach(t=>{
     const category = t._category;
@@ -3428,7 +3443,7 @@ function domImportProcess(text){
   if(!txns.length){alert('Nie udało się sparsować pliku.');return;}
   // Używaj daty STARTU cyklu (nie pierwszego dnia miesiąca)
   const st=load();const pd=st.payday||1;
-  const {start:cycleStart}=budGetCycle(pd);
+  const {start:cycleStart}=getActiveCycleBounds();
   const periodStart=dKeyB(cycleStart);
   _importTxns=txns.map(t=>{
     const beforePeriod=t.date<periodStart;
