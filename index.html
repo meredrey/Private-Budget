@@ -2007,6 +2007,17 @@ function getCycleYM(){
   const {end} = budGetCycle(pd);
   return `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}`;
 }function domAddMonths(ym,n){const d=new Date(ym+'-01');d.setMonth(d.getMonth()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+
+// Bieżący aktywny miesiąc: nie przeskakuje na nowy cykl, dopóki nie wpiszesz jego wypłaty.
+// Trzyma się poprzedniego miesiąca (max o 1 wstecz), potem i tak przechodzi dalej. Strzałki działają ręcznie.
+function getActiveYM(){
+  const dateCur=getCycleYM();
+  const has=ym=>mataData[ym]&&mataData[ym].actualSalary!=null;
+  if(has(dateCur)) return dateCur;
+  const prev=domAddMonths(dateCur,-1);
+  if(has(prev)) return prev;
+  return dateCur;
+}
 function domYmLabel(ym){const d=new Date(ym+'-01');return d.toLocaleDateString('pl-PL',{month:'long',year:'numeric'});}
 
 function getMonthStatus(ym){ const st=domData._monthStatus||{}; return st[ym]||'open'; }
@@ -2017,7 +2028,7 @@ function monthEligibleForAvg(ym){
   if(s==='exception') return false;
   const anyClosed=Object.values(st).some(v=>v==='closed');
   if(anyClosed) return s==='closed';
-  return ym!==getCycleYM(); // brak zamkniętych: bierz przeszłe (nie bieżący)
+  return ym!==getActiveYM(); // brak zamkniętych: bierz przeszłe (nie bieżący)
 }
 function domRenderMonthStatus(){
   const st=getMonthStatus(domYM);
@@ -5032,7 +5043,7 @@ function renderStats(){
 }
 
 function renderAll(){
-  if(!_monthsInitialized){domYM=getCycleYM();mataYM=getCycleYM();_monthsInitialized=true;}
+  if(!_monthsInitialized){domYM=getActiveYM();mataYM=getActiveYM();_monthsInitialized=true;}
   renderWeek();renderMonth();renderPlans();renderSettings();renderDash();
 }
 
@@ -5111,12 +5122,12 @@ function showPage(name){
   document.getElementById('tab-'+(name==='month'||name==='plans'?'week':name))?.classList.add('active');
   if(name==='week'){showBudgetTab('week');}else if(name==='month'){showBudgetTab('month');}
   else if(name==='plans'){showBudgetTab('plans');}else if(name==='settings')renderSettings();
-  else if(name==='dom'){domYM=getCycleYM();domView='month';setDomView('month');domSyncFromSheets();}
+  else if(name==='dom'){domYM=getActiveYM();domView='month';setDomView('month');domSyncFromSheets();}
   else if(name==='mata'){
     // mataYM = koniec cyklu wypłaty (np. maj jeśli wypłata 28 kwietnia)
     const _st=load();const _pd=_st.payday||1;
     const {end:_end}=budGetCycle(_pd);
-    mataYM=`${_end.getFullYear()}-${String(_end.getMonth()+1).padStart(2,'0')}`;
+    mataYM=getActiveYM();
     renderMata();mataSyncFromSheets();
   }
   else if(name==='stats'){renderStats();}
