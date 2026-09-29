@@ -4535,10 +4535,11 @@ function mataGetPrevVal(key,defaultVal){
 
 // Średnia miesięczna zmiana wartości (trend) z ostatnich n dodatnich zmian między miesiącami
 function mataTrendMonthly(key,rising,n){
+  const active=getActiveYM();
   const months=Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)&&mataData[k]&&mataData[k][key]!=null).sort();
   const d=[];
   for(let i=1;i<months.length;i++){
-    if(!monthEligibleForAvg(months[i])) continue;
+    if(months[i]>=active) continue; // tylko kompletne miesiące przed bieżącym (status wakacyjny nie dotyczy oszczędności)
     const a=mataData[months[i-1]][key], b=mataData[months[i]][key];
     const x=rising?(b-a):(a-b);
     if(x>0) d.push(x);
