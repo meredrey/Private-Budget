@@ -918,6 +918,8 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   <!-- IMPORT VIEW -->
   <div id="dom-view-import" style="display:none;padding:0 12px 24px">
 
+    <div id="dom-import-undo-top" style="margin-bottom:12px"></div>
+
     <!-- Drop zone -->
     <div id="dom-import-dropzone"
       onclick="document.getElementById('dom-import-file').click()"
@@ -1483,7 +1485,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
         <span style="font-size:12px;color:#4a4060;font-weight:600">📱 Fundusz swobodny (mBank)</span>
         <span style="white-space:nowrap"><input type="number" id="mata-mbank-std" value="2000" inputmode="numeric"
-          oninput="mataTransferCalc();if(typeof mataSavingsCalc==='function')mataSavingsCalc({skipSave:true})"
+          oninput="mataMbankChanged(this.value)"
           style="width:88px;padding:6px 8px;border:1.5px solid #b0a4cc;border-radius:8px;font-size:14px;font-weight:700;text-align:right;color:#4a4060;background:#fff"> zł</span>
       </div>
     </div>
@@ -3460,6 +3462,13 @@ function domImportProcess(text){
 
 function domImportRenderHistory(){
   const history = domData._importHistory || [];
+  const topEl = document.getElementById('dom-import-undo-top');
+  if(topEl){
+    if(history.length){
+      const last=history[0];
+      topEl.innerHTML=`<button onclick="domUndoLastImport()" style="width:100%;padding:12px;border:2px solid #e8c0cc;border-radius:12px;background:#fdf0f4;color:#9a4060;font-weight:700;font-size:13px;cursor:pointer">🗑 Cofnij ostatni import (${last.count} transakcji · ${fmt(last.total)} zł)</button>`;
+    } else { topEl.innerHTML=''; }
+  }
   const el = document.getElementById('dom-import-history-list');
   if(!el) return;
 
@@ -3501,6 +3510,12 @@ function domImportRenderHistory(){
       </div>
     </div>`;
   }).join('');
+}
+
+function domUndoLastImport(){
+  const h=domData._importHistory||[];
+  if(!h.length){ alert('Brak importów do cofnięcia.'); return; }
+  domImportDeleteBatch(h[0].id);
 }
 
 function domImportDeleteBatch(importId){
@@ -4072,7 +4087,7 @@ function mataGetSurplus(){
   const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
-  const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
+  const mbankStd=(mataData[mataYM]?.mbankStd ?? 2000);
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
   return totalIncome-mataGetHipoteka()-skladka-mbankStd-mbankExtra;
 }
@@ -4090,7 +4105,7 @@ function mataRenderTransfers(){
   const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
-  const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
+  const mbankStd=(mataData[mataYM]?.mbankStd ?? 2000);
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
   const steps=[
     {id:'hipoteka',n:1,icon:'🏦',label:'Kredyt hipoteczny',target:'Millennium → auto',amt:mataGetHipoteka(),color:'#7a4868'},
@@ -4205,16 +4220,25 @@ function mataRenderExtraExpenses(){
       <button onclick="mataRemoveExtraExpense('${item.id}')" style="width:26px;height:26px;border:none;background:rgba(255,100,100,.2);border-radius:7px;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0">×</button>
     </div>`).join('');
 }
+function mataMbankChanged(v){
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  const n=parseFloat(String(v).replace(',','.').replace(/\s/g,''));
+  mataData[mataYM].mbankStd = isNaN(n) ? null : n;
+  mataScheduleSave();
+  mataTransferCalc();
+  if(typeof mataSavingsCalc==='function') mataSavingsCalc({skipSave:true});
+}
+
 function mataTransferCalc(){
   const totalIncome=mataGetTotalIncome();const salary=totalIncome-mataGetExtraIncomeTotal();const extraIncome=mataGetExtraIncomeTotal();
   const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const domIncome=domGetIncome();const skladka=Math.max(0,(planSum-domIncome)/2);
-  const mbankStd=parseFloat(document.getElementById('mata-mbank-std')?.value)||2000;
+  const mbankStd=(mataData[mataYM]?.mbankStd ?? 2000);
   const mbankExtra=parseFloat(document.getElementById('mata-mbank-extra')?.value)||0;
   const mbankTotal=mbankStd+mbankExtra;const pozostaje=totalIncome-2500-skladka-mbankTotal;
   if(!mataData[mataYM])mataData[mataYM]={};
-  mataData[mataYM].mbankStd=mbankStd;mataData[mataYM].mbankExtra=mbankExtra||null;mataScheduleSave();
+  mataData[mataYM].mbankExtra=mbankExtra||null;mataScheduleSave();
   const skEl=document.getElementById('mata-skladka-dom');if(skEl)skEl.textContent=`− ${fmt(Math.round(skladka))} zł`;
   const mbTotEl=document.getElementById('mata-mbank-total');if(mbTotEl)mbTotEl.textContent=`${fmt(mbankTotal)} zł`;
   const mbEl=document.getElementById('mata-sum-mbank');if(mbEl)mbEl.textContent=`${fmt(mbankTotal)} zł`;
