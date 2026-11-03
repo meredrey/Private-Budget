@@ -3821,6 +3821,33 @@ function mataCalcSalary(hours, params){
   return { base, bonus, overtime, total: base + bonus + overtime, hoursForBonus, overtimeHours };
 }
 
+function mataCalibrationK(params){
+  const base=params.base;
+  const pts=[];
+  Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).forEach(k=>{
+    const d=mataData[k]; if(!d) return;
+    if(typeof getMonthStatus==='function' && getMonthStatus(k)==='exception') return;
+    if(d.hours!=null && d.actualSalary!=null) pts.push({ym:k,h:d.hours,s:d.actualSalary});
+  });
+  pts.sort((a,b)=>a.ym<b.ym?-1:1);
+  const use=pts.slice(-12);
+  if(use.length<3) return {k:1,n:use.length};
+  let num=0, den=0;
+  use.forEach(p=>{ const c=mataCalcSalary(p.h,params); num+=(p.s-base); den+=(c.bonus+c.overtime); });
+  if(!(den>0)) return {k:1,n:use.length};
+  let k=num/den;
+  if(!isFinite(k)) k=1;
+  k=Math.max(0.5,Math.min(2.5,k));
+  return {k,n:use.length};
+}
+function mataCalibratedSalary(hours, params){
+  const c=mataCalcSalary(hours, params);
+  const cal=mataCalibrationK(params);
+  const bonus=c.bonus*cal.k, overtime=c.overtime*cal.k;
+  return { base:c.base, bonus, overtime, total:c.base+bonus+overtime,
+           hoursForBonus:c.hoursForBonus, overtimeHours:c.overtimeHours, k:cal.k, kN:cal.n };
+}
+
 
 // ── TRYB WYNAGRODZENIA ──
 function mataSwitchMode(mode){
@@ -3920,12 +3947,10 @@ function mataCalc(){
     mataTransferCalc();return;
   }
   if(forecastResultEl)forecastResultEl.style.display='block';
-  const res=mataCalcSalary(hours,params);
-  const _fit=mataFitSalary();
-  if(_fit){ const _ft=Math.round(_fit.a+_fit.b*hours); res.total=_ft; res.base=Math.round(_fit.a); res.bonus=_ft-Math.round(_fit.a); res.overtime=0; }
+  const res=mataCalibratedSalary(hours,params);
   const pct=Math.round((Math.min(hours,params.threshold)/params.threshold)*100);
   document.getElementById('mata-salary-total').textContent=fmt(res.total)+' zł';
-  document.getElementById('mata-salary-breakdown').textContent = _fit ? `📊 Wg Twoich danych: ${fmt(Math.round(_fit.a))} + ${_fit.b.toFixed(0)} zł/godz. (${_fit.n} mies., dopas. ${Math.round(_fit.r2*100)}%)` : `Baza ${fmt(res.base)} + Bonus ${fmt(res.bonus)} + Nadgodziny ${fmt(res.overtime)}`;
+  document.getElementById('mata-salary-breakdown').textContent = `Baza ${fmt(res.base)} + Bonus ${fmt(Math.round(res.bonus))} + Nadgodziny ${fmt(Math.round(res.overtime))}` + (Math.abs(res.k-1)>0.001 ? ` · wg Twoich wypłat ×${res.k.toFixed(2)} (${res.kN} mies.)` : '');
   document.getElementById('mata-base-val').textContent=fmt(res.base);
   document.getElementById('mata-bonus-val').textContent=fmt(Math.round(res.bonus));
   document.getElementById('mata-overtime-val').textContent=fmt(Math.round(res.overtime));
@@ -3997,7 +4022,7 @@ function renderMata(){
     salary = saved.actualSalary;
     totalIncome = salary + extra;
   } else {
-    salary=isNaN(hours)?params.base:mataCalcSalary(hours,params).total;
+    salary=isNaN(hours)?params.base:mataCalibratedSalary(hours,params).total;
     totalIncome=salary+extra;
   }
   const stEl=document.getElementById('mata-salary-total');if(stEl)stEl.textContent=fmt(Math.round(salary))+' zł';
@@ -4075,10 +4100,9 @@ function mataGetTotalIncome(){
   }
   const hours = parseFloat(document.getElementById('mata-hours-inp')?.value);
   const params = mataGetParams();
-  const fit = mataFitSalary();
   let salary;
-  if(isNaN(hours)){ salary = fit ? Math.round(fit.a + fit.b*params.threshold) : params.base; }
-  else { salary = fit ? Math.round(fit.a + fit.b*hours) : mataCalcSalary(hours, params).total; }
+  if(isNaN(hours)){ salary = Math.round(mataCalibratedSalary(params.threshold, params).total); }
+  else { salary = Math.round(mataCalibratedSalary(hours, params).total); }
   return salary + extraIncome - extraExpenses;
 }
 
@@ -4182,7 +4206,7 @@ function mataRenderExtraIncome(){
       <button onclick="mataRemoveExtraIncome('${item.id}')" style="width:26px;height:26px;border:none;background:rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0">×</button>
     </div>`).join('');
   const hours2=parseFloat(document.getElementById('mata-hours-inp')?.value);
-  const params2=mataGetParams();const salary2=isNaN(hours2)?params2.base:mataCalcSalary(hours2,params2).total;
+  const params2=mataGetParams();const salary2=isNaN(hours2)?params2.base:mataCalibratedSalary(hours2,params2).total;
   const extra2=mataGetExtraIncomeTotal();
   const totEl=document.getElementById('mata-total-income');if(totEl)totEl.textContent=fmt(Math.round(salary2+extra2))+' zł';
 }
@@ -4905,7 +4929,7 @@ function renderStrategy(){
   const s1bar=document.getElementById('strat-s1-bar');if(s1bar)s1bar.style.width=pct+'%';
   const s1now=document.getElementById('strat-cushion-now');if(s1now)s1now.textContent=fmt(cushion)+' zł';
   const params=mataGetParams();const hours=mataData[mataYM]?.hours;
-  const salary=hours!=null?mataCalcSalary(hours,params).total:params.base;
+  const salary=hours!=null?mataCalibratedSalary(hours,params).total:params.base;
   const allExp=domAllFlat();
   const planSum=allExp.reduce((s,e)=>s+(domGetPlan(e,mataYM)||0),0);
   const skladka=Math.max(0,(planSum-domGetIncome())/2);
@@ -5039,9 +5063,9 @@ function renderStats(){
     if(projData.length>0){ctx.beginPath();ctx.strokeStyle=colorProj;ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineJoin='round';const startPt=histData.length>0?histData[histData.length-1]:null;if(startPt)ctx.moveTo(xp(hCount-1),yp(startPt.v));projData.forEach((d,i)=>{const xi=hCount+i;startPt&&i===0?ctx.lineTo(xp(xi),yp(d.v)):ctx.moveTo(xp(xi),yp(d.v));if(i>0)ctx.lineTo(xp(xi),yp(d.v));});ctx.stroke();ctx.setLineDash([]);}
   }
 
-  const salaryHist=mataMonths.map(ym=>{const d=mataData[ym];if(!d||d.hours==null)return null;return{ym,v:Math.round(mataCalcSalary(d.hours,params).total+(d.extraTotal||0))};}).filter(Boolean);
-  const salaryProj=projMonths.map(ym=>({ym,v:Math.round(mataCalcSalary(125,params).total)}));
-  const avgSal=salaryHist.length?Math.round(salaryHist.reduce((s,d)=>s+d.v,0)/salaryHist.length):Math.round(mataCalcSalary(125,params).total);
+  const salaryHist=mataMonths.map(ym=>{const d=mataData[ym];if(!d||d.hours==null)return null;return{ym,v:Math.round((d.actualSalary!=null?d.actualSalary:mataCalibratedSalary(d.hours,params).total)+(d.extraTotal||0))};}).filter(Boolean);
+  const salaryProj=projMonths.map(ym=>({ym,v:Math.round(mataCalibratedSalary(125,params).total)}));
+  const avgSal=salaryHist.length?Math.round(salaryHist.reduce((s,d)=>s+d.v,0)/salaryHist.length):Math.round(mataCalibratedSalary(125,params).total);
   if(el('stats-salary-avg'))el('stats-salary-avg').textContent=salaryHist.length?`śr. ${fmt(avgSal)} zł`:'— brak danych';
   if(el('stats-salary-proj'))el('stats-salary-proj').textContent=`prognoza ${fmt(Math.round(mataCalcSalary(125,params).total))} zł`;
   drawLineChart('chart-salary',salaryHist,salaryProj,'#5e4d82','#9a8fbe','rgba(94,77,130,.08)');
