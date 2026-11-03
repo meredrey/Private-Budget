@@ -4205,10 +4205,7 @@ function mataRenderExtraIncome(){
       <span style="font-size:11px;color:rgba(255,255,255,.6)">zł</span>
       <button onclick="mataRemoveExtraIncome('${item.id}')" style="width:26px;height:26px;border:none;background:rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:14px;cursor:pointer;flex-shrink:0">×</button>
     </div>`).join('');
-  const hours2=parseFloat(document.getElementById('mata-hours-inp')?.value);
-  const params2=mataGetParams();const salary2=isNaN(hours2)?params2.base:mataCalibratedSalary(hours2,params2).total;
-  const extra2=mataGetExtraIncomeTotal();
-  const totEl=document.getElementById('mata-total-income');if(totEl)totEl.textContent=fmt(Math.round(salary2+extra2))+' zł';
+  const totEl=document.getElementById('mata-total-income');if(totEl)totEl.textContent=fmt(Math.round(mataGetTotalIncome()))+' zł';
 }
 function mataGetExtraIncomeTotal(){return(mataData[mataYM]?.extraIncome||[]).reduce((s,x)=>s+(x.amount||0),0);}
 function mataGetExtraExpenseTotal(){return(mataData[mataYM]?.extraExpenses||[]).reduce((s,x)=>s+(x.amount||0),0);}
