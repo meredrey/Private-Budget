@@ -1179,7 +1179,13 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div id="dom-exp-mgr-list"></div>
     <button onclick="domForcePushConfig()" style="width:100%;margin-top:10px;padding:9px;border:none;border-radius:10px;background:#5e4d82;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬆️ Wyślij te ustawienia na inne urządzenia</button>
     <div id="dom-cfg-push-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
-    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04 · sync v2</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e0f0">
+      <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:6px">🔄 Pełna synchronizacja (awaryjna)</div>
+      <button onclick="domPushAll()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#3d7a60;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:6px">⬆️ Wyślij WSZYSTKO z tego urządzenia do chmury</button>
+      <button onclick="domPullOverwrite()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#9a4d4d;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇️ Pobierz WSZYSTKO z chmury (nadpisz to urządzenie)</button>
+      <div id="dom-fullsync-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
+    </div>
+    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04c · reset</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
     <!-- Dodaj nowy -->
     <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
@@ -2838,6 +2844,36 @@ function domForcePushConfig(){
     .then(r=>r.json())
     .then(r=>{ if(st)st.textContent=(r&&r.success)?'✓ Wysłane. Na drugim urządzeniu otwórz apkę — pobierze te ustawienia.':'⚠️ Błąd wysyłania'; })
     .catch(()=>{ if(st)st.textContent='⚠️ Brak połączenia'; });
+}
+function domPushAll(){
+  if(!confirm('To WYŚLE wszystkie dane z TEGO urządzenia do chmury i nadpisze to, co tam jest. Kontynuować?')) return;
+  const st=document.getElementById('dom-fullsync-status');
+  if(st)st.textContent='Wysyłanie...';
+  const jobs=[['dom_v1','DomData'],['mata_v1','MataData'],['zachcianki_v1','BudgetData']].map(([k,sheet])=>{
+    const data=JSON.parse(localStorage.getItem(k)||'null');
+    if(data==null) return Promise.resolve({skip:true});
+    return fetch(API,{method:'POST',body:JSON.stringify({action:'write',sheet,data})}).then(r=>r.json());
+  });
+  Promise.all(jobs).then(rs=>{
+    const ok=rs.every(r=>r.skip||r.success);
+    if(st)st.textContent=ok?'✓ Wszystko wysłane. Teraz na telefonie kliknij „Pobierz wszystko".':'⚠️ Część się nie wysłała';
+  }).catch(()=>{ if(st)st.textContent='⚠️ Błąd wysyłania'; });
+}
+function domPullOverwrite(){
+  if(!confirm('To NADPISZE dane na TYM urządzeniu danymi z chmury. Lokalne zmiany przepadną. Kontynuować?')) return;
+  const st=document.getElementById('dom-fullsync-status');
+  if(st)st.textContent='Pobieranie...';
+  Promise.all([
+    fetch(API+'?action=read&sheet=DomData').then(r=>r.json()),
+    fetch(API+'?action=read&sheet=MataData').then(r=>r.json()),
+    fetch(API+'?action=read&sheet=BudgetData').then(r=>r.json())
+  ]).then(([d,m,z])=>{
+    if(d&&d.success&&d.data) localStorage.setItem('dom_v1',JSON.stringify(d.data));
+    if(m&&m.success&&m.data) localStorage.setItem('mata_v1',JSON.stringify(m.data));
+    if(z&&z.success&&z.data) localStorage.setItem('zachcianki_v1',JSON.stringify(z.data));
+    if(st)st.textContent='✓ Pobrane — przeładowuję...';
+    setTimeout(()=>location.reload(),700);
+  }).catch(()=>{ if(st)st.textContent='⚠️ Błąd pobierania'; });
 }
 function domExpToggleHide(name){
   const h = new Set(domData._hidden||[]);
