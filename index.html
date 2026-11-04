@@ -3928,9 +3928,13 @@ function mataCalibratedSalary(hours, params, vacDaysOverride, sickDaysOverride){
   const vacDays = (vacDaysOverride!=null)?vacDaysOverride:((mataData[mataYM]?.vacationDays)||0);
   const sickDays= (sickDaysOverride!=null)?sickDaysOverride:((mataData[mataYM]?.sickDays)||0);
   const dniowka=mataDniowka();
-  const vac = dniowka*vacDays, sick = dniowka*sickDays*mataSickPct();
+  const wd=mataWorkingDays(mataYM)||21;
+  const baseDaily=base/wd;
+  // urlop/chorobowe: odejmij dzień ze stałki, dodaj jako średnią (chor. 80%)
+  const vac = vacDays*(dniowka - baseDaily);
+  const sick = sickDays*(dniowka*mataSickPct() - baseDaily);
   let total = base + bonus + vac + sick; if(total<0) total=0;
-  return { base, bonus, vac, sick, vacDays, sickDays, dniowka, total, overtime:0, fit:calib };
+  return { base, bonus, vac, sick, vacDays, sickDays, dniowka, baseDaily, wd, total, overtime:0, fit:calib };
 }
 
 
@@ -4035,7 +4039,7 @@ function mataCalc(){
   const res=mataCalibratedSalary(hours,params);
   const pct=Math.round((Math.min(hours,params.threshold)/params.threshold)*100);
   document.getElementById('mata-salary-total').textContent=fmt(res.total)+' zł';
-  document.getElementById('mata-salary-breakdown').textContent = `Baza ${fmt(Math.round(res.base))} + Bonus ${fmt(Math.round(res.bonus))}` + (res.vac>0?` + Urlop ${fmt(Math.round(res.vac))} (${res.vacDays} dni)`:'') + (res.sick>0?` + Chorobowe ${fmt(Math.round(res.sick))} (${res.sickDays} dni)`:'') + (res.dniowka>0?` · dniówka ${fmt(Math.round(res.dniowka))}`:'') + (res.fit?` · baza/bonus z ${res.fit.n} mies. (R² ${Math.round(res.fit.r2*100)}%)`:' · za mało danych do kalibracji');
+  document.getElementById('mata-salary-breakdown').textContent = `Baza ${fmt(Math.round(res.base))} + Bonus ${fmt(Math.round(res.bonus))}` + (res.vacDays>0?` + Urlop ${fmt(Math.round(res.vac))} (${res.vacDays} dni)`:'') + (res.sickDays>0?` + Chorobowe ${fmt(Math.round(res.sick))} (${res.sickDays} dni)`:'') + (res.dniowka>0?` · dniówka ${fmt(Math.round(res.dniowka))}`:'') + (res.fit?` · baza/bonus z ${res.fit.n} mies. (R² ${Math.round(res.fit.r2*100)}%)`:' · za mało danych do kalibracji');
   document.getElementById('mata-base-val').textContent=fmt(Math.round(res.base));
   document.getElementById('mata-bonus-val').textContent=fmt(Math.round(res.bonus));
   document.getElementById('mata-overtime-val').textContent=fmt(Math.round((res.vac||0)+(res.sick||0)));
