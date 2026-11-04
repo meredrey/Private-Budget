@@ -1179,6 +1179,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
     <div id="dom-exp-mgr-list"></div>
     <button onclick="domForcePushConfig()" style="width:100%;margin-top:10px;padding:9px;border:none;border-radius:10px;background:#5e4d82;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬆️ Wyślij te ustawienia na inne urządzenia</button>
     <div id="dom-cfg-push-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
+    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04 · sync v2</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
     <!-- Dodaj nowy -->
     <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
@@ -2668,6 +2669,7 @@ function domQuickCheck(){
   domData[domYM]._chk.millennium = mil||null;
   domData[domYM]._chk.card = card||null;
   domData[domYM]._chk.cardNext = cardNext||null;
+  domData[domYM]._chk._updated = new Date().toISOString();
   domScheduleSave();
 
   // Dostępne = konto − karta + karta na przyszły miesiąc
@@ -3765,7 +3767,7 @@ function chkUpdate(){
     else{diffEl.textContent='−'+fmt(Math.abs(diff))+' zł';if(labelEl)labelEl.textContent='Masz mniej niż budżet przewiduje';if(card)card.style.background='#7a4868';}
   }
   if(!domData[domYM])domData[domYM]={};
-  domData[domYM]._chk={...chkState,millennium:millennium||null,cash:cash||null};
+  domData[domYM]._chk={...chkState,millennium:millennium||null,cash:cash||null,_updated:new Date().toISOString()};
   domScheduleSave();
 }
 function changeDomMonth(dir){domYM=domAddMonths(domYM,dir);renderDom();}
