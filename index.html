@@ -1177,6 +1177,8 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
   </div>
   <div id="dom-exp-mgr-panel" style="display:none;margin:0 12px 12px">
     <div id="dom-exp-mgr-list"></div>
+    <button onclick="domForcePushConfig()" style="width:100%;margin-top:10px;padding:9px;border:none;border-radius:10px;background:#5e4d82;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬆️ Wyślij te ustawienia na inne urządzenia</button>
+    <div id="dom-cfg-push-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
     <!-- Dodaj nowy -->
     <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
@@ -2824,6 +2826,16 @@ function domExpMove(name, group){
   domScheduleSave();
   domExpMgrRender();
   renderDom();
+}
+function domForcePushConfig(){
+  domData._cfgUpdated=Date.now();
+  try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
+  const st=document.getElementById('dom-cfg-push-status');
+  if(st)st.textContent='Wysyłanie...';
+  fetch(API,{method:'POST',body:JSON.stringify({action:'write',sheet:'DomData',data:domData})})
+    .then(r=>r.json())
+    .then(r=>{ if(st)st.textContent=(r&&r.success)?'✓ Wysłane. Na drugim urządzeniu otwórz apkę — pobierze te ustawienia.':'⚠️ Błąd wysyłania'; })
+    .catch(()=>{ if(st)st.textContent='⚠️ Brak połączenia'; });
 }
 function domExpToggleHide(name){
   const h = new Set(domData._hidden||[]);
