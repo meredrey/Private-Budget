@@ -2164,7 +2164,7 @@ function domAddEntry(expName, ym, name, amount, source){
   if(!domData[ym][expName]) domData[ym][expName]={};
   if(!domData[ym][expName].entries) domData[ym][expName].entries=[];
   domData[ym][expName].entries.push({name:name||'wpłata', amount, _src:source||'manual'});
-  domData[ym][expName]._updated = new Date().toISOString().slice(0,10);
+  domData[ym][expName]._updated = new Date().toISOString();
   // Przelicz real = realManual + suma wszystkich entries
   const all = domGetAllEntries(expName, ym);
   const allSum = Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100;
@@ -2181,7 +2181,7 @@ function domRemoveEntryUnified(expName, ym, src, idx){
   const allSum = Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100;
   const manual = d.realManual ?? null;
   d.real = Math.round(((manual||0)+allSum)*100)/100 || null;
-  d._updated = new Date().toISOString().slice(0,10);
+  d._updated = new Date().toISOString();
 }
 
 function domSetVal(expName,field,val,ym,rerender){
@@ -2197,7 +2197,7 @@ function domSetVal(expName,field,val,ym,rerender){
   } else {
     domData[ym][expName][field] = parsedVal;
   }
-  domData[ym][expName]._updated = new Date().toISOString().slice(0,10);
+  domData[ym][expName]._updated = new Date().toISOString();
   domScheduleSave();
   domUpdateSummary();
   // Re-render row only when explicitly requested (onchange, not oninput)
@@ -2407,7 +2407,7 @@ function domEditEntry(safeId, src, idx, ym){
   const allSum = Math.round(all.reduce((s,e)=>s+e.amount,0)*100)/100;
   const manual = d.realManual ?? null;
   d.real = Math.round(((manual||0)+allSum)*100)/100 || null;
-  d._updated = new Date().toISOString().slice(0,10);
+  d._updated = new Date().toISOString();
   domScheduleSave();
   domUpdateSummary();
   const rowEl=document.getElementById(safeId);
@@ -3394,7 +3394,7 @@ function domImportConfirm(){
     const entriesSum = Math.round(entries.reduce((s,e)=>s+e.amount,0)*100)/100;
     const manualVal = domData[ym][category].realManual ?? null;
     domData[ym][category].real = Math.round(((manualVal||0)+entriesSum)*100)/100 || null;
-    domData[ym][category]._updated = new Date().toISOString().slice(0,10);
+    domData[ym][category]._updated = new Date().toISOString();
 
     batchTxns.push({date:t.date, desc:t.desc.slice(0,40), amount, category, ym, fp});
     totalAmt += amount;
@@ -3577,7 +3577,7 @@ function domImportDeleteBatch(importId){
       const manualVal = catData.realManual ?? null;
       catData.real = Math.round(((manualVal||0)+entriesSum)*100)/100 || null;
       if(catData.real === 0) catData.real = null;
-      catData._updated = new Date().toISOString().slice(0,10);
+      catData._updated = new Date().toISOString();
     });
   });
 
@@ -3768,6 +3768,7 @@ function domSyncFromSheets(){
   fetch(`${API}?action=read&sheet=DomData`).then(r=>r.json()).then(r=>{
     if(!r.success||!r.data) return;
     const remote = r.data;
+    const _before=JSON.stringify(domData);
     // Merge: lokalne dane mają pierwszeństwo nad Sheets
     // Dla każdego YM: jeśli lokalnie jest nowszy _updated, zachowaj lokalne
     Object.keys(remote).forEach(key=>{
@@ -3806,10 +3807,11 @@ function domSyncFromSheets(){
     // _customExpenses, _expOverrides: lokalne mają pierwszeństwo
     if(!domData._customExpenses&&remote._customExpenses) domData._customExpenses=remote._customExpenses;
     if(!domData._expOverrides&&remote._expOverrides) domData._expOverrides=remote._expOverrides;
+    const _changed=JSON.stringify(domData)!==_before;
     domApplyOverrides();
     try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
-    if(curPage==='dom') renderDom();
-    if(curPage==='dash') renderDash();
+    if(_changed && curPage==='dom') renderDom();
+    if(_changed && curPage==='dash') renderDash();
   }).catch(()=>{});
 }
 try{const c=localStorage.getItem('dom_v1');if(c){domData=JSON.parse(c);domApplyOverrides();}}catch{}
@@ -4353,6 +4355,7 @@ function mataTransferCalc(){
 }
 function mataScheduleSave(){
   if(mataSyncTimer)clearTimeout(mataSyncTimer);
+  if(mataYM && mataData[mataYM]) mataData[mataYM]._updated=Date.now();
   try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}
   mataSyncTimer=setTimeout(()=>{
     fetch(API, {method:'POST',body:JSON.stringify({action:'write',sheet:'MataData',data:mataData})})
@@ -4366,27 +4369,23 @@ function mataSyncFromSheets(){
     if(r.success&&r.data){
       const remote = r.data;
       // Merge: lokalne mają pierwszeństwo jeśli cushionPaid=true i nowszy timestamp
+      let _changed=false;
       Object.keys(remote).forEach(ym=>{
         if(!/^\d{4}-\d{2}$/.test(ym)){
-          if(!mataData[ym]) mataData[ym]=remote[ym];
+          if(!mataData[ym]){ mataData[ym]=remote[ym]; _changed=true; }
           return;
         }
         if(!mataData[ym]){
-          mataData[ym]=remote[ym];
+          mataData[ym]=remote[ym]; _changed=true;
         } else {
-          const localTs=mataData[ym]?._savingsTs||0;
-          const remoteTs=remote[ym]?._savingsTs||0;
-          if(mataData[ym].cushionPaid && localTs>=remoteTs){
-            // lokalne nowsze — zachowaj
-          } else if(remote[ym]?._savingsTs && remoteTs>localTs){
-            mataData[ym]=remote[ym];
-          }
-          // w pozostałych przypadkach zachowaj lokalne
+          const lu=mataData[ym]._updated||mataData[ym]._savingsTs||0;
+          const ru=remote[ym]._updated||remote[ym]._savingsTs||0;
+          if(ru>lu){ mataData[ym]=remote[ym]; _changed=true; }
         }
       });
-      try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{}
-      if(curPage==='mata')renderMata();
-      if(curPage==='dash')renderDash();
+      if(_changed){ try{localStorage.setItem('mata_v1',JSON.stringify(mataData));}catch{} }
+      if(_changed && curPage==='mata')renderMata();
+      if(_changed && curPage==='dash')renderDash();
     }
   }).catch(()=>{});
 }
@@ -5283,8 +5282,8 @@ function showPage(name){
 
 renderAll();
 try{const savedPage=sessionStorage.getItem('curPage');const _valid=['dom','mata','settings','stats'];showPage(_valid.includes(savedPage)?savedPage:'dom');}catch{showPage('dom');}
-setInterval(()=>syncFromSheets(),30000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncFromSheets();});
+setInterval(()=>{syncFromSheets();domSyncFromSheets();mataSyncFromSheets();},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncFromSheets();domSyncFromSheets();mataSyncFromSheets();}});
 </script>
 </body>
 </html>
