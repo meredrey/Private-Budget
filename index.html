@@ -1350,7 +1350,7 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:12px;color:rgba(255,255,255,.7)">Godziny w poprzednim mies.</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">próg: <span id="mata-threshold-lbl">125</span>h — poniżej bonus proporcjonalny</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">próg: <span id="mata-threshold-lbl">125</span>h · bonus liniowy z godzin</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <input type="number" id="mata-hours-inp" placeholder="125" value="125" min="0" max="300"
@@ -1360,10 +1360,24 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
         </div>
       </div>
 
+      <!-- Dni urlopu -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:rgba(255,255,255,.7)">Dni urlopu w tym miesiącu</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">każdy dzień ścina bonus (baza płatna w pełni)</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="mata-vac-days-inp" placeholder="0" value="0" min="0" max="31"
+            style="width:80px;padding:7px 10px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;font-size:18px;font-weight:700;background:rgba(255,255,255,.12);color:#fff;text-align:center;outline:none;-webkit-appearance:none"
+            oninput="mataVacDaysChanged(this.value)" onchange="mataVacDaysChanged(this.value)">
+          <span style="font-size:12px;color:rgba(255,255,255,.5)">dni</span>
+        </div>
+      </div>
+
       <!-- Wynik prognozy -->
       <div id="mata-forecast-result" style="background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;margin-bottom:10px;display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <div style="font-size:11px;color:rgba(255,255,255,.6)">Baza <span id="mata-base-val">—</span> + Bonus <span id="mata-bonus-val" style="color:#a8e6c8">—</span> + Nadgodz. <span id="mata-overtime-val" style="color:#ffe0a0">—</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6)">Baza <span id="mata-base-val">—</span> + Bonus <span id="mata-bonus-val" style="color:#a8e6c8">—</span> − Urlop <span id="mata-overtime-val" style="color:#ffe0a0">—</span></div>
           <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.5)" id="mata-pct-val"></div>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,.4)" id="mata-calc-detail"></div>
@@ -1371,26 +1385,20 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 
       <!-- Parametry zaawansowane (zwinięte) -->
       <div onclick="mataToggleParams()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.12)">
-        <div style="font-size:11px;color:rgba(255,255,255,.4)">⚙️ Próg godzin i stawki bonusów</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4)">⚙️ Ustawienia (etat, urlop)</div>
         <span id="mata-params-arrow" style="font-size:11px;color:rgba(255,255,255,.3)">▼</span>
       </div>
       <div id="mata-params-card" style="display:none;margin-top:10px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div>
-            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Próg godzin</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Pełny etat (h) — pasek %</div>
             <input class="dom-inp" type="number" id="mata-threshold-inp" value="125"
               style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
               oninput="mataCalc();document.getElementById('mata-threshold-lbl').textContent=this.value" onchange="mataCalc()">
           </div>
           <div>
-            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Bonus za próg (%)</div>
-            <input class="dom-inp" type="number" id="mata-bonus-pct-inp" value="20"
-              style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
-              oninput="mataCalc()" onchange="mataCalc()">
-          </div>
-          <div>
-            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">Nadgodziny (%)</div>
-            <input class="dom-inp" type="number" id="mata-ot-pct-inp" value="150"
+            <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px">zł za dzień urlopu</div>
+            <input class="dom-inp" type="number" id="mata-vacday-inp" value="790"
               style="width:100%;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff"
               oninput="mataCalc()" onchange="mataCalc()">
           </div>
@@ -3821,31 +3829,54 @@ function mataCalcSalary(hours, params){
   return { base, bonus, overtime, total: base + bonus + overtime, hoursForBonus, overtimeHours };
 }
 
-function mataCalibrationK(params){
-  const base=params.base;
+function mataSalaryFit(){
+  // Regresja liniowa: net ~ a + b*godziny. Bez nadgodzin. Miesiące z urlopem i wyjątkami pominięte.
   const pts=[];
   Object.keys(mataData).filter(k=>/^\d{4}-\d{2}$/.test(k)).forEach(k=>{
     const d=mataData[k]; if(!d) return;
     if(typeof getMonthStatus==='function' && getMonthStatus(k)==='exception') return;
+    if((d.vacationDays||0)>0) return;
     if(d.hours!=null && d.actualSalary!=null) pts.push({ym:k,h:d.hours,s:d.actualSalary});
   });
   pts.sort((a,b)=>a.ym<b.ym?-1:1);
   const use=pts.slice(-12);
-  if(use.length<3) return {k:1,n:use.length};
-  let num=0, den=0;
-  use.forEach(p=>{ const c=mataCalcSalary(p.h,params); num+=(p.s-base); den+=(c.bonus+c.overtime); });
-  if(!(den>0)) return {k:1,n:use.length};
-  let k=num/den;
-  if(!isFinite(k)) k=1;
-  k=Math.max(0.5,Math.min(2.5,k));
-  return {k,n:use.length};
+  if(use.length<3) return null;
+  const n=use.length;
+  const sx=use.reduce((t,p)=>t+p.h,0), sy=use.reduce((t,p)=>t+p.s,0);
+  const sxx=use.reduce((t,p)=>t+p.h*p.h,0), sxy=use.reduce((t,p)=>t+p.h*p.s,0);
+  const denom=n*sxx-sx*sx;
+  const hmin=Math.min.apply(null,use.map(p=>p.h)), hmax=Math.max.apply(null,use.map(p=>p.h));
+  const mean=sy/n;
+  if(Math.abs(denom)<1e-6) return {a:mean,b:0,n,r2:0,hmin,hmax};
+  const b=(n*sxy-sx*sy)/denom;
+  const a=(sy-b*sx)/n;
+  const sstot=use.reduce((t,p)=>t+(p.s-mean)**2,0);
+  const ssres=use.reduce((t,p)=>t+(p.s-(a+b*p.h))**2,0);
+  const r2=sstot>0?1-ssres/sstot:0;
+  return {a,b,n,r2,hmin,hmax};
 }
-function mataCalibratedSalary(hours, params){
-  const c=mataCalcSalary(hours, params);
-  const cal=mataCalibrationK(params);
-  const bonus=c.bonus*cal.k, overtime=c.overtime*cal.k;
-  return { base:c.base, bonus, overtime, total:c.base+bonus+overtime,
-           hoursForBonus:c.hoursForBonus, overtimeHours:c.overtimeHours, k:cal.k, kN:cal.n };
+function mataVacPerDay(){
+  const v=parseFloat(document.getElementById('mata-vacday-inp')?.value);
+  return (!isNaN(v)&&v>=0)?v:790;
+}
+function mataVacDaysChanged(v){
+  const n=parseInt(v);
+  if(!mataData[mataYM]) mataData[mataYM]={};
+  mataData[mataYM].vacationDays=(isNaN(n)||n<=0)?0:n;
+  mataScheduleSave();
+  mataCalc();
+}
+// Uwaga: nazwa zostaje mataCalibratedSalary (żeby nie ruszać wywołań). Nowy model:
+// baza (stała) + bonus (regresja z godzin) - urlop (zł/dzień * dni).
+function mataCalibratedSalary(hours, params, vacDaysOverride){
+  const base=params.base;
+  const fit=mataSalaryFit();
+  let gross = fit ? (fit.a + fit.b*hours) : base;
+  let bonus = gross - base; if(bonus<0) bonus=0;
+  const vacDays = (vacDaysOverride!=null) ? vacDaysOverride : ((mataData[mataYM]?.vacationDays)||0);
+  const vac = mataVacPerDay()*vacDays;
+  let total = base + bonus - vac; if(total<0) total=0;
+  return { base, bonus, overtime:vac, vac, vacDays, total, fit };
 }
 
 
@@ -3950,7 +3981,7 @@ function mataCalc(){
   const res=mataCalibratedSalary(hours,params);
   const pct=Math.round((Math.min(hours,params.threshold)/params.threshold)*100);
   document.getElementById('mata-salary-total').textContent=fmt(res.total)+' zł';
-  document.getElementById('mata-salary-breakdown').textContent = `Baza ${fmt(res.base)} + Bonus ${fmt(Math.round(res.bonus))} + Nadgodziny ${fmt(Math.round(res.overtime))}` + (Math.abs(res.k-1)>0.001 ? ` · wg Twoich wypłat ×${res.k.toFixed(2)} (${res.kN} mies.)` : '');
+  document.getElementById('mata-salary-breakdown').textContent = `Baza ${fmt(res.base)} + Bonus ${fmt(Math.round(res.bonus))}` + (res.vac>0?` − Urlop ${fmt(Math.round(res.vac))} (${res.vacDays} dni)`:'') + (res.fit?` · z ${res.fit.n} mies., dopas. ${Math.round(res.fit.r2*100)}%`:' · za mało danych do kalibracji');
   document.getElementById('mata-base-val').textContent=fmt(res.base);
   document.getElementById('mata-bonus-val').textContent=fmt(Math.round(res.bonus));
   document.getElementById('mata-overtime-val').textContent=fmt(Math.round(res.overtime));
@@ -3994,6 +4025,7 @@ function renderMata(){
   const bonEl=document.getElementById('mata-bonus-pct-inp');if(bonEl)bonEl.value=p.bonusPct||20;
   const otEl=document.getElementById('mata-ot-pct-inp');if(otEl)otEl.value=p.otPct||150;
   const hoursEl=document.getElementById('mata-hours-inp');if(hoursEl)hoursEl.value=saved.hours??'';
+  const vacEl=document.getElementById('mata-vac-days-inp');if(vacEl)vacEl.value=saved.vacationDays||'';
   const hipEl=document.getElementById('mata-hipoteka-inp');
   if(hipEl&&saved.hipotekaAmt!=null)hipEl.value=saved.hipotekaAmt;
   // Restore salary mode — najpierw wpisz wartości, potem przełącz tryb
@@ -5060,9 +5092,9 @@ function renderStats(){
     if(projData.length>0){ctx.beginPath();ctx.strokeStyle=colorProj;ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.lineJoin='round';const startPt=histData.length>0?histData[histData.length-1]:null;if(startPt)ctx.moveTo(xp(hCount-1),yp(startPt.v));projData.forEach((d,i)=>{const xi=hCount+i;startPt&&i===0?ctx.lineTo(xp(xi),yp(d.v)):ctx.moveTo(xp(xi),yp(d.v));if(i>0)ctx.lineTo(xp(xi),yp(d.v));});ctx.stroke();ctx.setLineDash([]);}
   }
 
-  const salaryHist=mataMonths.map(ym=>{const d=mataData[ym];if(!d||d.hours==null)return null;return{ym,v:Math.round((d.actualSalary!=null?d.actualSalary:mataCalibratedSalary(d.hours,params).total)+(d.extraTotal||0))};}).filter(Boolean);
-  const salaryProj=projMonths.map(ym=>({ym,v:Math.round(mataCalibratedSalary(125,params).total)}));
-  const avgSal=salaryHist.length?Math.round(salaryHist.reduce((s,d)=>s+d.v,0)/salaryHist.length):Math.round(mataCalibratedSalary(125,params).total);
+  const salaryHist=mataMonths.map(ym=>{const d=mataData[ym];if(!d||d.hours==null)return null;return{ym,v:Math.round((d.actualSalary!=null?d.actualSalary:mataCalibratedSalary(d.hours,params,(d.vacationDays||0)).total)+(d.extraTotal||0))};}).filter(Boolean);
+  const salaryProj=projMonths.map(ym=>({ym,v:Math.round(mataCalibratedSalary(125,params,0).total)}));
+  const avgSal=salaryHist.length?Math.round(salaryHist.reduce((s,d)=>s+d.v,0)/salaryHist.length):Math.round(mataCalibratedSalary(125,params,0).total);
   if(el('stats-salary-avg'))el('stats-salary-avg').textContent=salaryHist.length?`śr. ${fmt(avgSal)} zł`:'— brak danych';
   if(el('stats-salary-proj'))el('stats-salary-proj').textContent=`prognoza ${fmt(Math.round(mataCalcSalary(125,params).total))} zł`;
   drawLineChart('chart-salary',salaryHist,salaryProj,'#5e4d82','#9a8fbe','rgba(94,77,130,.08)');
