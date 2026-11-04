@@ -1184,8 +1184,10 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <button onclick="domPushAll()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#3d7a60;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:6px">⬆️ Wyślij WSZYSTKO z tego urządzenia do chmury</button>
       <button onclick="domPullOverwrite()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#9a4d4d;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇️ Pobierz WSZYSTKO z chmury (nadpisz to urządzenie)</button>
       <div id="dom-fullsync-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
+      <button onclick="domShowFingerprint()" style="width:100%;margin-top:8px;padding:7px;border:1px solid #c7bce0;border-radius:9px;background:#fff;color:#5e4d82;font-size:11px;font-weight:600;cursor:pointer">🔍 Pokaż odcisk danych (porównaj na obu urządzeniach)</button>
+      <div id="dom-fingerprint" style="font-size:11px;color:#4a4060;text-align:center;margin-top:6px;font-family:monospace;white-space:pre-line"></div>
     </div>
-    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04c · reset</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
+    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04d · reset</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
     <!-- Dodaj nowy -->
     <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
@@ -2864,9 +2866,9 @@ function domPullOverwrite(){
   const st=document.getElementById('dom-fullsync-status');
   if(st)st.textContent='Pobieranie...';
   Promise.all([
-    fetch(API+'?action=read&sheet=DomData').then(r=>r.json()),
-    fetch(API+'?action=read&sheet=MataData').then(r=>r.json()),
-    fetch(API+'?action=read&sheet=BudgetData').then(r=>r.json())
+    fetch(API+'?action=read&sheet=DomData&_t='+Date.now(),{cache:'no-store'}).then(r=>r.json()),
+    fetch(API+'?action=read&sheet=MataData&_t='+Date.now(),{cache:'no-store'}).then(r=>r.json()),
+    fetch(API+'?action=read&sheet=BudgetData&_t='+Date.now(),{cache:'no-store'}).then(r=>r.json())
   ]).then(([d,m,z])=>{
     if(d&&d.success&&d.data) localStorage.setItem('dom_v1',JSON.stringify(d.data));
     if(m&&m.success&&m.data) localStorage.setItem('mata_v1',JSON.stringify(m.data));
@@ -2874,6 +2876,16 @@ function domPullOverwrite(){
     if(st)st.textContent='✓ Pobrane — przeładowuję...';
     setTimeout(()=>location.reload(),700);
   }).catch(()=>{ if(st)st.textContent='⚠️ Błąd pobierania'; });
+}
+function domShowFingerprint(){
+  function h(s){let x=0;for(let i=0;i<s.length;i++){x=(x*31+s.charCodeAt(i))>>>0;}return x;}
+  let out='';
+  ['dom_v1','mata_v1','zachcianki_v1'].forEach(k=>{
+    const v=localStorage.getItem(k)||'';
+    out+=k.replace('_v1','')+': dł '+v.length+' · '+h(v).toString(16)+'\n';
+  });
+  const el=document.getElementById('dom-fingerprint');
+  if(el)el.textContent=out;
 }
 function domExpToggleHide(name){
   const h = new Set(domData._hidden||[]);
