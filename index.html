@@ -2820,6 +2820,7 @@ function domExpMgrRender(){
 function domExpMove(name, group){
   if(!domData._groupMove) domData._groupMove={};
   domData._groupMove[name]=group;
+  domData._cfgUpdated=Date.now();
   domScheduleSave();
   domExpMgrRender();
   renderDom();
@@ -2828,6 +2829,7 @@ function domExpToggleHide(name){
   const h = new Set(domData._hidden||[]);
   if(h.has(name)) h.delete(name); else h.add(name);
   domData._hidden = [...h];
+  domData._cfgUpdated=Date.now();
   domScheduleSave();
   domExpMgrRender();
   renderDom();
@@ -2911,6 +2913,7 @@ function domExpSaveEdit(cat, safeKey, customIdx){
       domData._expOverrides[cat][name] = {type, amount: type==='fixed'?amt:null};
     }
   }
+  domData._cfgUpdated=Date.now();
   domScheduleSave();
   domExpMgrRender();
   renderDom();
@@ -2930,6 +2933,7 @@ function domExpAdd(){
 
   if(!domData._customExpenses) domData._customExpenses = [];
   domData._customExpenses.push(newExp);
+  domData._cfgUpdated=Date.now();
   domScheduleSave();
 
   // Clear form
@@ -2948,6 +2952,7 @@ function domExpDelete(customIdx){
   if(!confirm(`Usunąć "${exp.name}"?`)) return;
   custom.splice(customIdx, 1);
   domData._customExpenses = custom;
+  domData._cfgUpdated=Date.now();
   domScheduleSave();
   domExpMgrRender();
   renderDom();
@@ -3804,9 +3809,20 @@ function domSyncFromSheets(){
     // _importRules: merge, lokalne mają pierwszeństwo
     const remoteRules = remote._importRules||{};
     domData._importRules = {...remoteRules,...(domData._importRules||{})};
-    // _customExpenses, _expOverrides: lokalne mają pierwszeństwo
-    if(!domData._customExpenses&&remote._customExpenses) domData._customExpenses=remote._customExpenses;
-    if(!domData._expOverrides&&remote._expOverrides) domData._expOverrides=remote._expOverrides;
+    // konfiguracja (wydatki własne, ukryte, override, grupy): najnowsza wygrywa (obejmuje usunięcia)
+    const _rc=remote._cfgUpdated||0, _lc=domData._cfgUpdated||0;
+    if(_rc>_lc){
+      if(remote._customExpenses!=null) domData._customExpenses=remote._customExpenses;
+      if(remote._hidden!=null) domData._hidden=remote._hidden;
+      if(remote._expOverrides!=null) domData._expOverrides=remote._expOverrides;
+      if(remote._groupMove!=null) domData._groupMove=remote._groupMove;
+      domData._cfgUpdated=remote._cfgUpdated;
+    } else {
+      if(!domData._customExpenses&&remote._customExpenses) domData._customExpenses=remote._customExpenses;
+      if(!domData._hidden&&remote._hidden) domData._hidden=remote._hidden;
+      if(!domData._expOverrides&&remote._expOverrides) domData._expOverrides=remote._expOverrides;
+      if(!domData._groupMove&&remote._groupMove) domData._groupMove=remote._groupMove;
+    }
     const _changed=JSON.stringify(domData)!==_before;
     domApplyOverrides();
     try{localStorage.setItem('dom_v1',JSON.stringify(domData));}catch{}
