@@ -1184,10 +1184,11 @@ body{background:#d8d2e8;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
       <button onclick="domPushAll()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#3d7a60;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:6px">⬆️ Wyślij WSZYSTKO z tego urządzenia do chmury</button>
       <button onclick="domPullOverwrite()" style="width:100%;padding:9px;border:none;border-radius:10px;background:#9a4d4d;color:#fff;font-size:12px;font-weight:600;cursor:pointer">⬇️ Pobierz WSZYSTKO z chmury (nadpisz to urządzenie)</button>
       <div id="dom-fullsync-status" style="font-size:11px;color:#7a6e98;text-align:center;margin-top:5px"></div>
-      <button onclick="domShowFingerprint()" style="width:100%;margin-top:8px;padding:7px;border:1px solid #c7bce0;border-radius:9px;background:#fff;color:#5e4d82;font-size:11px;font-weight:600;cursor:pointer">🔍 Pokaż odcisk danych (porównaj na obu urządzeniach)</button>
+      <button onclick="domShowFingerprint()" style="width:100%;margin-top:8px;padding:7px;border:1px solid #c7bce0;border-radius:9px;background:#fff;color:#5e4d82;font-size:11px;font-weight:600;cursor:pointer">🔍 Pokaż odcisk danych</button>
+      <button onclick="domCompareCloud()" style="width:100%;margin-top:6px;padding:7px;border:1px solid #c7bce0;border-radius:9px;background:#fff;color:#5e4d82;font-size:11px;font-weight:600;cursor:pointer">🔎 Porównaj dom z chmurą (wskaże różnice)</button>
       <div id="dom-fingerprint" style="font-size:11px;color:#4a4060;text-align:center;margin-top:6px;font-family:monospace;white-space:pre-line"></div>
     </div>
-    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-04d · reset</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
+    <div style="font-size:10px;color:#b0a4cc;text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e5e0f0">wersja: <b>2026-11-05e · diff</b><br><span style="font-size:9px">jeśli na telefonie jest inna/starsza — to cache, zrób twarde odświeżenie</span></div>
     <!-- Dodaj nowy -->
     <div style="background:#f4f1fc;border-radius:14px;padding:14px;margin-top:8px">
       <div style="font-size:11px;font-weight:700;color:#4a4060;margin-bottom:10px">+ Nowy wydatek domowy</div>
@@ -2886,6 +2887,23 @@ function domShowFingerprint(){
   });
   const el=document.getElementById('dom-fingerprint');
   if(el)el.textContent=out;
+}
+function domCompareCloud(){
+  const el=document.getElementById('dom-fingerprint');
+  if(el)el.textContent='Porównuję z chmurą...';
+  function h(s){let x=0;for(let i=0;i<s.length;i++){x=(x*31+s.charCodeAt(i))>>>0;}return x>>>0;}
+  fetch(API+'?action=read&sheet=DomData&_t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(r=>{
+    if(!r.success||!r.data){ if(el)el.textContent='⚠️ brak danych z chmury'; return; }
+    const cloud=r.data, local=JSON.parse(localStorage.getItem('dom_v1')||'{}');
+    const keys=[...new Set([...Object.keys(cloud),...Object.keys(local)])].sort();
+    const diffs=[];
+    keys.forEach(k=>{
+      const lc=(k in local)?h(JSON.stringify(local[k])):null;
+      const rc=(k in cloud)?h(JSON.stringify(cloud[k])):null;
+      if(lc!==rc) diffs.push(k+(lc===null?' (brak lokalnie)':rc===null?' (brak w chmurze)':' ≠'));
+    });
+    if(el)el.textContent=diffs.length?('To urządzenie vs chmura — różni się:\n'+diffs.join('\n')):'✓ To urządzenie = chmura (identyczne)';
+  }).catch(()=>{ if(el)el.textContent='⚠️ błąd połączenia'; });
 }
 function domExpToggleHide(name){
   const h = new Set(domData._hidden||[]);
